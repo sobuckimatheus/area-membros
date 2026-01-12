@@ -92,23 +92,26 @@ export async function signup(formData: FormData) {
           },
         })
 
-        // Matricular automaticamente no curso gratuito
-        const freeCourse = await prisma.course.findFirst({
+        // Matricular automaticamente em todos os cursos gratuitos
+        const freeCourses = await prisma.course.findMany({
           where: {
             tenantId: tenant.id,
-            slug: 'aulas-gratuitas',
             status: 'PUBLISHED',
+            isFree: true,
           },
         })
 
-        if (freeCourse) {
-          await prisma.enrollment.create({
-            data: {
-              userId: newUser.id,
-              courseId: freeCourse.id,
-              tenantId: tenant.id,
-              status: 'ACTIVE',
-            },
+        if (freeCourses.length > 0) {
+          const enrollments = freeCourses.map(course => ({
+            userId: newUser.id,
+            courseId: course.id,
+            tenantId: tenant.id,
+            status: 'ACTIVE' as const,
+          }))
+
+          await prisma.enrollment.createMany({
+            data: enrollments,
+            skipDuplicates: true,
           })
         }
       }

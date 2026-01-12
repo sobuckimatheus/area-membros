@@ -23,6 +23,7 @@ async function createCourse(formData: FormData) {
   const instructorName = formData.get('instructorName') as string
   const categoryId = formData.get('categoryId') as string
   const thumbnailUrl = formData.get('thumbnailUrl') as string
+  const isFree = formData.get('isFree') === 'on'
 
   if (!title) {
     throw new Error('Título é obrigatório')
@@ -36,7 +37,7 @@ async function createCourse(formData: FormData) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-  await prisma.course.create({
+  const course = await prisma.course.create({
     data: {
       tenantId: user.tenantId,
       title,
@@ -48,8 +49,33 @@ async function createCourse(formData: FormData) {
       thumbnailUrl: thumbnailUrl || null,
       status: 'DRAFT',
       visibility: 'PRIVATE',
+      isFree,
     },
   })
+
+  // Se o curso for gratuito, matricular todos os alunos automaticamente
+  if (isFree) {
+    const students = await prisma.user.findMany({
+      where: {
+        tenantId: user.tenantId,
+        role: 'STUDENT',
+      },
+    })
+
+    const enrollments = students.map(student => ({
+      userId: student.id,
+      courseId: course.id,
+      tenantId: user.tenantId,
+      status: 'ACTIVE' as const,
+    }))
+
+    if (enrollments.length > 0) {
+      await prisma.enrollment.createMany({
+        data: enrollments,
+        skipDuplicates: true,
+      })
+    }
+  }
 
   revalidatePath('/admin/courses')
   redirect('/admin/courses')
@@ -146,6 +172,26 @@ export default async function NewCoursePage() {
                 </select>
               </div>
             )}
+
+            <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="isFree"
+                  name="isFree"
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="isFree" className="cursor-pointer">
+                    Curso Gratuito
+                  </Label>
+                  <p className="text-sm text-slate-600 mt-1">
+                    Ao marcar esta opção, todos os alunos serão matriculados automaticamente neste curso.
+                    Novos alunos também serão matriculados automaticamente ao se cadastrarem.
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <div className="flex gap-4 pt-4">
               <Button type="submit">Criar Curso</Button>

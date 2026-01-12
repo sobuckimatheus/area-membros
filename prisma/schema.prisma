@@ -295,6 +295,7 @@ model Course {
   status      CourseStatus @default(DRAFT)
   visibility  CourseVisibility @default(PRIVATE)
   featured    Boolean @default(false)
+  isFree      Boolean @default(false) // Curso gratuito - matricula todos automaticamente
 
   // Pricing (se marketplace habilitado)
   price           Decimal? @db.Decimal(10, 2)
