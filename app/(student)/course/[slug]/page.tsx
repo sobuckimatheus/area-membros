@@ -61,13 +61,13 @@ export default async function CoursePage({
   )
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-20">
+    <div className="min-h-screen bg-black pt-20">
       {/* Header */}
-      <header className="bg-white border-b">
+      <header className="bg-zinc-900 border-b border-zinc-800">
         <div className="container mx-auto px-4 py-4">
           <Link
             href="/courses"
-            className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 mb-4"
+            className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar para Cursos
@@ -76,7 +76,7 @@ export default async function CoursePage({
       </header>
 
       {/* Course Header */}
-      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+      <div className="bg-gradient-to-br from-zinc-900 to-black text-white border-b border-zinc-800">
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl">
             {course.category && (
@@ -86,11 +86,11 @@ export default async function CoursePage({
             )}
             <h1 className="text-4xl font-bold mt-4 mb-4">{course.title}</h1>
             {course.shortDesc && (
-              <p className="text-xl text-blue-100 mb-6">{course.shortDesc}</p>
+              <p className="text-xl text-zinc-300 mb-6">{course.shortDesc}</p>
             )}
 
             {/* Info */}
-            <div className="flex flex-wrap gap-6 text-blue-100">
+            <div className="flex flex-wrap gap-6 text-zinc-300">
               {course.instructorName && (
                 <div className="flex items-center gap-2">
                   <span>Por {course.instructorName}</span>
@@ -110,7 +110,7 @@ export default async function CoursePage({
 
             {/* CTA */}
             {!isEnrolled && (
-              <div className="mt-8 p-6 bg-white/10 backdrop-blur rounded-lg border border-white/20">
+              <div className="mt-8 p-6 bg-zinc-800/50 backdrop-blur rounded-lg border border-zinc-700">
                 <p className="text-white mb-4">
                   {freeLessons > 0
                     ? `${freeLessons} aula${freeLessons > 1 ? 's' : ''} gratuita${freeLessons > 1 ? 's' : ''} disponível${freeLessons > 1 ? 'eis' : ''} para preview!`
@@ -118,7 +118,7 @@ export default async function CoursePage({
                 </p>
                 {course.checkoutUrl && (
                   <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
+                    <Button size="lg" className="bg-red-600 text-white hover:bg-red-700">
                       Comprar Agora
                     </Button>
                   </a>
@@ -136,22 +136,22 @@ export default async function CoursePage({
           <div className="lg:col-span-2">
             {/* About */}
             {course.description && (
-              <Card className="mb-6">
+              <Card className="mb-6 bg-zinc-900 border-zinc-800">
                 <CardHeader>
-                  <CardTitle>Sobre o Curso</CardTitle>
+                  <CardTitle className="text-white">Sobre o Curso</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-700 whitespace-pre-line">{course.description}</p>
+                  <p className="text-zinc-300 whitespace-pre-line">{course.description}</p>
                 </CardContent>
               </Card>
             )}
 
             {/* Modules */}
             <div>
-              <h2 className="text-2xl font-bold mb-6">Conteúdo do Curso</h2>
+              <h2 className="text-2xl font-bold mb-6 text-white">Conteúdo do Curso</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
                 {course.modules.map((module, moduleIndex) => (
-                  <Card key={module.id} className="group overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                  <Card key={module.id} className="group overflow-hidden hover:shadow-xl hover:shadow-red-900/20 transition-shadow duration-300 bg-zinc-900 border-zinc-800">
                     {/* Module Thumbnail */}
                     {module.thumbnailUrl ? (
                       <div className="relative aspect-video overflow-hidden">
@@ -174,7 +174,7 @@ export default async function CoursePage({
                         </div>
                       </div>
                     ) : (
-                      <div className="relative aspect-video bg-gradient-to-br from-blue-500 to-blue-700">
+                      <div className="relative aspect-video bg-gradient-to-br from-zinc-700 to-zinc-900">
                         <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
                           <div className="text-xs text-white/80 mb-2">
                             Módulo {moduleIndex + 1}
@@ -194,21 +194,21 @@ export default async function CoursePage({
 
               {/* Lessons List */}
               <div className="space-y-4">
-                <h3 className="text-xl font-bold">Todas as Aulas</h3>
+                <h3 className="text-xl font-bold text-white">Todas as Aulas</h3>
                 {course.modules.map((module, moduleIndex) => (
-                  <Card key={module.id}>
+                  <Card key={module.id} className="bg-zinc-900 border-zinc-800">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="text-sm text-slate-500 mb-1">
+                          <div className="text-sm text-zinc-500 mb-1">
                             Módulo {moduleIndex + 1}
                           </div>
-                          <CardTitle>{module.title}</CardTitle>
+                          <CardTitle className="text-white">{module.title}</CardTitle>
                           {module.description && (
-                            <p className="text-sm text-slate-600 mt-2">{module.description}</p>
+                            <p className="text-sm text-zinc-400 mt-2">{module.description}</p>
                           )}
                         </div>
-                        <span className="text-sm text-slate-500 ml-4">
+                        <span className="text-sm text-zinc-500 ml-4">
                           {module.lessons.length} aula{module.lessons.length !== 1 ? 's' : ''}
                         </span>
                       </div>
@@ -223,20 +223,20 @@ export default async function CoursePage({
                               key={lesson.id}
                               className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
                                 canAccess
-                                  ? 'hover:bg-blue-50 border-slate-200 cursor-pointer'
-                                  : 'bg-slate-50 border-slate-200'
+                                  ? 'hover:bg-zinc-800 border-zinc-700 cursor-pointer'
+                                  : 'bg-zinc-800/50 border-zinc-700'
                               }`}
                             >
-                              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-sm font-medium">
+                              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 text-white text-sm font-medium">
                                 {lessonIndex + 1}
                               </div>
 
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-slate-900 truncate">
+                                <h4 className="font-medium text-white truncate">
                                   {lesson.title}
                                 </h4>
                                 {lesson.description && (
-                                  <p className="text-sm text-slate-600 truncate">
+                                  <p className="text-sm text-zinc-400 truncate">
                                     {lesson.description}
                                   </p>
                                 )}
@@ -244,20 +244,20 @@ export default async function CoursePage({
 
                               <div className="flex items-center gap-3 flex-shrink-0">
                                 {lesson.videoDuration && (
-                                  <span className="text-sm text-slate-500">
+                                  <span className="text-sm text-zinc-400">
                                     {lesson.videoDuration} min
                                   </span>
                                 )}
 
                                 {canAccess ? (
                                   <Link href={`/course/${course.slug}/lesson/${lesson.id}`}>
-                                    <Button size="sm" variant="ghost">
+                                    <Button size="sm" variant="ghost" className="text-white hover:bg-zinc-700">
                                       <Play className="h-4 w-4 mr-1" />
                                       {lesson.isFree && !isEnrolled ? 'Preview' : 'Assistir'}
                                     </Button>
                                   </Link>
                                 ) : (
-                                  <div className="flex items-center gap-2 text-slate-400">
+                                  <div className="flex items-center gap-2 text-zinc-500">
                                     <Lock className="h-4 w-4" />
                                     <span className="text-sm">Bloqueado</span>
                                   </div>
@@ -283,7 +283,7 @@ export default async function CoursePage({
           {/* Sidebar */}
           <div className="lg:col-span-1">
             {/* Course Card */}
-            <Card className="sticky top-4">
+            <Card className="sticky top-4 bg-zinc-900 border-zinc-800">
               <CardHeader>
                 {course.thumbnailUrl && (
                   <div className="aspect-video rounded-lg overflow-hidden mb-4">
@@ -294,35 +294,35 @@ export default async function CoursePage({
                     />
                   </div>
                 )}
-                <CardTitle>
+                <CardTitle className="text-white">
                   {isEnrolled ? 'Você está matriculado!' : 'Adquira este curso'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {isEnrolled ? (
                   <>
-                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-center gap-2 text-green-700 mb-2">
+                    <div className="p-4 bg-green-900/30 border border-green-800 rounded-lg">
+                      <div className="flex items-center gap-2 text-green-400 mb-2">
                         <CheckCircle className="h-5 w-5" />
                         <span className="font-medium">Acesso Total</span>
                       </div>
-                      <p className="text-sm text-green-600">
+                      <p className="text-sm text-green-300">
                         Você tem acesso completo a todas as aulas deste curso.
                       </p>
                     </div>
                     <Link href="/dashboard">
-                      <Button className="w-full">Ir para Meus Cursos</Button>
+                      <Button className="w-full bg-red-600 hover:bg-red-700">Ir para Meus Cursos</Button>
                     </Link>
                   </>
                 ) : (
                   <>
-                    <div className="space-y-2 text-sm text-slate-600">
+                    <div className="space-y-2 text-sm text-zinc-400">
                       <div className="flex justify-between">
                         <span>Total de aulas:</span>
-                        <span className="font-medium">{totalLessons}</span>
+                        <span className="font-medium text-white">{totalLessons}</span>
                       </div>
                       {freeLessons > 0 && (
-                        <div className="flex justify-between text-green-600">
+                        <div className="flex justify-between text-green-400">
                           <span>Aulas gratuitas:</span>
                           <span className="font-medium">{freeLessons}</span>
                         </div>
@@ -330,27 +330,27 @@ export default async function CoursePage({
                       {course.estimatedDuration && (
                         <div className="flex justify-between">
                           <span>Duração total:</span>
-                          <span className="font-medium">{course.estimatedDuration}h</span>
+                          <span className="font-medium text-white">{course.estimatedDuration}h</span>
                         </div>
                       )}
                     </div>
                     {course.checkoutUrl ? (
-                      <div className="pt-4 border-t">
-                        <p className="text-sm text-slate-600 mb-4">
+                      <div className="pt-4 border-t border-zinc-800">
+                        <p className="text-sm text-zinc-400 mb-4">
                           Clique no botão abaixo para adquirir acesso completo ao curso.
                         </p>
                         <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                          <Button className="w-full" size="lg">
+                          <Button className="w-full bg-red-600 hover:bg-red-700" size="lg">
                             Comprar Agora
                           </Button>
                         </a>
                       </div>
                     ) : (
-                      <div className="pt-4 border-t">
-                        <p className="text-sm text-slate-600 mb-4">
+                      <div className="pt-4 border-t border-zinc-800">
+                        <p className="text-sm text-zinc-400 mb-4">
                           Entre em contato para adquirir acesso completo ao curso.
                         </p>
-                        <Button className="w-full" disabled>
+                        <Button className="w-full bg-zinc-700" disabled>
                           Entrar em Contato
                         </Button>
                       </div>

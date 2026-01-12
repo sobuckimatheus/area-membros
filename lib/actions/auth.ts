@@ -80,7 +80,7 @@ export async function signup(formData: FormData) {
 
       if (!existingUser) {
         // Criar usuário no Prisma
-        await prisma.user.create({
+        const newUser = await prisma.user.create({
           data: {
             tenantId: tenant.id,
             email,
@@ -91,6 +91,26 @@ export async function signup(formData: FormData) {
             emailVerified: authData.user.confirmed_at ? new Date(authData.user.confirmed_at) : null,
           },
         })
+
+        // Matricular automaticamente no curso gratuito
+        const freeCourse = await prisma.course.findFirst({
+          where: {
+            tenantId: tenant.id,
+            slug: 'aulas-gratuitas',
+            status: 'PUBLISHED',
+          },
+        })
+
+        if (freeCourse) {
+          await prisma.enrollment.create({
+            data: {
+              userId: newUser.id,
+              courseId: freeCourse.id,
+              tenantId: tenant.id,
+              status: 'ACTIVE',
+            },
+          })
+        }
       }
     } catch (err) {
       console.error('Erro ao criar usuário no Prisma:', err)
