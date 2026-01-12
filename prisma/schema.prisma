@@ -1,0 +1,1168 @@
+// This is your Prisma schema file for the Members Area Platform
+// Database: PostgreSQL via Supabase
+// Learn more about Prisma: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// TENANT & ORGANIZATION (Multi-tenant)
+// ============================================
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique // usado para subdomínio: {slug}.plataforma.com
+  domain    String?  @unique // domínio customizado: escola.com.br
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Plano e billing
+  plan         Plan     @default(STARTER)
+  planStatus   String   @default("active") // active, cancelled, suspended
+  trialEndsAt  DateTime?
+  billingEmail String?
+
+  // Limites do plano
+  maxStudents Int @default(500)
+  maxCourses  Int @default(3)
+  maxStorage  Int @default(53687091200) // 50GB em bytes
+
+  // Configurações
+  settings TenantSettings?
+
+  // Relações
+  users            User[]
+  courses          Course[]
+  integrations     Integration[]
+  webhookLogs      WebhookLog[]
+  emailTemplates   EmailTemplate[]
+  certificates     CertificateTemplate[]
+  productMappings  ProductMapping[]
+  categories       Category[]
+  subscriptions    Subscription[]
+  customizations   TenantCustomization?
+  enrollments      Enrollment[]
+  announcements    Announcement[]
+  supportTickets   SupportTicket[]
+
+  @@index([slug])
+  @@index([domain])
+  @@map("tenants")
+}
+
+enum Plan {
+  STARTER
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+model TenantSettings {
+  id       String @id @default(cuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Configurações gerais
+  siteName          String  @default("Minha Escola")
+  siteDescription   String?
+  contactEmail      String?
+  supportEmail      String?
+  timezone          String  @default("America/Sao_Paulo")
+  language          String  @default("pt-BR")
+  currency          String  @default("BRL")
+
+  // Features habilitadas
+  enableComments        Boolean @default(true)
+  enableCertificates    Boolean @default(true)
+  enableMarketplace     Boolean @default(true)
+  enableCommunity       Boolean @default(false)
+  enableGamification    Boolean @default(false)
+  enableDownloadLessons Boolean @default(false)
+
+  // Autenticação
+  enableSocialLogin     Boolean @default(true)
+  enableMagicLink       Boolean @default(true)
+  require2FA            Boolean @default(false)
+  sessionTimeout        Int     @default(7200) // em segundos (2h)
+
+  // Email
+  emailFromName    String @default("Minha Escola")
+  emailFromAddress String?
+  emailProvider    String @default("resend") // resend, sendgrid, ses
+
+  // Analytics
+  googleAnalyticsId String?
+  facebookPixelId   String?
+  hotjarId          String?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  ogImage         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tenant_settings")
+}
+
+model TenantCustomization {
+  id       String @id @default(cuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Logo e Favicon
+  logoUrl         String?
+  logoIconUrl     String? // versão icon/quadrada
+  faviconUrl      String?
+  heroImageUrl    String? // imagem do banner principal (desktop)
+  heroImageUrlMobile String? // imagem do banner principal (mobile)
+
+  // Cores (Hex codes)
+  primaryColor     String @default("#3B82F6") // Azul
+  secondaryColor   String @default("#1F2937") // Cinza escuro
+  accentColor      String @default("#10B981") // Verde
+  backgroundColor  String @default("#FFFFFF")
+  textColor        String @default("#1F2937")
+  sidebarColor     String @default("#FFFFFF") // Cor de fundo do menu lateral
+
+  // Modo escuro
+  darkMode               Boolean @default(false)
+  darkBackgroundColor    String  @default("#111827")
+  darkTextColor          String  @default("#F9FAFB")
+
+  // Tipografia
+  fontPrimary   String @default("Inter") // para títulos
+  fontSecondary String @default("Inter") // para corpo de texto
+  fontUrl       String? // URL da fonte customizada
+
+  // Layout
+  layoutStyle     String @default("modern") // modern, minimal, classic
+  cardStyle       String @default("rounded") // rounded, sharp, shadowed
+  menuPosition    String @default("top") // top, sidebar
+  carouselEnabled Boolean @default(true)
+
+  // CSS customizado (avançado)
+  customCSS String? @db.Text
+
+  // Template
+  templateId String? // ID do template aplicado
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tenant_customizations")
+}
+
+// ============================================
+// USERS & AUTHENTICATION
+// ============================================
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Dados básicos
+  email         String
+  emailVerified DateTime?
+  name          String?
+  avatarUrl     String?
+  phone         String?
+  bio           String?   @db.Text
+
+  // Autenticação (gerenciada pelo Supabase Auth, mas espelhada aqui)
+  supabaseUid String?  @unique // ID do usuário no Supabase Auth
+
+  // Perfil
+  role          UserRole @default(STUDENT)
+  status        UserStatus @default(ACTIVE)
+
+  // Preferências
+  language      String @default("pt-BR")
+  timezone      String @default("America/Sao_Paulo")
+  emailOptIn    Boolean @default(true)
+
+  // Tracking
+  lastLoginAt   DateTime?
+  loginCount    Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  enrollments       Enrollment[]
+  lessonProgress    LessonProgress[]
+  comments          Comment[]
+  commentLikes      CommentLike[]
+  certificates      Certificate[]
+  purchases         Purchase[]
+  wishlist          WishlistItem[]
+  notifications     Notification[]
+  supportTickets    SupportTicket[]
+  ticketMessages    TicketMessage[]
+  reviews           Review[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([email])
+  @@index([supabaseUid])
+  @@map("users")
+}
+
+enum UserRole {
+  SUPER_ADMIN   // Criador da plataforma
+  ADMIN         // Dono do tenant/escola
+  MODERATOR     // Suporte, gestão de conteúdo
+  INSTRUCTOR    // Professor/criador de curso
+  STUDENT       // Aluno/membro
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+// ============================================
+// COURSES & CONTENT
+// ============================================
+
+model Category {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name        String
+  slug        String
+  description String? @db.Text
+  icon        String? // emoji ou URL de ícone
+  color       String? // cor hex para badge
+  order       Int     @default(0)
+
+  parentId String?
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryHierarchy")
+
+  courses Course[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@map("categories")
+}
+
+model Course {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Dados básicos
+  title       String
+  slug        String
+  description String? @db.Text
+  shortDesc   String? // descrição curta para cards
+
+  // Mídia
+  thumbnailUrl String? // imagem pequena para cards
+  bannerUrl    String? // imagem grande para banner/hero
+  trailerUrl   String? // vídeo de preview/trailer
+
+  // Organização
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  // Instrutor
+  instructorName String?
+  instructorBio  String? @db.Text
+  instructorAvatar String?
+  instructorSocials Json? // { twitter, linkedin, instagram, website }
+
+  // Status e visibilidade
+  status      CourseStatus @default(DRAFT)
+  visibility  CourseVisibility @default(PRIVATE)
+  featured    Boolean @default(false)
+
+  // Pricing (se marketplace habilitado)
+  price           Decimal? @db.Decimal(10, 2)
+  compareAtPrice  Decimal? @db.Decimal(10, 2) // preço "de"
+  currency        String   @default("BRL")
+  checkoutUrl     String? // URL do checkout (Kirvano, Hotmart, etc)
+
+  // Badges
+  badge           CourseBadge? // NEW, BESTSELLER, FREE, COMING_SOON
+
+  // Acesso
+  accessType      CourseAccessType @default(LIFETIME)
+  accessDays      Int? // se LIMITED, quantos dias de acesso
+
+  // Drip content
+  dripEnabled     Boolean @default(false)
+  dripInterval    Int? // dias entre liberação de módulos
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+
+  // Estatísticas
+  enrollmentCount Int     @default(0)
+  rating          Decimal? @db.Decimal(3, 2)
+  reviewCount     Int     @default(0)
+
+  // Duração estimada (em minutos)
+  estimatedDuration Int?
+
+  // Objetivos de aprendizado
+  learningObjectives Json? // array de strings
+
+  // Requisitos
+  requirements Json? // array de strings
+
+  // FAQ
+  faq Json? // array de { question, answer }
+
+  // Ordem
+  order Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  publishedAt DateTime?
+
+  // Relações
+  modules         Module[]
+  enrollments     Enrollment[]
+  certificates    Certificate[]
+  productMappings ProductMapping[]
+  reviews         Review[]
+  wishlistItems   WishlistItem[]
+  purchases       Purchase[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([categoryId])
+  @@index([status])
+  @@map("courses")
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CourseVisibility {
+  PUBLIC    // visível no marketplace
+  PRIVATE   // apenas quem tem acesso
+  UNLISTED  // com link direto
+}
+
+enum CourseBadge {
+  NEW
+  BESTSELLER
+  FREE
+  COMING_SOON
+  HOT
+}
+
+enum CourseAccessType {
+  LIFETIME
+  LIMITED    // X dias de acesso
+  SUBSCRIPTION // enquanto tiver assinatura ativa
+}
+
+model Module {
+  id       String @id @default(cuid())
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String? @db.Text
+  thumbnailUrl String? // imagem vertical do módulo (800x1200px)
+  order       Int
+
+  // Drip content
+  availableAt DateTime? // data de liberação
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  lessons Lesson[]
+
+  @@index([courseId])
+  @@map("modules")
+}
+
+model Lesson {
+  id       String @id @default(cuid())
+  moduleId String
+  module   Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String? @db.Text
+  order       Int
+
+  // Tipo de conteúdo
+  type        LessonType
+
+  // Conteúdo baseado no tipo
+  videoUrl    String? // URL do vídeo (Vimeo, YouTube, Mux, upload)
+  videoProvider String? // vimeo, youtube, mux, bunny, cloudflare
+  videoId     String? // ID do vídeo no provider
+  videoDuration Int? // duração em segundos
+
+  // Conteúdo de texto
+  content     String? @db.Text // HTML ou Markdown
+
+  // Embed
+  embedUrl    String? // URL de embed (Miro, Figma, etc)
+  embedHtml   String? @db.Text // HTML embed customizado
+
+  // Arquivo
+  fileUrl     String? // PDF, ZIP, etc
+  fileName    String?
+  fileSize    Int? // em bytes
+
+  // Áudio
+  audioUrl    String?
+  audioDuration Int? // em segundos
+
+  // Configurações
+  isFree      Boolean @default(false) // preview gratuito
+  isLocked    Boolean @default(false) // bloqueado até completar anteriores
+
+  // Transcrição e legendas
+  transcript  String? @db.Text
+  captionsUrl String? // URL do arquivo VTT/SRT
+
+  // Recursos adicionais
+  attachments Json? // array de { name, url, size }
+
+  // Quiz (se type = QUIZ)
+  quizData    Json? // { questions: [...], passingScore: 70 }
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  progress LessonProgress[]
+  comments Comment[]
+
+  @@index([moduleId])
+  @@map("lessons")
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  PDF
+  AUDIO
+  QUIZ
+  EMBED
+  FILE
+  LIVE // futuro: live streaming
+}
+
+model LessonProgress {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  // Status
+  status         ProgressStatus @default(NOT_STARTED)
+
+  // Progresso de vídeo
+  watchedSeconds Int @default(0)
+  totalSeconds   Int @default(0)
+  watchedPercent Decimal @db.Decimal(5, 2) @default(0)
+
+  // Timestamps
+  startedAt   DateTime?
+  completedAt DateTime?
+  lastWatchedAt DateTime?
+
+  // Quiz (se aplicável)
+  quizScore   Int?
+  quizAttempts Int @default(0)
+  quizData    Json? // respostas e resultados
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ============================================
+// ENROLLMENTS
+// ============================================
+
+model Enrollment {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  // Status
+  status      EnrollmentStatus @default(ACTIVE)
+
+  // Progresso
+  progress    Decimal @db.Decimal(5, 2) @default(0) // percentual 0-100
+
+  // Acesso
+  enrolledAt  DateTime @default(now())
+  expiresAt   DateTime? // se acesso limitado
+
+  // Origem
+  source      String? // purchase, manual, webhook, gift
+  sourceId    String? // ID da compra ou webhook
+
+  // Certificado
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@map("enrollments")
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  SUSPENDED
+}
+
+// ============================================
+// COMMENTS & ENGAGEMENT
+// ============================================
+
+model Comment {
+  id       String @id @default(cuid())
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content   String   @db.Text
+  timestamp Int?     // timestamp do vídeo em segundos (se aplicável)
+
+  // Threading
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+
+  // Moderação
+  status    CommentStatus @default(PENDING)
+
+  // Engagement
+  likesCount Int @default(0)
+
+  // Flags
+  isPinned      Boolean @default(false)
+  isInstructor  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  likes CommentLike[]
+
+  @@index([lessonId])
+  @@index([userId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SPAM
+}
+
+model CommentLike {
+  id        String  @id @default(cuid())
+  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
+  @@map("comment_likes")
+}
+
+model Review {
+  id       String @id @default(cuid())
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rating  Int    @db.SmallInt // 1-5
+  title   String?
+  comment String? @db.Text
+
+  // Moderação
+  status  CommentStatus @default(PENDING)
+
+  // Helpful votes
+  helpfulCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([courseId, userId])
+  @@index([courseId])
+  @@index([userId])
+  @@map("reviews")
+}
+
+// ============================================
+// CERTIFICATES
+// ============================================
+
+model CertificateTemplate {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  // Design
+  backgroundUrl String? // imagem de fundo
+  logoUrl       String? // logo no certificado
+
+  // Template HTML/CSS
+  htmlTemplate  String @db.Text // template com variáveis: {{studentName}}, {{courseName}}, {{date}}, {{certificateId}}
+
+  // Assinatura digital
+  signatureUrl  String? // imagem da assinatura
+  signerName    String? // nome do signatário
+  signerTitle   String? // cargo do signatário
+
+  // Configurações
+  showDate      Boolean @default(true)
+  showDuration  Boolean @default(false)
+  showGrade     Boolean @default(false)
+
+  isDefault Boolean @default(false)
+  isActive  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  certificates Certificate[]
+
+  @@index([tenantId])
+  @@map("certificate_templates")
+}
+
+model Certificate {
+  id       String @id @default(cuid())
+  tenantId String
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  templateId String?
+  template   CertificateTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  // Identificação única
+  certificateNumber String @unique // formato: CERT-YYYY-XXXXX
+
+  // Dados do certificado
+  studentName   String
+  courseName    String
+  completedAt   DateTime
+  duration      Int? // duração do curso em horas
+  grade         Decimal? @db.Decimal(5, 2)
+
+  // Arquivo gerado
+  pdfUrl        String? // URL do PDF gerado
+
+  // Validação
+  qrCodeUrl     String? // QR code para validação
+  validationUrl String? // URL pública de validação
+
+  // Status
+  isRevoked Boolean @default(false)
+  revokedAt DateTime?
+  revokedReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([certificateNumber])
+  @@map("certificates")
+}
+
+// ============================================
+// INTEGRATIONS & WEBHOOKS
+// ============================================
+
+model Integration {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Tipo de plataforma
+  platform IntegrationPlatform
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Credenciais (criptografadas)
+  apiKey       String? @db.Text
+  apiSecret    String? @db.Text
+  webhookUrl   String? // URL de webhook que a plataforma chama
+  webhookSecret String? @db.Text // secret para validar webhook
+
+  // Configurações específicas da plataforma
+  config Json? // configurações customizadas por plataforma
+
+  // Estatísticas
+  lastWebhookAt DateTime?
+  webhookCount  Int @default(0)
+  errorCount    Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  productMappings ProductMapping[]
+  webhookLogs     WebhookLog[]
+
+  @@index([tenantId])
+  @@index([platform])
+  @@map("integrations")
+}
+
+enum IntegrationPlatform {
+  HOTMART
+  EDUZZ
+  MONETIZZE
+  KIWIFY
+  KIRVANO
+  BRAIP
+  PERFECT_PAY
+  TICTO
+  GREENN
+  APPMAX
+  YAMPI
+  TEACHABLE
+  THINKIFIC
+  KAJABI
+  PODIA
+  GUMROAD
+  STRIPE
+  MERCADO_PAGO
+  PAGSEGURO
+  PAYPAL
+  PADDLE
+  CUSTOM // para integrações customizadas
+}
+
+model ProductMapping {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  // Produto externo
+  externalProductId   String // ID do produto na plataforma externa
+  externalProductName String?
+
+  // Configurações de acesso
+  accessType CourseAccessType @default(LIFETIME)
+  accessDays Int?
+
+  // Ativo
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações com cursos (many-to-many)
+  courses Course[]
+
+  @@unique([integrationId, externalProductId])
+  @@index([tenantId])
+  @@index([integrationId])
+  @@map("product_mappings")
+}
+
+model WebhookLog {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  integrationId String?
+  integration   Integration? @relation(fields: [integrationId], references: [id], onDelete: SetNull)
+
+  // Dados do webhook
+  platform    String
+  event       String // purchase.approved, purchase.refunded, etc
+
+  // Request
+  requestPayload  Json
+  requestHeaders  Json?
+
+  // Response
+  responseStatus  Int?
+  responsePayload Json?
+
+  // Processamento
+  status      WebhookStatus
+  errorMessage String? @db.Text
+
+  // Retry
+  retryCount  Int @default(0)
+  nextRetryAt DateTime?
+
+  // Resultado
+  userId      String?
+  courseId    String?
+  enrollmentId String?
+
+  processedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([integrationId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("webhook_logs")
+}
+
+enum WebhookStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  RETRY
+}
+
+// ============================================
+// MARKETPLACE & PURCHASES
+// ============================================
+
+model Purchase {
+  id       String @id @default(cuid())
+  tenantId String
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  // Valores
+  amount        Decimal @db.Decimal(10, 2)
+  currency      String  @default("BRL")
+  discountCode  String?
+  discountAmount Decimal? @db.Decimal(10, 2)
+
+  // Status
+  status        PurchaseStatus @default(PENDING)
+
+  // Gateway
+  gateway       String? // stripe, mercadopago, etc
+  gatewayId     String? // ID da transação no gateway
+
+  // Webhook origin
+  webhookLogId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@map("purchases")
+}
+
+enum PurchaseStatus {
+  PENDING
+  APPROVED
+  REFUNDED
+  CANCELLED
+  FAILED
+}
+
+model WishlistItem {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@map("wishlist_items")
+}
+
+// ============================================
+// SUBSCRIPTIONS (Assinaturas recorrentes)
+// ============================================
+
+model Subscription {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId   String
+
+  // Plano
+  planName     String
+  planInterval String // monthly, quarterly, yearly
+
+  // Valores
+  amount       Decimal @db.Decimal(10, 2)
+  currency     String  @default("BRL")
+
+  // Status
+  status       SubscriptionStatus
+
+  // Gateway
+  gateway      String
+  gatewayId    String // ID da assinatura no gateway
+
+  // Datas
+  startedAt    DateTime
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelledAt  DateTime?
+  endedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+// ============================================
+// NOTIFICATIONS & EMAILS
+// ============================================
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    NotificationType
+  title   String
+  message String @db.Text
+
+  // Link para ação
+  actionUrl String?
+
+  // Status
+  isRead Boolean @default(false)
+  readAt DateTime?
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  ENROLLMENT
+  COURSE_UPDATE
+  NEW_LESSON
+  COMMENT_REPLY
+  CERTIFICATE_ISSUED
+  PURCHASE
+  SYSTEM
+  ANNOUNCEMENT
+}
+
+model EmailTemplate {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Identificação
+  key         String // welcome, password_reset, course_completed, etc
+  name        String
+  description String?
+
+  // Conteúdo
+  subject     String
+  htmlBody    String @db.Text
+  textBody    String? @db.Text
+
+  // Variáveis disponíveis
+  variables   Json? // array de variáveis permitidas: {{name}}, {{courseName}}, etc
+
+  // Status
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@map("email_templates")
+}
+
+model Announcement {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  title   String
+  content String @db.Text
+  type    AnnouncementType @default(INFO)
+
+  // Targeting
+  targetAudience String @default("all") // all, course:{courseId}, role:{role}
+
+  // Exibição
+  showOnLogin    Boolean @default(false)
+  showInDashboard Boolean @default(true)
+  isActive       Boolean @default(true)
+
+  // Datas
+  publishedAt DateTime?
+  expiresAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("announcements")
+}
+
+enum AnnouncementType {
+  INFO
+  WARNING
+  SUCCESS
+  PROMOTION
+}
+
+// ============================================
+// SUPPORT SYSTEM
+// ============================================
+
+model SupportTicket {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subject  String
+  status   TicketStatus @default(OPEN)
+  priority TicketPriority @default(MEDIUM)
+
+  // Categorização
+  category String? // technical, billing, content, other
+
+  // Timestamps
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  closedAt   DateTime?
+
+  // Relações
+  messages TicketMessage[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+  @@map("support_tickets")
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model TicketMessage {
+  id       String @id @default(cuid())
+  ticketId String
+  ticket   SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  message     String @db.Text
+  isStaffReply Boolean @default(false)
+
+  // Anexos
+  attachments Json? // array de { name, url, size }
+
+  createdAt DateTime @default(now())
+
+  @@index([ticketId])
+  @@index([userId])
+  @@map("ticket_messages")
+}
