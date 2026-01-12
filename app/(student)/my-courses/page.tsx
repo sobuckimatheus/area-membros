@@ -72,11 +72,11 @@ export default async function MyCoursesPage() {
           </Card>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-12">
               {enrollments.map((enrollment) => (
                 <Card key={enrollment.id} className="overflow-hidden hover:shadow-xl hover:shadow-red-900/20 transition-shadow bg-zinc-900 border-zinc-800">
                   {enrollment.course.thumbnailUrl && (
-                    <div className="aspect-video bg-zinc-800 relative">
+                    <div className="aspect-[9/16] bg-zinc-800 relative">
                       <img
                         src={enrollment.course.thumbnailUrl}
                         alt={enrollment.course.title}
@@ -84,40 +84,37 @@ export default async function MyCoursesPage() {
                       />
                     </div>
                   )}
-                  <CardHeader>
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="text-xs px-2 py-1 rounded-full font-medium bg-green-900/30 text-green-400 border border-green-800">
-                        ✓ Matriculado
+                  <CardHeader className="p-3">
+                    <div className="flex items-center gap-1 mb-2 flex-wrap">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-green-900/30 text-green-400 border border-green-800">
+                        ✓
                       </span>
                       {enrollment.course.category && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-red-900/30 text-red-400 border border-red-800">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-900/30 text-red-400 border border-red-800">
                           {enrollment.course.category.name}
                         </span>
                       )}
                     </div>
-                    <CardTitle className="line-clamp-2 text-white">{enrollment.course.title}</CardTitle>
-                    <CardDescription className="line-clamp-2 text-zinc-400">
-                      {enrollment.course.shortDesc || enrollment.course.description}
-                    </CardDescription>
+                    <CardTitle className="line-clamp-2 text-white text-sm leading-tight">{enrollment.course.title}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
+                  <CardContent className="p-3 pt-0">
+                    <div className="space-y-2">
                       {/* Barra de progresso */}
                       <div>
-                        <div className="flex justify-between text-sm mb-1">
+                        <div className="flex justify-between text-xs mb-1">
                           <span className="text-zinc-400">Progresso</span>
                           <span className="font-medium text-white">{enrollment.progress.toString()}%</span>
                         </div>
-                        <div className="w-full rounded-full h-2 bg-zinc-800">
+                        <div className="w-full rounded-full h-1.5 bg-zinc-800">
                           <div
-                            className="h-2 rounded-full transition-all bg-red-600"
+                            className="h-1.5 rounded-full transition-all bg-red-600"
                             style={{ width: `${enrollment.progress}%` }}
                           />
                         </div>
                       </div>
 
                       <Link href={`/course/${enrollment.course.slug}`}>
-                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs h-8">
                           {Number(enrollment.progress) === 0 ? 'Começar' : 'Continuar'}
                         </Button>
                       </Link>
