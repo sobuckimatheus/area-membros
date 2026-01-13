@@ -7,13 +7,14 @@ import { Users, Search, Mail, Calendar } from 'lucide-react'
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: { search?: string }
+  searchParams: Promise<{ search?: string }>
 }) {
   const user = await getCurrentUser()
 
   if (!user) return null
 
-  const search = searchParams.search || ''
+  const params = await searchParams
+  const search = params.search || ''
 
   const users = await prisma.user.findMany({
     where: {

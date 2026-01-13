@@ -33,7 +33,7 @@ async function createLesson(
   }
 
   // Verificar se o módulo existe e pertence ao tenant
-  const module = await prisma.module.findFirst({
+  const courseModule = await prisma.module.findFirst({
     where: {
       id: moduleId,
       courseId,
@@ -49,12 +49,12 @@ async function createLesson(
     },
   })
 
-  if (!module) {
+  if (!courseModule) {
     throw new Error('Módulo não encontrado')
   }
 
   // Calcular a ordem da nova aula
-  const nextOrder = module.lessons.length > 0 ? module.lessons[0].order + 1 : 1
+  const nextOrder = courseModule.lessons.length > 0 ? courseModule.lessons[0].order + 1 : 1
 
   await prisma.lesson.create({
     data: {
@@ -87,7 +87,7 @@ export default async function NewLessonPage({
     redirect('/dashboard')
   }
 
-  const module = await prisma.module.findFirst({
+  const courseModule = await prisma.module.findFirst({
     where: {
       id: moduleId,
       courseId: id,
@@ -105,7 +105,7 @@ export default async function NewLessonPage({
     },
   })
 
-  if (!module) {
+  if (!courseModule) {
     notFound()
   }
 
@@ -117,11 +117,11 @@ export default async function NewLessonPage({
           className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para {module.title}
+          Voltar para {courseModule.title}
         </Link>
         <h1 className="text-3xl font-bold text-slate-900">Nova Aula</h1>
         <p className="text-slate-600 mt-2">
-          Adicione uma nova aula ao módulo {module.title}
+          Adicione uma nova aula ao módulo {courseModule.title}
         </p>
       </div>
 
@@ -227,7 +227,7 @@ export default async function NewLessonPage({
       <Card className="mt-6 bg-blue-50 border-blue-200">
         <CardContent className="p-4 text-sm text-blue-800">
           <strong>Dica:</strong> As aulas ficam visíveis quando o curso está
-          publicado. Marque "Aula gratuita" para permitir preview sem matrícula.
+          publicado. Marque &quot;Aula gratuita&quot; para permitir preview sem matrícula.
         </CardContent>
       </Card>
     </div>

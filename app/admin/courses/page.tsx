@@ -112,10 +112,10 @@ export default async function AdminCoursesPage() {
                       <BookOpen className="h-4 w-4 flex-shrink-0" />
                       <span>{course._count.modules}</span>
                     </div>
-                    {course.durationHours && (
+                    {course.estimatedDuration && (
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4 flex-shrink-0" />
-                        <span>{course.durationHours}h</span>
+                        <span>{course.estimatedDuration}h</span>
                       </div>
                     )}
                   </div>

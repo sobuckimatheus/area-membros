@@ -153,7 +153,7 @@ export default async function AdminWebhooksPage() {
                     </summary>
                     <div className="mt-3 p-4 bg-slate-50 rounded-lg overflow-x-auto">
                       <pre className="text-xs text-slate-700">
-                        {JSON.stringify(webhook.payload, null, 2)}
+                        {JSON.stringify(webhook.requestPayload, null, 2)}
                       </pre>
                     </div>
                   </details>

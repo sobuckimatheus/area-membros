@@ -162,14 +162,6 @@ export default async function AdminProductsPage() {
                       )}
                     </div>
 
-                    {mapping.metadata && (
-                      <div className="mt-3 pt-3 border-t border-slate-200">
-                        <span className="text-xs text-slate-500">Metadata:</span>
-                        <pre className="text-xs text-slate-600 mt-1 bg-slate-50 p-2 rounded overflow-x-auto">
-                          {JSON.stringify(mapping.metadata, null, 2)}
-                        </pre>
-                      </div>
-                    )}
 
                     <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
                       <span>

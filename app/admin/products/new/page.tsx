@@ -162,9 +162,9 @@ export default async function NewProductMappingPage() {
                   <p className="text-sm text-yellow-800">
                     Você precisa criar pelo menos um curso antes de mapear
                     produtos.{' '}
-                    <a href="/admin/courses/new" className="underline">
+                    <Link href="/admin/courses/new" className="underline">
                       Criar curso agora
-                    </a>
+                    </Link>
                   </p>
                 </div>
               ) : (

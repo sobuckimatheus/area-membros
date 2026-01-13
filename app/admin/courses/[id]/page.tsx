@@ -432,7 +432,7 @@ export default async function CourseDetailPage({
                 className="mt-1"
               />
               <p className="text-sm text-slate-500 mt-1">
-                Cole aqui o link do checkout da Kirvano, Hotmart, etc. Este link será usado no botão "Comprar agora".
+                Cole aqui o link do checkout da Kirvano, Hotmart, etc. Este link será usado no botão &quot;Comprar agora&quot;.
               </p>
             </div>
 

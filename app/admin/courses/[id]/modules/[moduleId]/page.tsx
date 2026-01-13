@@ -79,7 +79,7 @@ export default async function EditModulePage({
     redirect('/dashboard')
   }
 
-  const module = await prisma.module.findFirst({
+  const courseModule = await prisma.module.findFirst({
     where: {
       id: moduleId,
       courseId: id,
@@ -100,7 +100,7 @@ export default async function EditModulePage({
     },
   })
 
-  if (!module) {
+  if (!courseModule) {
     notFound()
   }
 
@@ -112,14 +112,14 @@ export default async function EditModulePage({
           className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para {module.course.title}
+          Voltar para {courseModule.course.title}
         </Link>
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">
               Editar Módulo
             </h1>
-            <p className="text-slate-600 mt-2">{module.title}</p>
+            <p className="text-slate-600 mt-2">{courseModule.title}</p>
           </div>
           <form action={deleteModule.bind(null, id, moduleId)}>
             <Button type="submit" variant="destructive" size="sm">
@@ -147,7 +147,7 @@ export default async function EditModulePage({
                 id="title"
                 name="title"
                 required
-                defaultValue={module.title}
+                defaultValue={courseModule.title}
                 placeholder="Ex: Introdução à Oração"
                 className="mt-1"
               />
@@ -159,7 +159,7 @@ export default async function EditModulePage({
                 id="description"
                 name="description"
                 rows={4}
-                defaultValue={module.description || ''}
+                defaultValue={courseModule.description || ''}
                 placeholder="Descrição do módulo..."
                 className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"
               />
@@ -167,7 +167,7 @@ export default async function EditModulePage({
 
             <CourseImageUpload
               type="thumbnail"
-              currentImageUrl={module.thumbnailUrl}
+              currentImageUrl={courseModule.thumbnailUrl}
               label="Imagem do Módulo"
               description="Imagem horizontal exibida no card do módulo - formato YouTube (recomendado: 1280x720px)"
             />
@@ -198,7 +198,7 @@ export default async function EditModulePage({
           </div>
         </CardHeader>
         <CardContent>
-          {module.lessons.length === 0 ? (
+          {courseModule.lessons.length === 0 ? (
             <div className="text-center py-12">
               <Video className="h-12 w-12 text-slate-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-slate-900 mb-2">
@@ -215,7 +215,7 @@ export default async function EditModulePage({
             </div>
           ) : (
             <div className="space-y-2">
-              {module.lessons.map((lesson, index) => (
+              {courseModule.lessons.map((lesson, index) => (
                 <Link
                   key={lesson.id}
                   href={`/admin/courses/${id}/modules/${moduleId}/lessons/${lesson.id}`}

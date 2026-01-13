@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
         platform: 'KIRVANO',
         event: body.event || 'purchase',
         requestPayload: body,
-        payload: body,
         status: 'PENDING',
       },
     })
@@ -72,9 +71,9 @@ export async function POST(request: NextRequest) {
     // Buscar ou criar usuário
     let user = await prisma.user.findUnique({
       where: {
-        email_tenantId: {
-          email,
+        tenantId_email: {
           tenantId: tenant.id,
+          email,
         },
       },
     })
