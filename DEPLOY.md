@@ -16,34 +16,38 @@ Este guia explica como fazer o deploy da plataforma Members Area no Vercel.
 2. Selecione o repositório: `sobuckimatheus/area-membros`
 3. Clique em "Import"
 
-### 2. Configurar Variáveis de Ambiente
+### 2. Configurar Variáveis de Ambiente (⚠️ IMPORTANTE - FAÇA ANTES DO DEPLOY!)
 
-Adicione as seguintes variáveis de ambiente no Vercel:
+**ATENÇÃO**: Configure TODAS as variáveis de ambiente ANTES de clicar em "Deploy", caso contrário o build falhará!
 
-```bash
-# Database
-DATABASE_URL="sua-connection-string-do-supabase"
+Na tela de import do Vercel, expanda a seção "Environment Variables" e adicione:
 
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL="https://seu-projeto.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="sua-anon-key"
-SUPABASE_SERVICE_ROLE_KEY="sua-service-role-key"
+| Variável | Valor | Onde Obter |
+|----------|-------|------------|
+| `DATABASE_URL` | `postgresql://...` | Supabase > Settings > Database > Connection String (modo "Session pooler") |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://xxx.supabase.co` | Supabase > Settings > API > Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbG...` | Supabase > Settings > API > anon/public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbG...` | Supabase > Settings > API > service_role key ⚠️ |
+| `NEXT_PUBLIC_APP_URL` | `https://seu-app.vercel.app` | URL do seu deploy (pode ajustar depois) |
 
-# App
-NEXT_PUBLIC_APP_URL="https://seu-app.vercel.app"
-```
+**Passo a passo para obter as credenciais do Supabase:**
 
-**Como obter as credenciais do Supabase:**
+1. **Database URL**:
+   - Acesse seu projeto no Supabase
+   - Vá em `Settings` > `Database`
+   - Em "Connection string", selecione o modo **"Session pooler"**
+   - Copie a string (formato: `postgresql://postgres.[ref]:[password]@...`)
+   - ⚠️ **Substitua `[password]` pela senha do seu banco**
 
-1. Acesse seu projeto no Supabase
-2. Vá em Settings > API
-3. Copie:
-   - URL (Project URL)
-   - anon/public key
-   - service_role key (⚠️ Mantenha secreta!)
+2. **Supabase Keys**:
+   - Vá em `Settings` > `API`
+   - Copie a **URL** (Project URL)
+   - Copie a **anon key** (chave pública)
+   - Copie a **service_role key** (⚠️ NUNCA compartilhe esta chave!)
 
-4. Vá em Settings > Database
-5. Copie a Connection String (formato: `postgresql://...`)
+3. **App URL**:
+   - Inicialmente use qualquer URL (ex: `https://temp.vercel.app`)
+   - Após o deploy, volte em Settings > Environment Variables e atualize com a URL real
 
 ### 3. Configurações de Build
 
