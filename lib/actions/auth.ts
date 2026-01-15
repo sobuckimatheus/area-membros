@@ -6,37 +6,56 @@ import { createClient } from '@/lib/supabase/server'
 import prisma from '@/lib/prisma'
 
 export async function login(formData: FormData) {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
+    const data = {
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    }
 
-  const { error, data: authData } = await supabase.auth.signInWithPassword(data)
+    console.log('Tentando fazer login com email:', data.email)
 
-  if (error) {
-    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
-  }
+    const { error, data: authData } = await supabase.auth.signInWithPassword(data)
 
-  // Buscar o usuário no Prisma para verificar o role
-  if (authData.user) {
-    const dbUser = await prisma.user.findUnique({
-      where: { supabaseUid: authData.user.id },
-    })
+    if (error) {
+      console.error('Erro ao fazer login no Supabase:', error)
+      redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
+    }
+
+    // Buscar o usuário no Prisma para verificar o role
+    if (authData.user) {
+      console.log('Login no Supabase bem-sucedido, buscando usuário no banco:', authData.user.id)
+
+      const dbUser = await prisma.user.findUnique({
+        where: { supabaseUid: authData.user.id },
+      })
+
+      if (!dbUser) {
+        console.error('Usuário autenticado no Supabase mas não encontrado no banco de dados:', authData.user.id)
+        redirect(`/auth/login?error=${encodeURIComponent('Erro de sincronização de conta. Entre em contato com o suporte.')}`)
+      }
+
+      console.log('Usuário encontrado no banco:', dbUser.email, 'Role:', dbUser.role)
+
+      revalidatePath('/', 'layout')
+
+      // Redirecionar baseado no role do usuário
+      if (dbUser.role === 'ADMIN') {
+        console.log('Redirecionando para /admin/dashboard')
+        redirect('/admin/dashboard')
+      } else {
+        console.log('Redirecionando para /dashboard')
+        redirect('/dashboard')
+      }
+    }
 
     revalidatePath('/', 'layout')
-
-    // Redirecionar baseado no role do usuário
-    if (dbUser?.role === 'ADMIN') {
-      redirect('/admin/dashboard')
-    } else {
-      redirect('/dashboard')
-    }
+    redirect('/dashboard')
+  } catch (error) {
+    console.error('Erro inesperado durante login:', error)
+    redirect(`/auth/login?error=${encodeURIComponent('Erro ao processar login. Tente novamente.')}`)
   }
-
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
 }
 
 export async function signup(formData: FormData) {
@@ -144,21 +163,36 @@ export async function signout() {
 }
 
 export async function getCurrentUser() {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const { data: { user }, error } = await supabase.auth.getUser()
+    const { data: { user }, error } = await supabase.auth.getUser()
 
-  if (error || !user) {
+    if (error) {
+      console.error('Erro ao obter usuário do Supabase:', error)
+      return null
+    }
+
+    if (!user) {
+      return null
+    }
+
+    // Buscar dados completos do usuário no Prisma
+    const dbUser = await prisma.user.findUnique({
+      where: { supabaseUid: user.id },
+      include: {
+        tenant: true,
+      },
+    })
+
+    if (!dbUser) {
+      console.error('Usuário existe no Supabase mas não no banco de dados:', user.id)
+      return null
+    }
+
+    return dbUser
+  } catch (error) {
+    console.error('Erro ao buscar usuário atual:', error)
     return null
   }
-
-  // Buscar dados completos do usuário no Prisma
-  const dbUser = await prisma.user.findUnique({
-    where: { supabaseUid: user.id },
-    include: {
-      tenant: true,
-    },
-  })
-
-  return dbUser
 }
