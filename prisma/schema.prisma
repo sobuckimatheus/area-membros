@@ -32,9 +32,9 @@ model Tenant {
   billingEmail String?
 
   // Limites do plano
-  maxStudents Int @default(500)
-  maxCourses  Int @default(3)
-  maxStorage  Int @default(53687091200) // 50GB em bytes
+  maxStudents Int    @default(500)
+  maxCourses  Int    @default(3)
+  maxStorage  BigInt @default(53687091200) // 50GB em bytes
 
   // Configurações
   settings TenantSettings?
