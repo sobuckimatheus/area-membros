@@ -6,55 +6,49 @@ import { createClient } from '@/lib/supabase/server'
 import prisma from '@/lib/prisma'
 
 export async function login(formData: FormData) {
-  try {
-    const supabase = await createClient()
+  const supabase = await createClient()
 
-    const data = {
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
-    }
+  const data = {
+    email: formData.get('email') as string,
+    password: formData.get('password') as string,
+  }
 
-    console.log('Tentando fazer login com email:', data.email)
+  console.log('Tentando fazer login com email:', data.email)
 
-    const { error, data: authData } = await supabase.auth.signInWithPassword(data)
+  const { error, data: authData } = await supabase.auth.signInWithPassword(data)
 
-    if (error) {
-      console.error('Erro ao fazer login no Supabase:', error)
-      redirect(`/auth/login?error=${encodeURIComponent(error.message)}`)
-    }
+  if (error) {
+    console.error('Erro ao fazer login no Supabase:', error)
+    throw new Error(error.message)
+  }
 
-    // Buscar o usuário no Prisma para verificar o role
-    if (authData.user) {
-      console.log('Login no Supabase bem-sucedido, buscando usuário no banco:', authData.user.id)
+  // Buscar o usuário no Prisma para verificar o role
+  if (!authData.user) {
+    throw new Error('Erro ao obter dados do usuário')
+  }
 
-      const dbUser = await prisma.user.findUnique({
-        where: { supabaseUid: authData.user.id },
-      })
+  console.log('Login no Supabase bem-sucedido, buscando usuário no banco:', authData.user.id)
 
-      if (!dbUser) {
-        console.error('Usuário autenticado no Supabase mas não encontrado no banco de dados:', authData.user.id)
-        redirect(`/auth/login?error=${encodeURIComponent('Erro de sincronização de conta. Entre em contato com o suporte.')}`)
-      }
+  const dbUser = await prisma.user.findUnique({
+    where: { supabaseUid: authData.user.id },
+  })
 
-      console.log('Usuário encontrado no banco:', dbUser.email, 'Role:', dbUser.role)
+  if (!dbUser) {
+    console.error('Usuário autenticado no Supabase mas não encontrado no banco de dados:', authData.user.id)
+    throw new Error('Erro de sincronização de conta. Entre em contato com o suporte.')
+  }
 
-      revalidatePath('/', 'layout')
+  console.log('Usuário encontrado no banco:', dbUser.email, 'Role:', dbUser.role)
 
-      // Redirecionar baseado no role do usuário
-      if (dbUser.role === 'ADMIN') {
-        console.log('Redirecionando para /admin/dashboard')
-        redirect('/admin/dashboard')
-      } else {
-        console.log('Redirecionando para /dashboard')
-        redirect('/dashboard')
-      }
-    }
+  revalidatePath('/', 'layout')
 
-    revalidatePath('/', 'layout')
-    redirect('/dashboard')
-  } catch (error) {
-    console.error('Erro inesperado durante login:', error)
-    redirect(`/auth/login?error=${encodeURIComponent('Erro ao processar login. Tente novamente.')}`)
+  // Retornar o destino do redirect baseado no role do usuário
+  if (dbUser.role === 'ADMIN') {
+    console.log('Login bem-sucedido - Admin')
+    return { success: true, redirectTo: '/admin/dashboard' }
+  } else {
+    console.log('Login bem-sucedido - Student')
+    return { success: true, redirectTo: '/dashboard' }
   }
 }
 

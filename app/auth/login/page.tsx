@@ -1,4 +1,8 @@
+'use client'
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { login } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +17,35 @@ import {
 } from "@/components/ui/card"
 
 export default function LoginPage() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+
+    const formData = new FormData(e.currentTarget)
+
+    try {
+      const result = await login(formData)
+
+      if (result?.success && result?.redirectTo) {
+        // Redirecionar para o destino apropriado
+        router.push(result.redirectTo)
+        router.refresh()
+      } else {
+        setError('Erro ao fazer login')
+        setIsLoading(false)
+      }
+    } catch (err: any) {
+      console.error('Erro no login:', err)
+      setError(err.message || 'Erro ao fazer login')
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-muted p-4">
       <Card className="w-full max-w-md">
@@ -24,8 +57,13 @@ export default function LoginPage() {
             Entre com seu email e senha para acessar sua conta
           </CardDescription>
         </CardHeader>
-        <form action={login}>
+        <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-3 text-sm">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -34,6 +72,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="seu@email.com"
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -52,12 +91,13 @@ export default function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 required
+                disabled={isLoading}
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full">
-              Entrar
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
               Não tem uma conta?{" "}
