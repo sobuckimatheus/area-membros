@@ -3,40 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
-import { BookOpen, Clock, Award } from 'lucide-react'
+import { redirect } from 'next/navigation'
 
 export default async function CoursesPage() {
   const user = await getCurrentUser()
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Acesso Restrito</CardTitle>
-            <CardDescription>Faça login para ver os cursos disponíveis</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/auth/login">
-              <Button className="w-full">Fazer Login</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Buscar customização de cores
-  const customization = await prisma.tenantCustomization.findUnique({
-    where: { tenantId: user.tenantId },
-  })
-
-  const colors = {
-    primary: customization?.primaryColor || '#A78BFA',
-    secondary: customization?.secondaryColor || '#FBBF24',
-    accent: customization?.accentColor || '#34D399',
-    background: customization?.backgroundColor || '#FEF3C7',
-    text: customization?.textColor || '#1F2937',
+    redirect('/auth/login')
   }
 
   // Buscar todos os cursos publicados
@@ -73,103 +46,102 @@ export default async function CoursesPage() {
   const enrolledCourseIds = new Set(enrollments.map(e => e.courseId))
 
   return (
-    <div className="min-h-screen pt-20" style={{ backgroundColor: colors.background }}>
+    <div className="min-h-screen pt-20 bg-black">
       {/* Header */}
-      <header className="border-b" style={{ backgroundColor: 'white' }}>
+      <header className="border-b border-zinc-800 bg-zinc-900">
         <div className="container mx-auto px-8 py-6">
-          <h1 className="text-3xl font-bold" style={{ color: colors.text }}>Explorar Cursos</h1>
-          <p className="mt-1" style={{ color: colors.text, opacity: 0.7 }}>Explore e aprenda com nossos cursos</p>
+          <h1 className="text-3xl font-bold text-white">Explorar Cursos</h1>
+          <p className="mt-1 text-zinc-400">
+            {courses.length} {courses.length === 1 ? 'curso disponível' : 'cursos disponíveis'}
+          </p>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-8 py-8">
         {courses.length === 0 ? (
-          <Card>
+          <Card className="bg-zinc-900 border-zinc-800">
             <CardHeader>
-              <CardTitle style={{ color: colors.text }}>Nenhum curso disponível</CardTitle>
-              <CardDescription style={{ color: colors.text, opacity: 0.7 }}>
+              <CardTitle className="text-white">Nenhum curso disponível</CardTitle>
+              <CardDescription className="text-zinc-400">
                 Ainda não há cursos publicados. Volte mais tarde!
               </CardDescription>
             </CardHeader>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {courses.map((course) => {
               const isEnrolled = enrolledCourseIds.has(course.id)
 
               return (
-                <Card key={course.id} className="overflow-hidden hover:shadow-xl transition-shadow">
-                  {/* Thumbnail */}
+                <Card
+                  key={course.id}
+                  className="overflow-hidden hover:shadow-xl hover:shadow-red-900/20 transition-shadow bg-zinc-900 border-zinc-800"
+                >
+                  {/* Thumbnail - Formato Netflix vertical 9:16 */}
                   {course.thumbnailUrl && (
-                    <div className="aspect-video bg-slate-200 relative">
+                    <div className="aspect-[9/16] bg-zinc-800 relative">
                       <img
                         src={course.thumbnailUrl}
                         alt={course.title}
                         className="object-cover w-full h-full"
                       />
                       {isEnrolled && (
-                        <div
-                          className="absolute top-2 right-2 px-2 py-1 text-white text-xs font-medium rounded"
-                          style={{ backgroundColor: colors.accent }}
-                        >
-                          Matriculado
+                        <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-green-900/30 text-green-400 border border-green-800 text-xs font-medium rounded">
+                          ✓
+                        </div>
+                      )}
+                      {course.isFree && (
+                        <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-red-900/30 text-red-400 border border-red-800 text-xs font-medium rounded">
+                          GRÁTIS
                         </div>
                       )}
                     </div>
                   )}
 
-                  <CardHeader>
-                    {/* Categoria */}
-                    {course.category && (
-                      <div className="mb-2">
-                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                  <CardHeader className="p-3">
+                    {/* Badges */}
+                    <div className="flex items-center gap-1 mb-2 flex-wrap">
+                      {course.category && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-900/30 text-red-400 border border-red-800">
                           {course.category.name}
                         </span>
-                      </div>
-                    )}
+                      )}
+                    </div>
 
                     {/* Título */}
-                    <CardTitle className="line-clamp-2">{course.title}</CardTitle>
-
-                    {/* Descrição */}
-                    {course.shortDesc && (
-                      <CardDescription className="line-clamp-3">
-                        {course.shortDesc}
-                      </CardDescription>
-                    )}
+                    <CardTitle className="line-clamp-2 text-white text-sm leading-tight">
+                      {course.title}
+                    </CardTitle>
 
                     {/* Instrutor */}
                     {course.instructorName && (
-                      <p className="text-sm text-slate-600 mt-2">
-                        Por {course.instructorName}
+                      <p className="text-[10px] text-zinc-400 mt-1">
+                        {course.instructorName}
                       </p>
                     )}
                   </CardHeader>
 
-                  <CardContent>
-                    {/* Info Cards */}
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      <div className="text-center p-2 bg-slate-50 rounded">
-                        <BookOpen className="h-4 w-4 mx-auto mb-1 text-slate-600" />
-                        <p className="text-xs text-slate-600">{course._count.modules} módulos</p>
-                      </div>
-                      {course.estimatedDuration && (
-                        <div className="text-center p-2 bg-slate-50 rounded">
-                          <Clock className="h-4 w-4 mx-auto mb-1 text-slate-600" />
-                          <p className="text-xs text-slate-600">{course.estimatedDuration}h</p>
-                        </div>
-                      )}
-                      <div className="text-center p-2 bg-slate-50 rounded">
-                        <Award className="h-4 w-4 mx-auto mb-1 text-slate-600" />
-                        <p className="text-xs text-slate-600">{course._count.enrollments} alunos</p>
-                      </div>
+                  <CardContent className="p-3 pt-0">
+                    {/* Stats compactas */}
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-400 mb-3">
+                      <span>{course._count.modules} módulos</span>
+                      <span>•</span>
+                      <span>{course._count.enrollments} alunos</span>
                     </div>
 
                     {/* CTA */}
                     <Link href={`/course/${course.slug}`}>
-                      <Button className="w-full">
-                        {isEnrolled ? 'Acessar Curso' : 'Ver Detalhes'}
+                      <Button
+                        className="w-full text-xs h-8"
+                        variant={isEnrolled ? "default" : "outline"}
+                        style={
+                          isEnrolled
+                            ? { backgroundColor: '#dc2626', borderColor: '#dc2626' }
+                            : { backgroundColor: 'transparent', borderColor: '#52525b', color: 'white' }
+                        }
+                      >
+                        {isEnrolled ? 'Continuar' : 'Ver Detalhes'}
                       </Button>
                     </Link>
                   </CardContent>
