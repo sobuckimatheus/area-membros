@@ -96,19 +96,19 @@ export default async function LessonPage({
     currentLessonIndex < allLessons.length - 1 ? allLessons[currentLessonIndex + 1] : null
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-20">
+    <div className="min-h-screen bg-black pt-20">
       {/* Header */}
-      <header className="bg-white border-b sticky top-20 z-10">
+      <header className="bg-zinc-900 border-b border-zinc-800 sticky top-20 z-10">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Link
               href={`/course/${slug}`}
-              className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900"
+              className="inline-flex items-center text-sm text-zinc-400 hover:text-white transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para o Curso
             </Link>
-            <h1 className="text-lg font-semibold truncate max-w-md">{course.title}</h1>
+            <h1 className="text-lg font-semibold truncate max-w-md text-white">{course.title}</h1>
           </div>
         </div>
       </header>
@@ -118,7 +118,7 @@ export default async function LessonPage({
           {/* Main Content - Video Player */}
           <div className="lg:col-span-2 space-y-6">
             {/* Video */}
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-800">
               <CardContent className="p-0">
                 {lesson.videoUrl ? (
                   <div className="aspect-video bg-black">
@@ -154,29 +154,29 @@ export default async function LessonPage({
                     )}
                   </div>
                 ) : (
-                  <div className="aspect-video bg-slate-200 flex items-center justify-center">
-                    <p className="text-slate-500">Vídeo não disponível</p>
+                  <div className="aspect-video bg-zinc-800 flex items-center justify-center">
+                    <p className="text-zinc-400">Vídeo não disponível</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
             {/* Lesson Info */}
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-800">
               <CardContent className="p-6">
                 <div className="mb-4">
-                  <span className="text-sm text-slate-500">
+                  <span className="text-sm text-zinc-400">
                     {lesson.module.title} • Aula {currentLessonIndex + 1}
                   </span>
-                  <h1 className="text-2xl font-bold mt-1">{lesson.title}</h1>
+                  <h1 className="text-2xl font-bold mt-1 text-white">{lesson.title}</h1>
                   {lesson.description && (
-                    <p className="text-slate-600 mt-2">{lesson.description}</p>
+                    <p className="text-zinc-300 mt-2">{lesson.description}</p>
                   )}
                 </div>
 
                 {!isEnrolled && lesson.isFree && (
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-800">
+                  <div className="p-4 bg-red-900/20 border border-red-800 rounded-lg">
+                    <p className="text-sm text-red-300">
                       Esta é uma aula gratuita. Adquira o curso completo para ter acesso a todas as aulas.
                     </p>
                   </div>
@@ -186,11 +186,11 @@ export default async function LessonPage({
 
             {/* Lesson Content */}
             {lesson.content && (
-              <Card>
+              <Card className="bg-zinc-900 border-zinc-800">
                 <CardContent className="p-6">
-                  <h3 className="font-semibold mb-4">Conteúdo da Aula</h3>
-                  <div className="prose prose-slate max-w-none">
-                    <p className="whitespace-pre-line text-slate-700">{lesson.content}</p>
+                  <h3 className="font-semibold mb-4 text-white">Conteúdo da Aula</h3>
+                  <div className="prose prose-invert max-w-none">
+                    <p className="whitespace-pre-line text-zinc-300">{lesson.content}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -200,13 +200,13 @@ export default async function LessonPage({
             <div className="flex gap-4">
               {previousLesson && previousLesson.canAccess ? (
                 <Link href={`/course/${slug}/lesson/${previousLesson.id}`} className="flex-1">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full bg-zinc-900 border-zinc-700 text-white hover:bg-zinc-800 hover:text-white">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Aula Anterior
                   </Button>
                 </Link>
               ) : (
-                <Button variant="outline" className="flex-1" disabled>
+                <Button variant="outline" className="flex-1 bg-zinc-900 border-zinc-800 text-zinc-600" disabled>
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Aula Anterior
                 </Button>
@@ -214,13 +214,13 @@ export default async function LessonPage({
 
               {nextLesson && nextLesson.canAccess ? (
                 <Link href={`/course/${slug}/lesson/${nextLesson.id}`} className="flex-1">
-                  <Button className="w-full">
+                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
                     Próxima Aula
                     <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
                   </Button>
                 </Link>
               ) : (
-                <Button className="flex-1" disabled>
+                <Button className="flex-1 bg-zinc-800 text-zinc-600" disabled>
                   Próxima Aula
                   {nextLesson && !nextLesson.canAccess && (
                     <Lock className="h-4 w-4 ml-2" />
@@ -232,13 +232,13 @@ export default async function LessonPage({
 
           {/* Sidebar - Course Content */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-20">
+            <Card className="sticky top-20 bg-zinc-900 border-zinc-800">
               <CardContent className="p-4">
-                <h3 className="font-semibold mb-4">Conteúdo do Curso</h3>
-                <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                <h3 className="font-semibold mb-4 text-white">Conteúdo do Curso</h3>
+                <div className="space-y-4 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900">
                   {course.modules.map((module, moduleIndex) => (
                     <div key={module.id}>
-                      <h4 className="font-medium text-sm text-slate-900 mb-2">
+                      <h4 className="font-medium text-sm text-white mb-2">
                         Módulo {moduleIndex + 1}: {module.title}
                       </h4>
                       <div className="space-y-1">
@@ -253,20 +253,20 @@ export default async function LessonPage({
                                   <div
                                     className={`p-2 rounded text-sm transition-colors ${
                                       isCurrent
-                                        ? 'bg-blue-100 text-blue-900 font-medium'
-                                        : 'hover:bg-slate-100 text-slate-700'
+                                        ? 'bg-red-600 text-white font-medium'
+                                        : 'hover:bg-zinc-800 text-zinc-300'
                                     }`}
                                   >
                                     <div className="flex items-center gap-2">
-                                      <span className="text-xs text-slate-500">
+                                      <span className="text-xs text-zinc-400">
                                         {lessonIdx + 1}.
                                       </span>
                                       <span className="flex-1 truncate">{l.title}</span>
                                       {isCurrent && (
-                                        <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                                        <CheckCircle2 className="h-4 w-4 text-white" />
                                       )}
                                       {l.isFree && !isEnrolled && (
-                                        <span className="text-xs px-1 py-0.5 bg-green-100 text-green-700 rounded">
+                                        <span className="text-xs px-1 py-0.5 bg-green-900/30 text-green-400 border border-green-800 rounded">
                                           Grátis
                                         </span>
                                       )}
@@ -274,7 +274,7 @@ export default async function LessonPage({
                                   </div>
                                 </Link>
                               ) : (
-                                <div className="p-2 rounded text-sm bg-slate-50 text-slate-400">
+                                <div className="p-2 rounded text-sm bg-zinc-800/50 text-zinc-600">
                                   <div className="flex items-center gap-2">
                                     <span className="text-xs">{lessonIdx + 1}.</span>
                                     <span className="flex-1 truncate">{l.title}</span>
