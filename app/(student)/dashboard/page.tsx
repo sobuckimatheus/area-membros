@@ -447,37 +447,53 @@ export default async function DashboardPage() {
                     {/* Botões de Compra */}
                     {!course.isFree && course.price && (
                       <div className="mt-3 space-y-2">
-                        {/* Botão Preço Normal - só aparece se NÃO for assinante */}
-                        {!isSubscriber && (
-                          <a
-                            href={course.checkoutUrl || `/course/${course.slug}`}
-                            target={course.checkoutUrl ? "_blank" : "_self"}
-                            rel="noopener noreferrer"
-                          >
-                            <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
-                              {formatPrice(course.price, course.currency)}
-                            </button>
-                          </a>
-                        )}
+                        {/* Botão Preço Normal - sempre aparece */}
+                        <a
+                          href={course.checkoutUrl || `/course/${course.slug}`}
+                          target={course.checkoutUrl ? "_blank" : "_self"}
+                          rel="noopener noreferrer"
+                        >
+                          <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
+                            {formatPrice(course.price, course.currency)}
+                          </button>
+                        </a>
 
-                        {/* Botão Preço Assinante - só aparece se for assinante */}
-                        {isSubscriber && course.subscriberPrice && (
-                          <a
-                            href={course.subscriberCheckoutUrl || course.checkoutUrl || `/course/${course.slug}`}
-                            target={course.subscriberCheckoutUrl || course.checkoutUrl ? "_blank" : "_self"}
-                            rel="noopener noreferrer"
-                          >
-                            <button
-                              className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
-                              style={{
-                                backgroundColor: colors.accent,
-                                color: 'white',
-                                border: `2px solid ${colors.accent}`
-                              }}
-                            >
-                              Assinante - {formatPrice(course.subscriberPrice, course.currency)}
-                            </button>
-                          </a>
+                        {/* Botão Preço Assinante - sempre aparece se tiver preço configurado */}
+                        {course.subscriberPrice && (
+                          <>
+                            {isSubscriber ? (
+                              // Assinante: botão clicável
+                              <a
+                                href={course.subscriberCheckoutUrl || course.checkoutUrl || `/course/${course.slug}`}
+                                target={course.subscriberCheckoutUrl || course.checkoutUrl ? "_blank" : "_self"}
+                                rel="noopener noreferrer"
+                              >
+                                <button
+                                  className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                                  style={{
+                                    backgroundColor: colors.accent,
+                                    color: 'white',
+                                    border: `2px solid ${colors.accent}`
+                                  }}
+                                >
+                                  Assinante - {formatPrice(course.subscriberPrice, course.currency)}
+                                </button>
+                              </a>
+                            ) : (
+                              // Não assinante: botão desabilitado para instigar
+                              <button
+                                disabled
+                                className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm opacity-60 cursor-not-allowed"
+                                style={{
+                                  backgroundColor: 'transparent',
+                                  color: colors.accent,
+                                  border: `2px solid ${colors.accent}`
+                                }}
+                              >
+                                Assinante - {formatPrice(course.subscriberPrice, course.currency)}
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     )}
