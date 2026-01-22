@@ -447,19 +447,21 @@ export default async function DashboardPage() {
                     {/* Botões de Compra */}
                     {!course.isFree && course.price && (
                       <div className="mt-3 space-y-2">
-                        {/* Botão Preço Normal */}
-                        <a
-                          href={course.checkoutUrl || `/course/${course.slug}`}
-                          target={course.checkoutUrl ? "_blank" : "_self"}
-                          rel="noopener noreferrer"
-                        >
-                          <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
-                            {formatPrice(course.price, course.currency)}
-                          </button>
-                        </a>
+                        {/* Botão Preço Normal - só aparece se NÃO for assinante */}
+                        {!isSubscriber && (
+                          <a
+                            href={course.checkoutUrl || `/course/${course.slug}`}
+                            target={course.checkoutUrl ? "_blank" : "_self"}
+                            rel="noopener noreferrer"
+                          >
+                            <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
+                              {formatPrice(course.price, course.currency)}
+                            </button>
+                          </a>
+                        )}
 
-                        {/* Botão Preço Assinante */}
-                        {course.subscriberPrice && (
+                        {/* Botão Preço Assinante - só aparece se for assinante */}
+                        {isSubscriber && course.subscriberPrice && (
                           <a
                             href={course.subscriberCheckoutUrl || course.checkoutUrl || `/course/${course.slug}`}
                             target={course.subscriberCheckoutUrl || course.checkoutUrl ? "_blank" : "_self"}
@@ -468,8 +470,8 @@ export default async function DashboardPage() {
                             <button
                               className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
                               style={{
-                                backgroundColor: isSubscriber ? colors.accent : 'transparent',
-                                color: isSubscriber ? 'white' : colors.accent,
+                                backgroundColor: colors.accent,
+                                color: 'white',
                                 border: `2px solid ${colors.accent}`
                               }}
                             >
