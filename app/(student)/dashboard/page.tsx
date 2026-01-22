@@ -371,36 +371,6 @@ export default async function DashboardPage() {
                             {course.shortDesc}
                           </p>
                         )}
-                        {!course.isFree && (
-                          <div className="mt-2">
-                            {isSubscriber && course.subscriberPrice ? (
-                              <div>
-                                <div className="flex items-baseline gap-2">
-                                  <span className="text-white font-bold text-sm">
-                                    {formatPrice(course.subscriberPrice, course.currency)}
-                                  </span>
-                                  <span className="text-gray-400 line-through text-xs">
-                                    {formatPrice(course.price, course.currency)}
-                                  </span>
-                                </div>
-                                <p className="text-[10px] text-green-400 mt-0.5">
-                                  ✨ Preço para assinantes
-                                </p>
-                              </div>
-                            ) : course.price ? (
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-white font-bold text-sm">
-                                  {formatPrice(course.price, course.currency)}
-                                </span>
-                                {course.compareAtPrice && (
-                                  <span className="text-gray-400 line-through text-xs">
-                                    {formatPrice(course.compareAtPrice, course.currency)}
-                                  </span>
-                                )}
-                              </div>
-                            ) : null}
-                          </div>
-                        )}
                       </div>
                     </Link>
                   )
@@ -466,34 +436,40 @@ export default async function DashboardPage() {
                           {course.shortDesc}
                         </p>
                       )}
-                      {!course.isFree && (
-                        <div className="mt-2">
-                          {isSubscriber && course.subscriberPrice ? (
-                            <div>
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-white font-bold text-sm">
-                                  {formatPrice(course.subscriberPrice, course.currency)}
-                                </span>
-                                <span className="text-gray-400 line-through text-xs">
-                                  {formatPrice(course.price, course.currency)}
-                                </span>
-                              </div>
-                              <p className="text-[10px] text-green-400 mt-0.5">
-                                ✨ Preço para assinantes
-                              </p>
-                            </div>
-                          ) : course.price ? (
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-white font-bold text-sm">
-                                {formatPrice(course.price, course.currency)}
-                              </span>
-                              {course.compareAtPrice && (
-                                <span className="text-gray-400 line-through text-xs">
-                                  {formatPrice(course.compareAtPrice, course.currency)}
-                                </span>
-                              )}
-                            </div>
-                          ) : null}
+                      {!course.isFree && course.price && (
+                        <div className="mt-3 space-y-2">
+                          {/* Botão Preço Normal */}
+                          <a
+                            href={course.checkoutUrl || `/course/${course.slug}`}
+                            target={course.checkoutUrl ? "_blank" : "_self"}
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
+                              {formatPrice(course.price, course.currency)}
+                            </button>
+                          </a>
+
+                          {/* Botão Preço Assinante */}
+                          {course.subscriberPrice && (
+                            <a
+                              href={course.subscriberCheckoutUrl || course.checkoutUrl || `/course/${course.slug}`}
+                              target={course.subscriberCheckoutUrl || course.checkoutUrl ? "_blank" : "_self"}
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                                style={{
+                                  backgroundColor: isSubscriber ? colors.accent : 'transparent',
+                                  color: isSubscriber ? 'white' : colors.accent,
+                                  border: `2px solid ${colors.accent}`
+                                }}
+                              >
+                                Assinante - {formatPrice(course.subscriberPrice, course.currency)}
+                              </button>
+                            </a>
+                          )}
                         </div>
                       )}
                     </div>
