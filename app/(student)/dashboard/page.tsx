@@ -368,9 +368,16 @@ export default async function DashboardPage() {
                           </p>
                         )}
                         {!course.isFree && course.price && (
-                          <p className="text-sm font-semibold mt-2" style={{ color: colors.primary }}>
-                            {formatPrice(course.price, course.currency)}
-                          </p>
+                          <div className="mt-2 flex items-baseline gap-2">
+                            <span className="text-white font-bold text-sm">
+                              {formatPrice(course.price, course.currency)}
+                            </span>
+                            {course.compareAtPrice && (
+                              <span className="text-gray-400 line-through text-xs">
+                                {formatPrice(course.compareAtPrice, course.currency)}
+                              </span>
+                            )}
+                          </div>
                         )}
                       </div>
                     </Link>
@@ -438,14 +445,14 @@ export default async function DashboardPage() {
                         </p>
                       )}
                       {!course.isFree && course.price && (
-                        <div className="mt-2">
-                          <p className="text-sm font-bold" style={{ color: colors.primary }}>
+                        <div className="mt-2 flex items-baseline gap-2">
+                          <span className="text-white font-bold text-sm">
                             {formatPrice(course.price, course.currency)}
-                          </p>
+                          </span>
                           {course.compareAtPrice && (
-                            <p className="text-xs text-gray-400 line-through">
+                            <span className="text-gray-400 line-through text-xs">
                               {formatPrice(course.compareAtPrice, course.currency)}
-                            </p>
+                            </span>
                           )}
                         </div>
                       )}
