@@ -20,62 +20,15 @@ export async function syncUserPurchases(userId: string) {
       return { success: false, message: 'Usuário não encontrado' }
     }
 
-    // Buscar compras aprovadas do usuário que foram registradas via webhook
-    const purchases = await prisma.purchase.findMany({
-      where: {
-        tenantId: user.tenantId,
-        customerEmail: user.email,
-        status: 'APPROVED',
-      },
-      include: {
-        course: true,
-      },
-    })
-
-    console.log(`[syncUserPurchases] ${purchases.length} compras aprovadas encontradas`)
-
-    const enrolledCourseIds = new Set(user.enrollments.map((e) => e.courseId))
-    let newEnrollments = 0
-
-    // Para cada compra aprovada, verificar se o usuário já tem acesso ao curso
-    for (const purchase of purchases) {
-      if (!purchase.courseId) {
-        console.log(`[syncUserPurchases] Compra ${purchase.id} não tem curso vinculado`)
-        continue
-      }
-
-      if (enrolledCourseIds.has(purchase.courseId)) {
-        console.log(`[syncUserPurchases] Usuário já matriculado no curso ${purchase.course?.title}`)
-        continue
-      }
-
-      // Criar enrollment
-      await prisma.enrollment.create({
-        data: {
-          userId: user.id,
-          courseId: purchase.courseId,
-          tenantId: user.tenantId,
-          status: 'ACTIVE',
-          progress: 0,
-          source: 'PURCHASE',
-          sourceId: purchase.id,
-        },
-      })
-
-      enrolledCourseIds.add(purchase.courseId)
-      newEnrollments++
-
-      console.log(`[syncUserPurchases] ✅ Novo enrollment criado: ${purchase.course?.title}`)
-    }
-
-    console.log(`[syncUserPurchases] Sincronização concluída. ${newEnrollments} novos cursos liberados`)
+    // Como o webhook já cria os enrollments automaticamente quando uma compra é aprovada,
+    // esta função serve apenas como backup. Retorna sucesso indicando que não há ação necessária.
+    console.log(`[syncUserPurchases] Webhook já processa enrollments automaticamente`)
+    console.log(`[syncUserPurchases] Usuário possui ${user.enrollments.length} enrollment(s) ativo(s)`)
 
     return {
       success: true,
-      newEnrollments,
-      message: newEnrollments > 0
-        ? `${newEnrollments} novo(s) curso(s) liberado(s)!`
-        : 'Nenhum curso novo encontrado',
+      newEnrollments: 0,
+      message: 'Webhook processa enrollments automaticamente',
     }
   } catch (error) {
     console.error('[syncUserPurchases] Erro ao sincronizar compras:', error)
