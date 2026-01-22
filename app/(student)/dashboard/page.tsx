@@ -389,9 +389,10 @@ export default async function DashboardPage() {
             <div className="relative -mx-8 px-8">
               <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
                 {availableCourses.map((course) => (
-                  <Link key={course.id} href={`/course/${course.slug}`}>
-                    <div className="group relative cursor-pointer flex-shrink-0 w-[180px] md:w-[200px] snap-start">
-                      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300">
+                  <div key={course.id} className="group relative flex-shrink-0 w-[180px] md:w-[200px] snap-start">
+                    {/* Imagem com Link para detalhes */}
+                    <Link href={`/course/${course.slug}`}>
+                      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
                         {course.thumbnailUrl ? (
                           <img
                             src={course.thumbnailUrl}
@@ -427,53 +428,58 @@ export default async function DashboardPage() {
                           </div>
                         </div>
                       </div>
+                    </Link>
 
-                      <h3 className="text-base font-semibold mt-4 line-clamp-2" style={{ color: colors.text }}>
+                    {/* Título com Link */}
+                    <Link href={`/course/${course.slug}`}>
+                      <h3 className="text-base font-semibold mt-4 line-clamp-2 cursor-pointer hover:opacity-80 transition-opacity" style={{ color: colors.text }}>
                         {course.title}
                       </h3>
-                      {course.shortDesc && (
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                          {course.shortDesc}
-                        </p>
-                      )}
-                      {!course.isFree && course.price && (
-                        <div className="mt-3 space-y-2">
-                          {/* Botão Preço Normal */}
+                    </Link>
+
+                    {/* Descrição */}
+                    {course.shortDesc && (
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        {course.shortDesc}
+                      </p>
+                    )}
+
+                    {/* Botões de Compra */}
+                    {!course.isFree && course.price && (
+                      <div className="mt-3 space-y-2">
+                        {/* Botão Preço Normal */}
+                        <a
+                          href={course.checkoutUrl || `/course/${course.slug}`}
+                          target={course.checkoutUrl ? "_blank" : "_self"}
+                          rel="noopener noreferrer"
+                        >
+                          <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
+                            {formatPrice(course.price, course.currency)}
+                          </button>
+                        </a>
+
+                        {/* Botão Preço Assinante */}
+                        {course.subscriberPrice && (
                           <a
-                            href={course.checkoutUrl || `/course/${course.slug}`}
-                            target={course.checkoutUrl ? "_blank" : "_self"}
+                            href={course.subscriberCheckoutUrl || course.checkoutUrl || `/course/${course.slug}`}
+                            target={course.subscriberCheckoutUrl || course.checkoutUrl ? "_blank" : "_self"}
                             rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
                           >
-                            <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
-                              {formatPrice(course.price, course.currency)}
+                            <button
+                              className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                              style={{
+                                backgroundColor: isSubscriber ? colors.accent : 'transparent',
+                                color: isSubscriber ? 'white' : colors.accent,
+                                border: `2px solid ${colors.accent}`
+                              }}
+                            >
+                              Assinante - {formatPrice(course.subscriberPrice, course.currency)}
                             </button>
                           </a>
-
-                          {/* Botão Preço Assinante */}
-                          {course.subscriberPrice && (
-                            <a
-                              href={course.subscriberCheckoutUrl || course.checkoutUrl || `/course/${course.slug}`}
-                              target={course.subscriberCheckoutUrl || course.checkoutUrl ? "_blank" : "_self"}
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <button
-                                className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
-                                style={{
-                                  backgroundColor: isSubscriber ? colors.accent : 'transparent',
-                                  color: isSubscriber ? 'white' : colors.accent,
-                                  border: `2px solid ${colors.accent}`
-                                }}
-                              >
-                                Assinante - {formatPrice(course.subscriberPrice, course.currency)}
-                              </button>
-                            </a>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
