@@ -301,8 +301,8 @@ export default async function EditSubscriberBannerPage({
 
       <Card className="mt-6 bg-blue-50 border-blue-200">
         <CardContent className="p-4 text-sm text-blue-800">
-          <strong>Importante:</strong> Os banners aparecem apenas para usuários com assinatura ativa
-          na seção &quot;Área do Assinante&quot; do dashboard.
+          <strong>Importante:</strong> Os banners aparecem para todos os usuários
+          na seção &quot;Área do Assinante&quot; do dashboard como forma de divulgação.
         </CardContent>
       </Card>
     </div>

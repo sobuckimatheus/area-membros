@@ -102,8 +102,8 @@ export default async function DashboardPage() {
   const enrolledCourses = courses.filter(c => c.enrollments.length > 0)
   const availableCourses = courses.filter(c => c.enrollments.length === 0 && !c.isSubscriberOnly)
 
-  // Buscar banners para assinantes (só se for assinante)
-  const subscriberBanners = isSubscriber ? await prisma.subscriberBanner.findMany({
+  // Buscar banners da área do assinante (para divulgação - aparece para todos)
+  const subscriberBanners = await prisma.subscriberBanner.findMany({
     where: {
       tenantId: user.tenantId,
       isActive: true,
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
     orderBy: {
       order: 'asc',
     },
-  }) : [] as any[]
+  })
 
   // Buscar cursos exclusivos para assinantes
   const exclusiveCourses = await prisma.course.findMany({
@@ -546,8 +546,8 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* Área do Assinante - Banners */}
-        {isSubscriber && subscriberBanners.length > 0 && (
+        {/* Área do Assinante - Banners (aparece para todos como divulgação) */}
+        {subscriberBanners.length > 0 && (
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
               <span className="flex items-center gap-2">
