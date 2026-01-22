@@ -303,6 +303,10 @@ model Course {
   currency        String   @default("BRL")
   checkoutUrl     String? // URL do checkout (Kirvano, Hotmart, etc)
 
+  // Preço para assinantes
+  subscriberPrice       Decimal? @db.Decimal(10, 2) // preço especial para assinantes
+  subscriberCheckoutUrl String? // URL do checkout para assinantes
+
   // Badges
   badge           CourseBadge? // NEW, BESTSELLER, FREE, COMING_SOON
 

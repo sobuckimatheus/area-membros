@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/actions/auth"
 import prisma from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { Play, Info, Clock, Award } from "lucide-react"
+import { hasActiveSubscription } from "@/lib/services/subscription"
 
 // Função para extrair thumbnail do YouTube
 function getYouTubeThumbnail(videoUrl: string | null): string | null {
@@ -49,6 +50,9 @@ export default async function DashboardPage() {
   if (!user) {
     redirect("/auth/login")
   }
+
+  // Verificar se usuário tem assinatura ativa
+  const isSubscriber = await hasActiveSubscription(user.id)
 
   // Buscar customização do tenant
   const customization = await prisma.tenantCustomization.findUnique({
@@ -367,16 +371,34 @@ export default async function DashboardPage() {
                             {course.shortDesc}
                           </p>
                         )}
-                        {!course.isFree && course.price && (
-                          <div className="mt-2 flex items-baseline gap-2">
-                            <span className="text-white font-bold text-sm">
-                              {formatPrice(course.price, course.currency)}
-                            </span>
-                            {course.compareAtPrice && (
-                              <span className="text-gray-400 line-through text-xs">
-                                {formatPrice(course.compareAtPrice, course.currency)}
-                              </span>
-                            )}
+                        {!course.isFree && (
+                          <div className="mt-2">
+                            {isSubscriber && course.subscriberPrice ? (
+                              <div>
+                                <div className="flex items-baseline gap-2">
+                                  <span className="text-white font-bold text-sm">
+                                    {formatPrice(course.subscriberPrice, course.currency)}
+                                  </span>
+                                  <span className="text-gray-400 line-through text-xs">
+                                    {formatPrice(course.price, course.currency)}
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-green-400 mt-0.5">
+                                  ✨ Preço para assinantes
+                                </p>
+                              </div>
+                            ) : course.price ? (
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-white font-bold text-sm">
+                                  {formatPrice(course.price, course.currency)}
+                                </span>
+                                {course.compareAtPrice && (
+                                  <span className="text-gray-400 line-through text-xs">
+                                    {formatPrice(course.compareAtPrice, course.currency)}
+                                  </span>
+                                )}
+                              </div>
+                            ) : null}
                           </div>
                         )}
                       </div>
@@ -444,16 +466,34 @@ export default async function DashboardPage() {
                           {course.shortDesc}
                         </p>
                       )}
-                      {!course.isFree && course.price && (
-                        <div className="mt-2 flex items-baseline gap-2">
-                          <span className="text-white font-bold text-sm">
-                            {formatPrice(course.price, course.currency)}
-                          </span>
-                          {course.compareAtPrice && (
-                            <span className="text-gray-400 line-through text-xs">
-                              {formatPrice(course.compareAtPrice, course.currency)}
-                            </span>
-                          )}
+                      {!course.isFree && (
+                        <div className="mt-2">
+                          {isSubscriber && course.subscriberPrice ? (
+                            <div>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-white font-bold text-sm">
+                                  {formatPrice(course.subscriberPrice, course.currency)}
+                                </span>
+                                <span className="text-gray-400 line-through text-xs">
+                                  {formatPrice(course.price, course.currency)}
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-green-400 mt-0.5">
+                                ✨ Preço para assinantes
+                              </p>
+                            </div>
+                          ) : course.price ? (
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-white font-bold text-sm">
+                                {formatPrice(course.price, course.currency)}
+                              </span>
+                              {course.compareAtPrice && (
+                                <span className="text-gray-400 line-through text-xs">
+                                  {formatPrice(course.compareAtPrice, course.currency)}
+                                </span>
+                              )}
+                            </div>
+                          ) : null}
                         </div>
                       )}
                     </div>

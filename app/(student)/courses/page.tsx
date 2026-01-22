@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { hasActiveSubscription } from '@/lib/services/subscription'
 
 // Função helper para formatar preço
 function formatPrice(price: any, currency: string = 'BRL') {
@@ -23,6 +24,9 @@ export default async function CoursesPage() {
   if (!user) {
     redirect('/auth/login')
   }
+
+  // Verificar se usuário tem assinatura ativa
+  const isSubscriber = await hasActiveSubscription(user.id)
 
   // Buscar todos os cursos publicados
   const courses = await prisma.course.findMany({
@@ -148,35 +152,74 @@ export default async function CoursesPage() {
                     </div>
 
                     {/* Preço */}
-                    {!course.isFree && course.price && (
+                    {!course.isFree && !isEnrolled && (
                       <div className="mb-3">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-white font-bold text-sm">
-                            {formatPrice(course.price, course.currency)}
-                          </span>
-                          {course.compareAtPrice && (
-                            <span className="text-zinc-500 line-through text-xs">
-                              {formatPrice(course.compareAtPrice, course.currency)}
+                        {/* Se for assinante e tiver preço especial */}
+                        {isSubscriber && course.subscriberPrice ? (
+                          <div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-white font-bold text-sm">
+                                {formatPrice(course.subscriberPrice, course.currency)}
+                              </span>
+                              <span className="text-zinc-500 line-through text-xs">
+                                {formatPrice(course.price, course.currency)}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-green-400 mt-1">
+                              ✨ Preço para assinantes
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-white font-bold text-sm">
+                              {formatPrice(course.price, course.currency)}
                             </span>
-                          )}
-                        </div>
+                            {course.compareAtPrice && (
+                              <span className="text-zinc-500 line-through text-xs">
+                                {formatPrice(course.compareAtPrice, course.currency)}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {/* CTA */}
-                    <Link href={`/course/${course.slug}`}>
-                      <Button
-                        className="w-full text-xs h-8"
-                        variant={isEnrolled ? "default" : "outline"}
-                        style={
-                          isEnrolled
-                            ? { backgroundColor: '#dc2626', borderColor: '#dc2626' }
-                            : { backgroundColor: 'transparent', borderColor: '#52525b', color: 'white' }
-                        }
+                    {isEnrolled ? (
+                      <Link href={`/course/${course.slug}`}>
+                        <Button
+                          className="w-full text-xs h-8"
+                          variant="default"
+                          style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
+                        >
+                          Continuar
+                        </Button>
+                      </Link>
+                    ) : course.isFree ? (
+                      <Link href={`/course/${course.slug}`}>
+                        <Button
+                          className="w-full text-xs h-8"
+                          variant="outline"
+                          style={{ backgroundColor: 'transparent', borderColor: '#52525b', color: 'white' }}
+                        >
+                          Ver Detalhes
+                        </Button>
+                      </Link>
+                    ) : (
+                      <a
+                        href={isSubscriber && course.subscriberCheckoutUrl ? course.subscriberCheckoutUrl : course.checkoutUrl || `/course/${course.slug}`}
+                        target={course.checkoutUrl || course.subscriberCheckoutUrl ? "_blank" : "_self"}
+                        rel="noopener noreferrer"
                       >
-                        {isEnrolled ? 'Continuar' : 'Ver Detalhes'}
-                      </Button>
-                    </Link>
+                        <Button
+                          className="w-full text-xs h-8"
+                          variant="default"
+                          style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
+                        >
+                          Comprar Agora
+                        </Button>
+                      </a>
+                    )}
                   </CardContent>
                 </Card>
               )
