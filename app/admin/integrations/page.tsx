@@ -1,58 +1,8 @@
 import { getCurrentUser } from '@/lib/actions/auth'
 import prisma from '@/lib/prisma'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
-
-async function updateKirvanoApiKey(formData: FormData) {
-  'use server'
-
-  const user = await getCurrentUser()
-  if (!user || user.role !== 'ADMIN') {
-    throw new Error('Não autorizado')
-  }
-
-  const apiKey = formData.get('apiKey') as string
-
-  if (!apiKey) {
-    throw new Error('API Key é obrigatória')
-  }
-
-  // Buscar ou criar integração Kirvano
-  const integration = await prisma.integration.findFirst({
-    where: {
-      tenantId: user.tenantId,
-      platform: 'KIRVANO',
-    },
-  })
-
-  if (integration) {
-    // Atualizar integração existente
-    await prisma.integration.update({
-      where: { id: integration.id },
-      data: {
-        config: { apiKey },
-        isActive: true,
-      },
-    })
-  } else {
-    // Criar nova integração
-    await prisma.integration.create({
-      data: {
-        tenantId: user.tenantId,
-        platform: 'KIRVANO',
-        config: { apiKey },
-        isActive: true,
-      },
-    })
-  }
-
-  revalidatePath('/admin/integrations')
-  redirect('/admin/integrations?success=true')
-}
+import Link from 'next/link'
+import { ExternalLink } from 'lucide-react'
 
 export default async function IntegrationsPage() {
   const user = await getCurrentUser()
@@ -66,14 +16,24 @@ export default async function IntegrationsPage() {
     },
   })
 
-  const config = kirvanoIntegration?.config as any
+  // Buscar estatísticas de compras
+  const totalPurchases = await prisma.purchase.count({
+    where: { tenantId: user.tenantId },
+  })
+
+  const approvedPurchases = await prisma.purchase.count({
+    where: {
+      tenantId: user.tenantId,
+      status: 'APPROVED',
+    },
+  })
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Integrações</h1>
         <p className="text-slate-600 mt-2">
-          Configure as integrações com plataformas externas
+          Gerencie as integrações com plataformas externas
         </p>
       </div>
 
@@ -84,108 +44,111 @@ export default async function IntegrationsPage() {
             <div>
               <CardTitle>Kirvano</CardTitle>
               <CardDescription>
-                Integração com a plataforma de pagamentos Kirvano
+                Integração via Webhook com a plataforma de pagamentos Kirvano
               </CardDescription>
             </div>
-            <span className={`px-3 py-1 text-sm font-medium rounded ${
-              kirvanoIntegration?.isActive
-                ? 'bg-green-100 text-green-700'
-                : 'bg-slate-100 text-slate-700'
-            }`}>
-              {kirvanoIntegration?.isActive ? 'Ativa' : 'Inativa'}
+            <span className="px-3 py-1 text-sm font-medium rounded bg-green-100 text-green-700">
+              Ativa
             </span>
           </div>
         </CardHeader>
-        <CardContent>
-          <form action={updateKirvanoApiKey} className="space-y-4">
-            <div>
-              <Label htmlFor="apiKey">API Key da Kirvano</Label>
-              <Input
-                id="apiKey"
-                name="apiKey"
-                type="password"
-                placeholder="Digite sua API Key da Kirvano"
-                defaultValue={config?.apiKey || ''}
-                className="mt-1"
-                required
-              />
-              <p className="text-sm text-slate-500 mt-1">
-                Você pode encontrar sua API Key no painel da Kirvano em Configurações {'>'} API
-              </p>
-            </div>
+        <CardContent className="space-y-6">
+          {/* Webhook URL */}
+          <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <h4 className="text-sm font-semibold text-slate-900 mb-2">
+              URL do Webhook
+            </h4>
+            <code className="text-sm bg-white px-3 py-2 rounded border border-slate-300 block overflow-x-auto">
+              https://areamembros.dianamascarello.com.br/api/webhooks/kirvano
+            </code>
+            <p className="text-xs text-slate-600 mt-2">
+              Configure esta URL na Kirvano em: Integrações → Webhook
+            </p>
+          </div>
 
-            <div className="flex items-center gap-4 pt-4">
-              <Button type="submit">
-                {kirvanoIntegration ? 'Atualizar API Key' : 'Salvar API Key'}
-              </Button>
-              {config?.apiKey && (
-                <p className="text-sm text-green-600">
-                  ✓ API Key configurada
-                </p>
-              )}
-            </div>
-          </form>
-
+          {/* Estatísticas */}
           {kirvanoIntegration && (
-            <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-              <h4 className="text-sm font-semibold text-slate-900 mb-2">
-                Informações da Integração
-              </h4>
-              <dl className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-slate-600">Status:</dt>
-                  <dd className="font-medium text-slate-900">
-                    {kirvanoIntegration.isActive ? 'Ativa' : 'Inativa'}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-slate-600">Webhooks recebidos:</dt>
-                  <dd className="font-medium text-slate-900">
-                    {kirvanoIntegration.webhookCount}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-slate-600">Erros:</dt>
-                  <dd className="font-medium text-slate-900">
-                    {kirvanoIntegration.errorCount}
-                  </dd>
-                </div>
-                {kirvanoIntegration.lastWebhookAt && (
-                  <div className="flex justify-between">
-                    <dt className="text-slate-600">Último webhook:</dt>
-                    <dd className="font-medium text-slate-900">
-                      {new Date(kirvanoIntegration.lastWebhookAt).toLocaleString('pt-BR')}
-                    </dd>
-                  </div>
-                )}
-              </dl>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <p className="text-sm text-slate-600">Webhooks Recebidos</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">
+                  {kirvanoIntegration.webhookCount}
+                </p>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <p className="text-sm text-slate-600">Compras Processadas</p>
+                <p className="text-2xl font-bold text-slate-900 mt-1">
+                  {totalPurchases}
+                </p>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg">
+                <p className="text-sm text-green-700">Compras Aprovadas</p>
+                <p className="text-2xl font-bold text-green-900 mt-1">
+                  {approvedPurchases}
+                </p>
+              </div>
+              <div className="p-4 bg-red-50 rounded-lg">
+                <p className="text-sm text-red-700">Erros</p>
+                <p className="text-2xl font-bold text-red-900 mt-1">
+                  {kirvanoIntegration.errorCount}
+                </p>
+              </div>
             </div>
           )}
+
+          {kirvanoIntegration?.lastWebhookAt && (
+            <p className="text-sm text-slate-600">
+              Último webhook recebido:{' '}
+              <span className="font-medium text-slate-900">
+                {new Date(kirvanoIntegration.lastWebhookAt).toLocaleString('pt-BR')}
+              </span>
+            </p>
+          )}
+
+          {/* Link para logs */}
+          <Link
+            href="/admin/webhooks"
+            className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+          >
+            Ver logs de webhooks
+            <ExternalLink className="h-4 w-4" />
+          </Link>
         </CardContent>
       </Card>
 
-      {/* Informações sobre sincronização */}
+      {/* Como funciona */}
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
           <CardTitle className="text-blue-900">
-            Como funciona a sincronização?
+            Como funciona a sincronização automática?
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-blue-800 space-y-2">
-          <p>
-            <strong>Após configurar a API Key:</strong>
-          </p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>
-              Os alunos terão suas compras sincronizadas automaticamente ao fazer login
-            </li>
-            <li>
-              O sistema verifica transações aprovadas na Kirvano e libera os cursos correspondentes
-            </li>
-            <li>
-              É necessário vincular os produtos da Kirvano aos cursos na página de Produtos
-            </li>
-          </ul>
+        <CardContent className="text-sm text-blue-800 space-y-3">
+          <div>
+            <p className="font-semibold mb-2">🔄 Sincronização via Webhook:</p>
+            <ul className="list-disc list-inside space-y-1 ml-2">
+              <li>Quando uma compra é aprovada na Kirvano, o webhook é enviado automaticamente</li>
+              <li>O sistema registra a compra e libera o acesso ao curso imediatamente</li>
+              <li>Não é necessário nenhuma configuração adicional</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-semibold mb-2">🔐 Sincronização no Login:</p>
+            <ul className="list-disc list-inside space-y-1 ml-2">
+              <li>Toda vez que um aluno faz login, o sistema verifica compras pendentes</li>
+              <li>Se houver compras aprovadas sem acesso liberado, o sistema libera automaticamente</li>
+              <li>Funciona como backup caso o webhook falhe</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="font-semibold mb-2">⚙️ Configuração Necessária:</p>
+            <ul className="list-disc list-inside space-y-1 ml-2">
+              <li>Vincular produtos da Kirvano aos cursos na página de Produtos</li>
+              <li>Configurar a URL do webhook na Kirvano (mostrada acima)</li>
+            </ul>
+          </div>
         </CardContent>
       </Card>
     </div>
