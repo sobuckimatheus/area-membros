@@ -100,7 +100,49 @@ export default async function DashboardPage() {
 
   // Separar cursos matriculados e não matriculados
   const enrolledCourses = courses.filter(c => c.enrollments.length > 0)
-  const availableCourses = courses.filter(c => c.enrollments.length === 0)
+  const availableCourses = courses.filter(c => c.enrollments.length === 0 && !c.isSubscriberOnly)
+
+  // Buscar banners para assinantes (só se for assinante)
+  const subscriberBanners = isSubscriber ? await prisma.subscriberBanner.findMany({
+    where: {
+      tenantId: user.tenantId,
+      isActive: true,
+    },
+    orderBy: {
+      order: 'asc',
+    },
+  }) : [] as any[]
+
+  // Buscar cursos exclusivos para assinantes
+  const exclusiveCourses = await prisma.course.findMany({
+    where: {
+      tenantId: user.tenantId,
+      status: "PUBLISHED",
+      isSubscriberOnly: true,
+    },
+    include: {
+      category: true,
+      productMappings: {
+        include: {
+          integration: true,
+        },
+      },
+      enrollments: {
+        where: {
+          userId: user.id,
+          status: "ACTIVE",
+        },
+      },
+      _count: {
+        select: {
+          modules: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  })
 
   // Buscar aulas gratuitas
   const freeLessons = await prisma.lesson.findMany({
@@ -499,6 +541,129 @@ export default async function DashboardPage() {
                     )}
                   </div>
                 ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Área do Assinante - Banners */}
+        {isSubscriber && subscriberBanners.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
+              <span className="flex items-center gap-2">
+                Área do Assinante
+                <span className="px-3 py-1 text-sm font-medium rounded-full" style={{ backgroundColor: colors.accent, color: 'white' }}>
+                  Exclusivo
+                </span>
+              </span>
+            </h2>
+            <div className="relative -mx-8 px-8">
+              <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
+                {subscriberBanners.map((banner) => (
+                  <div key={banner.id} className="group relative flex-shrink-0 w-[180px] md:w-[200px] snap-start">
+                    {banner.link ? (
+                      <a href={banner.link} target="_blank" rel="noopener noreferrer">
+                        <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
+                          <img
+                            src={banner.imageUrl}
+                            alt={banner.title || 'Banner exclusivo'}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        </div>
+                      </a>
+                    ) : (
+                      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg">
+                        <img
+                          src={banner.imageUrl}
+                          alt={banner.title || 'Banner exclusivo'}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    {banner.title && (
+                      <h3 className="text-base font-semibold mt-4 line-clamp-2" style={{ color: colors.text }}>
+                        {banner.title}
+                      </h3>
+                    )}
+                    {banner.description && (
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        {banner.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Cursos Exclusivos para Assinantes */}
+        {isSubscriber && exclusiveCourses.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
+              <span className="flex items-center gap-2">
+                Cursos Exclusivos
+                <span className="px-3 py-1 text-sm font-medium rounded-full" style={{ backgroundColor: colors.accent, color: 'white' }}>
+                  Apenas Assinantes
+                </span>
+              </span>
+            </h2>
+            <div className="relative -mx-8 px-8">
+              <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
+                {exclusiveCourses.map((course) => {
+                  const isEnrolled = course.enrollments.length > 0
+                  return (
+                    <div key={course.id} className="group relative flex-shrink-0 w-[180px] md:w-[200px] snap-start">
+                      <Link href={`/course/${course.slug}`}>
+                        <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
+                          {course.thumbnailUrl ? (
+                            <img
+                              src={course.thumbnailUrl}
+                              alt={course.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div
+                              className="w-full h-full flex items-center justify-center"
+                              style={{ backgroundColor: colors.primary, opacity: 0.15 }}
+                            >
+                              <span className="text-lg" style={{ color: colors.text }}>Sem imagem</span>
+                            </div>
+                          )}
+
+                          {/* Badge Exclusivo */}
+                          <div className="absolute top-3 left-3">
+                            <span
+                              className="px-3 py-1.5 text-white text-xs font-bold rounded-full shadow-lg"
+                              style={{ backgroundColor: colors.accent }}
+                            >
+                              EXCLUSIVO
+                            </span>
+                          </div>
+
+                          {/* Hover Overlay */}
+                          {isEnrolled && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                              <div className="text-center">
+                                <Play className="h-16 w-16 text-white mx-auto mb-3" fill="white" />
+                                <p className="text-white text-sm font-medium">Acessar Curso</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+
+                      <h3 className="text-base font-semibold mt-4 line-clamp-2" style={{ color: colors.text }}>
+                        {course.title}
+                      </h3>
+                      {course.shortDesc && (
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                          {course.shortDesc}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </section>

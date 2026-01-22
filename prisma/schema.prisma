@@ -53,6 +53,7 @@ model Tenant {
   enrollments      Enrollment[]
   announcements    Announcement[]
   supportTickets   SupportTicket[]
+  subscriberBanners SubscriberBanner[]
 
   @@index([slug])
   @@index([domain])
@@ -296,6 +297,7 @@ model Course {
   visibility  CourseVisibility @default(PRIVATE)
   featured    Boolean @default(false)
   isFree      Boolean @default(false) // Curso gratuito - matricula todos automaticamente
+  isSubscriberOnly Boolean @default(false) // Curso exclusivo para assinantes
 
   // Pricing (se marketplace habilitado)
   price           Decimal? @db.Decimal(10, 2)
@@ -1103,6 +1105,33 @@ enum AnnouncementType {
   WARNING
   SUCCESS
   PROMOTION
+}
+
+// ============================================
+// SUBSCRIBER BANNERS (Área do Assinante)
+// ============================================
+
+model SubscriberBanner {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  title       String?
+  imageUrl    String // Banner promocional
+  description String? @db.Text
+  link        String? // Link opcional para curso ou página
+  linkText    String? // Texto do botão de link
+
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([order])
+  @@map("subscriber_banners")
 }
 
 // ============================================
