@@ -5,6 +5,18 @@ import prisma from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
+// Função helper para formatar preço
+function formatPrice(price: any, currency: string = 'BRL') {
+  if (!price) return null
+
+  const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price)
+
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: currency,
+  }).format(numPrice)
+}
+
 export default async function MyCoursesPage() {
   const user = await getCurrentUser()
 
@@ -25,6 +37,11 @@ export default async function MyCoursesPage() {
       course: {
         include: {
           category: true,
+          productMappings: {
+            include: {
+              integration: true,
+            },
+          },
           _count: {
             select: {
               modules: true,
@@ -112,6 +129,13 @@ export default async function MyCoursesPage() {
                           />
                         </div>
                       </div>
+
+                      {/* Preço */}
+                      {!enrollment.course.isFree && enrollment.course.price && (
+                        <div className="text-xs text-zinc-400">
+                          Valor: <span className="text-white font-semibold">{formatPrice(enrollment.course.price, enrollment.course.currency)}</span>
+                        </div>
+                      )}
 
                       <Link href={`/course/${enrollment.course.slug}`}>
                         <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs h-8">

@@ -13,7 +13,12 @@ async function createCourse(formData: FormData) {
   'use server'
 
   const user = await getCurrentUser()
+  console.log('🔍 [createCourse] User from getCurrentUser:', user)
+  console.log('🔍 [createCourse] User role:', user?.role)
+  console.log('🔍 [createCourse] Is ADMIN?:', user?.role === 'ADMIN')
+
   if (!user || user.role !== 'ADMIN') {
+    console.error('❌ [createCourse] Authorization failed. User:', user)
     throw new Error('Unauthorized')
   }
 

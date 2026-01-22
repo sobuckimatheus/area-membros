@@ -5,6 +5,18 @@ import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
+// Função helper para formatar preço
+function formatPrice(price: any, currency: string = 'BRL') {
+  if (!price) return null
+
+  const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price)
+
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: currency,
+  }).format(numPrice)
+}
+
 export default async function CoursesPage() {
   const user = await getCurrentUser()
 
@@ -20,6 +32,11 @@ export default async function CoursesPage() {
     },
     include: {
       category: true,
+      productMappings: {
+        include: {
+          integration: true,
+        },
+      },
       _count: {
         select: {
           modules: true,
@@ -129,6 +146,22 @@ export default async function CoursesPage() {
                       <span>•</span>
                       <span>{course._count.enrollments} alunos</span>
                     </div>
+
+                    {/* Preço */}
+                    {!course.isFree && course.price && (
+                      <div className="mb-3">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-white font-bold text-sm">
+                            {formatPrice(course.price, course.currency)}
+                          </span>
+                          {course.compareAtPrice && (
+                            <span className="text-zinc-500 line-through text-xs">
+                              {formatPrice(course.compareAtPrice, course.currency)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* CTA */}
                     <Link href={`/course/${course.slug}`}>

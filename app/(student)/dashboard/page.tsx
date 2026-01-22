@@ -31,6 +31,18 @@ function getYouTubeThumbnail(videoUrl: string | null): string | null {
   return null
 }
 
+// Função helper para formatar preço
+function formatPrice(price: any, currency: string = 'BRL') {
+  if (!price) return null
+
+  const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price)
+
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: currency,
+  }).format(numPrice)
+}
+
 export default async function DashboardPage() {
   const user = await getCurrentUser()
 
@@ -60,6 +72,11 @@ export default async function DashboardPage() {
     },
     include: {
       category: true,
+      productMappings: {
+        include: {
+          integration: true,
+        },
+      },
       enrollments: {
         where: {
           userId: user.id,
@@ -350,6 +367,11 @@ export default async function DashboardPage() {
                             {course.shortDesc}
                           </p>
                         )}
+                        {!course.isFree && course.price && (
+                          <p className="text-sm font-semibold mt-2" style={{ color: colors.primary }}>
+                            {formatPrice(course.price, course.currency)}
+                          </p>
+                        )}
                       </div>
                     </Link>
                   )
@@ -414,6 +436,18 @@ export default async function DashboardPage() {
                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                           {course.shortDesc}
                         </p>
+                      )}
+                      {!course.isFree && course.price && (
+                        <div className="mt-2">
+                          <p className="text-sm font-bold" style={{ color: colors.primary }}>
+                            {formatPrice(course.price, course.currency)}
+                          </p>
+                          {course.compareAtPrice && (
+                            <p className="text-xs text-gray-400 line-through">
+                              {formatPrice(course.compareAtPrice, course.currency)}
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
                   </Link>

@@ -158,18 +158,22 @@ export async function signout() {
 
 export async function getCurrentUser() {
   try {
+    console.log('🔍 [getCurrentUser] Starting...')
     const supabase = await createClient()
 
     const { data: { user }, error } = await supabase.auth.getUser()
 
     if (error) {
-      console.error('Erro ao obter usuário do Supabase:', error)
+      console.error('❌ [getCurrentUser] Erro ao obter usuário do Supabase:', error)
       return null
     }
 
     if (!user) {
+      console.log('⚠️ [getCurrentUser] No user from Supabase Auth')
       return null
     }
+
+    console.log('✅ [getCurrentUser] User from Supabase:', user.id, user.email)
 
     // Buscar dados completos do usuário no Prisma
     const dbUser = await prisma.user.findUnique({
@@ -180,13 +184,14 @@ export async function getCurrentUser() {
     })
 
     if (!dbUser) {
-      console.error('Usuário existe no Supabase mas não no banco de dados:', user.id)
+      console.error('❌ [getCurrentUser] Usuário existe no Supabase mas não no banco de dados:', user.id)
       return null
     }
 
+    console.log('✅ [getCurrentUser] User from DB:', dbUser.email, 'Role:', dbUser.role)
     return dbUser
   } catch (error) {
-    console.error('Erro ao buscar usuário atual:', error)
+    console.error('❌ [getCurrentUser] Erro ao buscar usuário atual:', error)
     return null
   }
 }
