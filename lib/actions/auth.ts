@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import prisma from '@/lib/prisma'
+import { syncUserPurchases } from '@/lib/services/sync-purchases'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -39,6 +40,13 @@ export async function login(formData: FormData) {
   }
 
   console.log('Usuário encontrado no banco:', dbUser.email, 'Role:', dbUser.role)
+
+  // Sincronizar compras do usuário (não bloquear o login)
+  if (dbUser.role === 'STUDENT') {
+    syncUserPurchases(dbUser.id).catch((error) => {
+      console.error('Erro ao sincronizar compras no login:', error)
+    })
+  }
 
   revalidatePath('/', 'layout')
 
