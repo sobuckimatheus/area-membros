@@ -83,15 +83,20 @@ async function checkUserAccess() {
         tenantId: student.tenantId,
       },
       include: {
-        productMapping: true,
+        course: {
+          select: {
+            title: true,
+          },
+        },
       },
     })
 
     if (purchases.length > 0) {
       console.log(`📝 Compras registradas: ${purchases.length}`)
       purchases.forEach((p) => {
-        console.log(`   - Produto: ${p.productMapping?.externalProductName || p.productId}`)
+        console.log(`   - Curso: ${p.course.title}`)
         console.log(`     Status: ${p.status}`)
+        console.log(`     Valor: R$ ${p.amount}`)
       })
       console.log('')
     } else {
