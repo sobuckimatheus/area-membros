@@ -113,6 +113,21 @@ export default async function DashboardPage() {
     },
   })
 
+  // Buscar o curso "Área do Assinante" para redirecionar os banners
+  const subscriberAreaCourse = await prisma.course.findFirst({
+    where: {
+      tenantId: user.tenantId,
+      OR: [
+        { title: { contains: 'Area do Assinante', mode: 'insensitive' } },
+        { title: { contains: 'Área do Assinante', mode: 'insensitive' } },
+      ],
+      status: 'PUBLISHED',
+    },
+    select: {
+      slug: true,
+    },
+  })
+
   // Buscar cursos exclusivos para assinantes
   const exclusiveCourses = await prisma.course.findMany({
     where: {
@@ -547,7 +562,7 @@ export default async function DashboardPage() {
         )}
 
         {/* Área do Assinante - Banners (aparece para todos como divulgação) */}
-        {subscriberBanners.length > 0 && (
+        {subscriberBanners.length > 0 && subscriberAreaCourse && (
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
               <span className="flex items-center gap-2">
@@ -561,29 +576,21 @@ export default async function DashboardPage() {
               <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
                 {subscriberBanners.map((banner) => (
                   <div key={banner.id} className="group relative flex-shrink-0 w-[180px] md:w-[200px] snap-start">
-                    {banner.link ? (
-                      <a href={banner.link} target="_blank" rel="noopener noreferrer">
-                        <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                          <img
-                            src={banner.imageUrl}
-                            alt={banner.title || 'Banner exclusivo'}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
-                      </a>
-                    ) : (
-                      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg">
+                    <Link href={`/course/${subscriberAreaCourse.slug}`}>
+                      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
                         <img
                           src={banner.imageUrl}
                           alt={banner.title || 'Banner exclusivo'}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                       </div>
-                    )}
+                    </Link>
                     {banner.title && (
-                      <h3 className="text-base font-semibold mt-4 line-clamp-2" style={{ color: colors.text }}>
-                        {banner.title}
-                      </h3>
+                      <Link href={`/course/${subscriberAreaCourse.slug}`}>
+                        <h3 className="text-base font-semibold mt-4 line-clamp-2 cursor-pointer hover:opacity-80 transition-opacity" style={{ color: colors.text }}>
+                          {banner.title}
+                        </h3>
+                      </Link>
                     )}
                     {banner.description && (
                       <p className="text-sm text-gray-600 mt-1 line-clamp-2">
