@@ -109,20 +109,18 @@ export default async function CoursePage({
             </div>
 
             {/* CTA */}
-            {!isEnrolled && (
+            {!isEnrolled && course.checkoutUrl && (
               <div className="mt-8 p-6 bg-zinc-800/50 backdrop-blur rounded-lg border border-zinc-700">
-                <p className="text-white mb-4">
+                <p className="text-white text-lg font-semibold mb-4">
                   {freeLessons > 0
                     ? `${freeLessons} aula${freeLessons > 1 ? 's' : ''} gratuita${freeLessons > 1 ? 's' : ''} disponível${freeLessons > 1 ? 'eis' : ''} para preview!`
                     : 'Adquira este curso para ter acesso a todo o conteúdo'}
                 </p>
-                {course.checkoutUrl && (
-                  <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                    <Button size="lg" className="bg-red-600 text-white hover:bg-red-700">
-                      Comprar Agora
-                    </Button>
-                  </a>
-                )}
+                <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer">
+                  <Button size="lg" className="bg-red-600 text-white hover:bg-red-700">
+                    {course.price ? `Comprar Agora - R$ ${course.price}` : 'Comprar Agora'}
+                  </Button>
+                </a>
               </div>
             )}
           </div>
@@ -131,9 +129,9 @@ export default async function CoursePage({
 
       {/* Course Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className={`grid grid-cols-1 gap-8 ${isEnrolled ? 'lg:grid-cols-3' : ''}`}>
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div className={isEnrolled ? 'lg:col-span-2' : ''}>
             {/* Intro Video */}
             {course.introVideoUrl && (
               <Card className="mb-6 bg-zinc-900 border-zinc-800">
@@ -313,86 +311,40 @@ export default async function CoursePage({
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Course Card */}
-            <Card className="sticky top-4 bg-zinc-900 border-zinc-800">
-              <CardHeader>
-                {course.thumbnailUrl && (
-                  <div className="aspect-video rounded-lg overflow-hidden mb-4">
-                    <img
-                      src={course.thumbnailUrl}
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                    />
+          {/* Sidebar - só aparece se estiver matriculado */}
+          {isEnrolled && (
+            <div className="lg:col-span-1">
+              {/* Course Card */}
+              <Card className="sticky top-4 bg-zinc-900 border-zinc-800">
+                <CardHeader>
+                  {course.thumbnailUrl && (
+                    <div className="aspect-video rounded-lg overflow-hidden mb-4">
+                      <img
+                        src={course.thumbnailUrl}
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <CardTitle className="text-white">Você está matriculado!</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-green-900/30 border border-green-800 rounded-lg">
+                    <div className="flex items-center gap-2 text-green-400 mb-2">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="font-medium">Acesso Total</span>
+                    </div>
+                    <p className="text-sm text-green-300">
+                      Você tem acesso completo a todas as aulas deste curso.
+                    </p>
                   </div>
-                )}
-                <CardTitle className="text-white">
-                  {isEnrolled ? 'Você está matriculado!' : 'Adquira este curso'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {isEnrolled ? (
-                  <>
-                    <div className="p-4 bg-green-900/30 border border-green-800 rounded-lg">
-                      <div className="flex items-center gap-2 text-green-400 mb-2">
-                        <CheckCircle className="h-5 w-5" />
-                        <span className="font-medium">Acesso Total</span>
-                      </div>
-                      <p className="text-sm text-green-300">
-                        Você tem acesso completo a todas as aulas deste curso.
-                      </p>
-                    </div>
-                    <Link href="/dashboard">
-                      <Button className="w-full bg-red-600 hover:bg-red-700">Ir para Meus Cursos</Button>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-2 text-sm text-zinc-400">
-                      <div className="flex justify-between">
-                        <span>Total de aulas:</span>
-                        <span className="font-medium text-white">{totalLessons}</span>
-                      </div>
-                      {freeLessons > 0 && (
-                        <div className="flex justify-between text-green-400">
-                          <span>Aulas gratuitas:</span>
-                          <span className="font-medium">{freeLessons}</span>
-                        </div>
-                      )}
-                      {course.estimatedDuration && (
-                        <div className="flex justify-between">
-                          <span>Duração total:</span>
-                          <span className="font-medium text-white">{course.estimatedDuration}h</span>
-                        </div>
-                      )}
-                    </div>
-                    {course.checkoutUrl ? (
-                      <div className="pt-4 border-t border-zinc-800">
-                        <p className="text-sm text-zinc-400 mb-4">
-                          Clique no botão abaixo para adquirir acesso completo ao curso.
-                        </p>
-                        <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                          <Button className="w-full bg-red-600 hover:bg-red-700" size="lg">
-                            Comprar Agora
-                          </Button>
-                        </a>
-                      </div>
-                    ) : (
-                      <div className="pt-4 border-t border-zinc-800">
-                        <p className="text-sm text-zinc-400 mb-4">
-                          Entre em contato para adquirir acesso completo ao curso.
-                        </p>
-                        <Button className="w-full bg-zinc-700" disabled>
-                          Entrar em Contato
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                  <Link href="/dashboard">
+                    <Button className="w-full bg-red-600 hover:bg-red-700">Ir para Meus Cursos</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </main>
     </div>
