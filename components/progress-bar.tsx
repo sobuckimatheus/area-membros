@@ -5,23 +5,25 @@ import { AppProgressBar as ProgressBar } from 'next-nprogress-bar'
 export function ProgressBarProvider() {
   return (
     <ProgressBar
-      height="4px"
+      height="6px"
       color="#ef4444"
       options={{
         showSpinner: false,
         trickle: true,
-        trickleSpeed: 200,
-        minimum: 0.08,
+        trickleSpeed: 150,
+        minimum: 0.15,
         easing: 'ease',
-        speed: 200,
+        speed: 300,
       }}
       shallowRouting
+      delay={50}
       style="
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         z-index: 99999;
+        box-shadow: 0 0 10px #ef4444, 0 0 5px #ef4444;
       "
     />
   )

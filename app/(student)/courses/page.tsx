@@ -101,7 +101,7 @@ export default async function CoursesPage() {
                 >
                   {/* Thumbnail - Formato Netflix vertical 9:16 - Clicável */}
                   {course.thumbnailUrl && (
-                    <Link href={`/course/${course.slug}`}>
+                    <Link href={`/course/${course.slug}`} prefetch={false}>
                       <div className="aspect-[9/16] bg-zinc-800 relative cursor-pointer group">
                         <img
                           src={course.thumbnailUrl}
@@ -137,7 +137,7 @@ export default async function CoursesPage() {
                     </div>
 
                     {/* Título - Clicável */}
-                    <Link href={`/course/${course.slug}`}>
+                    <Link href={`/course/${course.slug}`} prefetch={false}>
                       <CardTitle className="line-clamp-2 text-white text-sm leading-tight cursor-pointer hover:text-red-400 transition-colors">
                         {course.title}
                       </CardTitle>
@@ -194,7 +194,7 @@ export default async function CoursesPage() {
 
                     {/* CTA */}
                     {isEnrolled ? (
-                      <Link href={`/course/${course.slug}`}>
+                      <Link href={`/course/${course.slug}`} prefetch={false}>
                         <Button
                           className="w-full text-xs h-8"
                           variant="default"
@@ -204,7 +204,7 @@ export default async function CoursesPage() {
                         </Button>
                       </Link>
                     ) : course.isFree ? (
-                      <Link href={`/course/${course.slug}`}>
+                      <Link href={`/course/${course.slug}`} prefetch={false}>
                         <Button
                           className="w-full text-xs h-8"
                           variant="outline"
