@@ -319,15 +319,6 @@ export default async function CoursePage({
               {/* Course Card */}
               <Card className="sticky top-4 bg-zinc-900 border-zinc-800">
                 <CardHeader>
-                  {course.thumbnailUrl && (
-                    <div className="aspect-video rounded-lg overflow-hidden mb-4">
-                      <img
-                        src={course.thumbnailUrl}
-                        alt={course.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
                   <CardTitle className="text-white">Você está matriculado!</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
