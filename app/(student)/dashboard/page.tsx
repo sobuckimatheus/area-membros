@@ -238,7 +238,7 @@ export default async function DashboardPage() {
               </p>
 
               <div className="flex items-center gap-4 mb-6">
-                <Link href={`/course/${featuredCourse.slug}`}>
+                <Link href={`/course/${featuredCourse.slug}`} prefetch={false}>
                   <Button
                     size="lg"
                     className="font-semibold px-8 text-white hover:opacity-90"
@@ -248,7 +248,7 @@ export default async function DashboardPage() {
                     {enrolledCourses.includes(featuredCourse) ? 'Continuar Assistindo' : 'Começar Agora'}
                   </Button>
                 </Link>
-                <Link href={`/course/${featuredCourse.slug}`}>
+                <Link href={`/course/${featuredCourse.slug}`} prefetch={false}>
                   <Button
                     size="lg"
                     variant="outline"
@@ -448,7 +448,7 @@ export default async function DashboardPage() {
                 {availableCourses.map((course) => (
                   <div key={course.id} className="group relative flex-shrink-0 w-[180px] md:w-[200px] snap-start">
                     {/* Imagem com Link para detalhes */}
-                    <Link href={`/course/${course.slug}`}>
+                    <Link href={`/course/${course.slug}`} prefetch={false}>
                       <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
                         {course.thumbnailUrl ? (
                           <img
@@ -488,7 +488,7 @@ export default async function DashboardPage() {
                     </Link>
 
                     {/* Título com Link */}
-                    <Link href={`/course/${course.slug}`}>
+                    <Link href={`/course/${course.slug}`} prefetch={false}>
                       <h3 className="text-base font-semibold mt-4 line-clamp-2 cursor-pointer hover:opacity-80 transition-opacity" style={{ color: colors.text }}>
                         {course.title}
                       </h3>
@@ -576,7 +576,7 @@ export default async function DashboardPage() {
               <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
                 {subscriberBanners.map((banner) => (
                   <div key={banner.id} className="group relative flex-shrink-0 w-[180px] md:w-[200px] snap-start">
-                    <Link href={`/course/${subscriberAreaCourse.slug}`}>
+                    <Link href={`/course/${subscriberAreaCourse.slug}`} prefetch={false}>
                       <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
                         <img
                           src={banner.imageUrl}
@@ -586,7 +586,7 @@ export default async function DashboardPage() {
                       </div>
                     </Link>
                     {banner.title && (
-                      <Link href={`/course/${subscriberAreaCourse.slug}`}>
+                      <Link href={`/course/${subscriberAreaCourse.slug}`} prefetch={false}>
                         <h3 className="text-base font-semibold mt-4 line-clamp-2 cursor-pointer hover:opacity-80 transition-opacity" style={{ color: colors.text }}>
                           {banner.title}
                         </h3>
@@ -621,7 +621,7 @@ export default async function DashboardPage() {
                   const isEnrolled = course.enrollments.length > 0
                   return (
                     <div key={course.id} className="group relative flex-shrink-0 w-[180px] md:w-[200px] snap-start">
-                      <Link href={`/course/${course.slug}`}>
+                      <Link href={`/course/${course.slug}`} prefetch={false}>
                         <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
                           {course.thumbnailUrl ? (
                             <img

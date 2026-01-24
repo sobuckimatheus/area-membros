@@ -78,7 +78,7 @@ export function AppSidebarStudent({ user, primaryColor, sidebarColor, signoutAct
                       className="transition-colors"
                       style={active ? { backgroundColor: `${primaryColor}15`, color: primaryColor } : undefined}
                     >
-                      <Link href={item.href}>
+                      <Link href={item.href} prefetch={false}>
                         <item.icon className="h-5 w-5" />
                         <span>{item.name}</span>
                       </Link>
@@ -98,7 +98,7 @@ export function AppSidebarStudent({ user, primaryColor, sidebarColor, signoutAct
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link href="/admin" style={{ color: primaryColor }}>
+                      <Link href="/admin" prefetch={false} style={{ color: primaryColor }}>
                         <Shield className="h-5 w-5" />
                         <span>Admin</span>
                       </Link>

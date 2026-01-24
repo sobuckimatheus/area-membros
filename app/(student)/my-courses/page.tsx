@@ -80,7 +80,7 @@ export default async function MyCoursesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/courses">
+              <Link href="/courses" prefetch={false}>
                 <Button className="bg-red-600 hover:bg-red-700 text-white">
                   Explorar Cursos
                 </Button>
@@ -137,7 +137,7 @@ export default async function MyCoursesPage() {
                         </div>
                       )}
 
-                      <Link href={`/course/${enrollment.course.slug}`}>
+                      <Link href={`/course/${enrollment.course.slug}`} prefetch={false}>
                         <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs h-8">
                           {Number(enrollment.progress) === 0 ? 'Começar' : 'Continuar'}
                         </Button>

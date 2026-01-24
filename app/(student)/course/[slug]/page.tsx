@@ -283,7 +283,7 @@ export default async function CoursePage({
                                 )}
 
                                 {canAccess ? (
-                                  <Link href={`/course/${course.slug}/lesson/${lesson.id}`}>
+                                  <Link href={`/course/${course.slug}/lesson/${lesson.id}`} prefetch={false}>
                                     <Button size="sm" variant="ghost" className="text-white hover:bg-zinc-700">
                                       <Play className="h-4 w-4 mr-1" />
                                       {lesson.isFree && !isEnrolled ? 'Preview' : 'Assistir'}
@@ -340,7 +340,7 @@ export default async function CoursePage({
                       Você tem acesso completo a todas as aulas deste curso.
                     </p>
                   </div>
-                  <Link href="/dashboard">
+                  <Link href="/dashboard" prefetch={false}>
                     <Button className="w-full bg-red-600 hover:bg-red-700">Ir para Meus Cursos</Button>
                   </Link>
                 </CardContent>

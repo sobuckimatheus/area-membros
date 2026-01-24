@@ -199,7 +199,7 @@ export default async function LessonPage({
             {/* Navigation */}
             <div className="flex gap-4">
               {previousLesson && previousLesson.canAccess ? (
-                <Link href={`/course/${slug}/lesson/${previousLesson.id}`} className="flex-1">
+                <Link href={`/course/${slug}/lesson/${previousLesson.id}`} className="flex-1" prefetch={false}>
                   <Button variant="outline" className="w-full bg-zinc-900 border-zinc-700 text-white hover:bg-zinc-800 hover:text-white">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Aula Anterior
@@ -213,7 +213,7 @@ export default async function LessonPage({
               )}
 
               {nextLesson && nextLesson.canAccess ? (
-                <Link href={`/course/${slug}/lesson/${nextLesson.id}`} className="flex-1">
+                <Link href={`/course/${slug}/lesson/${nextLesson.id}`} className="flex-1" prefetch={false}>
                   <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
                     Próxima Aula
                     <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
@@ -249,7 +249,7 @@ export default async function LessonPage({
                           return (
                             <div key={l.id}>
                               {canAccessThis ? (
-                                <Link href={`/course/${slug}/lesson/${l.id}`}>
+                                <Link href={`/course/${slug}/lesson/${l.id}`} prefetch={false}>
                                   <div
                                     className={`p-2 rounded text-sm transition-colors ${
                                       isCurrent

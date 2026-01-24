@@ -68,7 +68,7 @@ export function AppSidebarAdmin({ user, sidebarColor, signoutAction }: AppSideba
                 return (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton asChild isActive={isActive}>
-                      <Link href={item.href}>
+                      <Link href={item.href} prefetch={false}>
                         <item.icon className="h-5 w-5" />
                         <span>{item.name}</span>
                       </Link>
