@@ -27,6 +27,7 @@ async function updateCourse(courseId: string, formData: FormData) {
   const estimatedDuration = formData.get('estimatedDuration') as string
   const thumbnailUrl = formData.get('thumbnailUrl') as string
   const bannerUrl = formData.get('bannerUrl') as string
+  const introVideoUrl = formData.get('introVideoUrl') as string
   const checkoutUrl = formData.get('checkoutUrl') as string
   const isFree = formData.get('isFree') === 'on'
 
@@ -65,6 +66,7 @@ async function updateCourse(courseId: string, formData: FormData) {
       estimatedDuration: estimatedDuration ? parseInt(estimatedDuration) : null,
       thumbnailUrl: thumbnailUrl || null,
       bannerUrl: bannerUrl || null,
+      introVideoUrl: introVideoUrl || null,
       checkoutUrl: checkoutUrl || null,
       isFree,
     },
@@ -419,6 +421,21 @@ export default async function CourseDetailPage({
                 type="banner"
                 currentImageUrl={course.bannerUrl}
               />
+            </div>
+
+            <div>
+              <Label htmlFor="introVideoUrl">Vídeo Introdutório (YouTube)</Label>
+              <Input
+                id="introVideoUrl"
+                name="introVideoUrl"
+                type="url"
+                defaultValue={course.introVideoUrl || ''}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="mt-1"
+              />
+              <p className="text-sm text-slate-500 mt-1">
+                Vídeo explicativo/informativo do curso. Será exibido para todos os visitantes da página do curso.
+              </p>
             </div>
 
             <div>

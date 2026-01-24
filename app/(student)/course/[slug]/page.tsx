@@ -134,6 +134,39 @@ export default async function CoursePage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
+            {/* Intro Video */}
+            {course.introVideoUrl && (
+              <Card className="mb-6 bg-zinc-900 border-zinc-800">
+                <CardHeader>
+                  <CardTitle className="text-white">Vídeo Introdutório</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="aspect-video bg-black">
+                    {course.introVideoUrl.includes('youtube.com') ||
+                    course.introVideoUrl.includes('youtu.be') ? (
+                      <iframe
+                        src={(() => {
+                          let videoId = ''
+                          if (course.introVideoUrl.includes('youtube.com/watch')) {
+                            const url = new URL(course.introVideoUrl)
+                            videoId = url.searchParams.get('v') || ''
+                          } else if (course.introVideoUrl.includes('youtu.be/')) {
+                            videoId = course.introVideoUrl.split('youtu.be/')[1].split('?')[0]
+                          }
+                          return `https://www.youtube.com/embed/${videoId}`
+                        })()}
+                        className="w-full h-full"
+                        allowFullScreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      />
+                    ) : (
+                      <video src={course.introVideoUrl} controls className="w-full h-full" />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* About */}
             {course.description && (
               <Card className="mb-6 bg-zinc-900 border-zinc-800">

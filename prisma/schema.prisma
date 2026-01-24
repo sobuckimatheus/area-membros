@@ -281,6 +281,7 @@ model Course {
   thumbnailUrl String? // imagem pequena para cards
   bannerUrl    String? // imagem grande para banner/hero
   trailerUrl   String? // vídeo de preview/trailer
+  introVideoUrl String? // vídeo introdutório/explicativo (YouTube) - visível para todos
 
   // Organização
   categoryId String?
