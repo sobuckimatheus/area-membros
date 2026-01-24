@@ -99,25 +99,31 @@ export default async function CoursesPage() {
                   key={course.id}
                   className="overflow-hidden hover:shadow-xl hover:shadow-red-900/20 transition-shadow bg-zinc-900 border-zinc-800"
                 >
-                  {/* Thumbnail - Formato Netflix vertical 9:16 */}
+                  {/* Thumbnail - Formato Netflix vertical 9:16 - Clicável */}
                   {course.thumbnailUrl && (
-                    <div className="aspect-[9/16] bg-zinc-800 relative">
-                      <img
-                        src={course.thumbnailUrl}
-                        alt={course.title}
-                        className="object-cover w-full h-full"
-                      />
-                      {isEnrolled && (
-                        <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-green-900/30 text-green-400 border border-green-800 text-xs font-medium rounded">
-                          ✓
+                    <Link href={`/course/${course.slug}`}>
+                      <div className="aspect-[9/16] bg-zinc-800 relative cursor-pointer group">
+                        <img
+                          src={course.thumbnailUrl}
+                          alt={course.title}
+                          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {isEnrolled && (
+                          <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-green-900/30 text-green-400 border border-green-800 text-xs font-medium rounded">
+                            ✓
+                          </div>
+                        )}
+                        {course.isFree && (
+                          <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-red-900/30 text-red-400 border border-red-800 text-xs font-medium rounded">
+                            GRÁTIS
+                          </div>
+                        )}
+                        {/* Overlay hover */}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <span className="text-white text-xs font-medium">Ver detalhes</span>
                         </div>
-                      )}
-                      {course.isFree && (
-                        <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-red-900/30 text-red-400 border border-red-800 text-xs font-medium rounded">
-                          GRÁTIS
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    </Link>
                   )}
 
                   <CardHeader className="p-3">
@@ -130,10 +136,12 @@ export default async function CoursesPage() {
                       )}
                     </div>
 
-                    {/* Título */}
-                    <CardTitle className="line-clamp-2 text-white text-sm leading-tight">
-                      {course.title}
-                    </CardTitle>
+                    {/* Título - Clicável */}
+                    <Link href={`/course/${course.slug}`}>
+                      <CardTitle className="line-clamp-2 text-white text-sm leading-tight cursor-pointer hover:text-red-400 transition-colors">
+                        {course.title}
+                      </CardTitle>
+                    </Link>
 
                     {/* Instrutor */}
                     {course.instructorName && (
