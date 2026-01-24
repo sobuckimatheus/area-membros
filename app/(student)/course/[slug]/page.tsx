@@ -134,7 +134,7 @@ export default async function CoursePage({
           <div className={isEnrolled ? 'lg:col-span-2' : ''}>
             {/* Intro Video */}
             {course.introVideoUrl && (
-              <div className="mb-6 max-w-3xl mx-auto">
+              <div className="mb-6 max-w-xl mx-auto">
                 <Card className="bg-zinc-900 border-zinc-800">
                   <CardHeader>
                     <CardTitle className="text-white">Vídeo Introdutório</CardTitle>
