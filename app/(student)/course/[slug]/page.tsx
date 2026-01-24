@@ -107,22 +107,6 @@ export default async function CoursePage({
                 </div>
               )}
             </div>
-
-            {/* CTA */}
-            {!isEnrolled && course.checkoutUrl && (
-              <div className="mt-8 p-6 bg-zinc-800/50 backdrop-blur rounded-lg border border-zinc-700">
-                <p className="text-white text-lg font-semibold mb-4">
-                  {freeLessons > 0
-                    ? `${freeLessons} aula${freeLessons > 1 ? 's' : ''} gratuita${freeLessons > 1 ? 's' : ''} disponível${freeLessons > 1 ? 'eis' : ''} para preview!`
-                    : 'Adquira este curso para ter acesso a todo o conteúdo'}
-                </p>
-                <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" className="bg-red-600 text-white hover:bg-red-700">
-                    {course.price ? `Comprar Agora - R$ ${course.price}` : 'Comprar Agora'}
-                  </Button>
-                </a>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -164,6 +148,22 @@ export default async function CoursePage({
                     </div>
                   </CardContent>
                 </Card>
+              </div>
+            )}
+
+            {/* CTA */}
+            {!isEnrolled && course.checkoutUrl && (
+              <div className="mb-6 p-6 bg-zinc-800/50 backdrop-blur rounded-lg border border-zinc-700">
+                <p className="text-white text-lg font-semibold mb-4">
+                  {freeLessons > 0
+                    ? `${freeLessons} aula${freeLessons > 1 ? 's' : ''} gratuita${freeLessons > 1 ? 's' : ''} disponível${freeLessons > 1 ? 'eis' : ''} para preview!`
+                    : 'Adquira este curso para ter acesso a todo o conteúdo'}
+                </p>
+                <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer">
+                  <Button size="lg" className="bg-red-600 text-white hover:bg-red-700">
+                    {course.price ? `Comprar Agora - R$ ${course.price}` : 'Comprar Agora'}
+                  </Button>
+                </a>
               </div>
             )}
 
