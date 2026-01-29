@@ -47,25 +47,25 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-muted p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-black p-4">
+      <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center">
+          <CardTitle className="text-3xl font-bold text-center text-white">
             Bem-vindo de volta
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-zinc-400">
             Entre com seu email e senha para acessar sua conta
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-3 text-sm">
+              <div className="bg-red-900/20 text-red-400 border border-red-800 rounded-lg p-3 text-sm">
                 {error}
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-white">Email</Label>
               <Input
                 id="email"
                 name="email"
@@ -73,14 +73,15 @@ export default function LoginPage() {
                 placeholder="seu@email.com"
                 required
                 disabled={isLoading}
+                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Senha</Label>
+                <Label htmlFor="password" className="text-white">Senha</Label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-sm text-primary hover:underline"
+                  className="text-sm text-red-500 hover:text-red-400 hover:underline"
                 >
                   Esqueceu a senha?
                 </Link>
@@ -92,16 +93,21 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 required
                 disabled={isLoading}
+                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+              disabled={isLoading}
+            >
               {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
-            <p className="text-sm text-center text-muted-foreground">
+            <p className="text-sm text-center text-zinc-400">
               Não tem uma conta?{" "}
-              <Link href="/auth/register" className="text-primary hover:underline font-medium">
+              <Link href="/auth/register" className="text-red-500 hover:text-red-400 hover:underline font-medium">
                 Cadastre-se gratuitamente
               </Link>
             </p>
