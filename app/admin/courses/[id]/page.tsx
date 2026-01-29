@@ -33,6 +33,7 @@ async function updateCourse(courseId: string, formData: FormData) {
   const subscriberPrice = formData.get('subscriberPrice') as string
   const subscriberCheckoutUrl = formData.get('subscriberCheckoutUrl') as string
   const isFree = formData.get('isFree') === 'on'
+  const isFullyBooked = formData.get('isFullyBooked') === 'on'
 
   if (!title) {
     throw new Error('Título é obrigatório')
@@ -75,6 +76,7 @@ async function updateCourse(courseId: string, formData: FormData) {
       subscriberPrice: subscriberPrice ? parseFloat(subscriberPrice) : null,
       subscriberCheckoutUrl: subscriberCheckoutUrl || null,
       isFree,
+      isFullyBooked,
     },
   })
 
@@ -545,6 +547,27 @@ export default async function CourseDetailPage({
                   <p className="text-sm text-slate-600 mt-1">
                     Ao marcar esta opção, todos os alunos serão matriculados automaticamente neste curso.
                     Novos alunos também serão matriculados automaticamente ao se cadastrarem.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-red-200 rounded-lg p-4 bg-red-50">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="isFullyBooked"
+                  name="isFullyBooked"
+                  defaultChecked={course.isFullyBooked}
+                  className="mt-1 h-4 w-4 rounded border-red-300 text-red-600 focus:ring-red-500"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="isFullyBooked" className="cursor-pointer text-red-900">
+                    Vagas Encerradas
+                  </Label>
+                  <p className="text-sm text-red-700 mt-1">
+                    Ao marcar esta opção, o curso será exibido com a faixa &quot;Vagas Esgotadas&quot; e os botões de compra serão desabilitados.
+                    Os alunos não poderão se matricular nem comprar este curso.
                   </p>
                 </div>
               </div>

@@ -299,6 +299,7 @@ model Course {
   featured    Boolean @default(false)
   isFree      Boolean @default(false) // Curso gratuito - matricula todos automaticamente
   isSubscriberOnly Boolean @default(false) // Curso exclusivo para assinantes
+  isFullyBooked Boolean @default(false) // Vagas encerradas - não permite matrícula/compra
 
   // Pricing (se marketplace habilitado)
   price           Decimal? @db.Decimal(10, 2)

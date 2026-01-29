@@ -465,8 +465,17 @@ export default async function DashboardPage() {
                           </div>
                         )}
 
+                        {/* Badge Vagas Esgotadas */}
+                        {course.isFullyBooked && (
+                          <div className="absolute top-3 left-3 right-3">
+                            <div className="bg-red-600 text-white text-xs font-bold py-2 px-3 rounded-lg shadow-lg text-center">
+                              🔒 VAGAS ESGOTADAS
+                            </div>
+                          </div>
+                        )}
+
                         {/* Badge */}
-                        {course.badge && (
+                        {!course.isFullyBooked && course.badge && (
                           <div className="absolute top-3 left-3">
                             <span
                               className="px-3 py-1.5 text-white text-xs font-bold rounded-full shadow-lg"
@@ -505,18 +514,27 @@ export default async function DashboardPage() {
                     {!course.isFree && course.price && (
                       <div className="mt-3 space-y-3">
                         {/* Botão Preço Normal - sempre aparece */}
-                        <a
-                          href={course.checkoutUrl || `/course/${course.slug}`}
-                          target={course.checkoutUrl ? "_blank" : "_self"}
-                          rel="noopener noreferrer"
-                        >
-                          <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
-                            {formatPrice(course.price, course.currency)}
+                        {course.isFullyBooked ? (
+                          <button
+                            disabled
+                            className="w-full px-3 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm font-semibold cursor-not-allowed shadow-sm"
+                          >
+                            Vagas Esgotadas
                           </button>
-                        </a>
+                        ) : (
+                          <a
+                            href={course.checkoutUrl || `/course/${course.slug}`}
+                            target={course.checkoutUrl ? "_blank" : "_self"}
+                            rel="noopener noreferrer"
+                          >
+                            <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
+                              {formatPrice(course.price, course.currency)}
+                            </button>
+                          </a>
+                        )}
 
                         {/* Botão Preço Para assinantes - sempre aparece se tiver preço configurado */}
-                        {course.subscriberPrice && (
+                        {course.subscriberPrice && !course.isFullyBooked && (
                           <div>
                             {isSubscriber ? (
                               // Assinante: botão clicável
