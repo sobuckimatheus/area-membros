@@ -515,7 +515,7 @@ export default async function DashboardPage() {
                           </button>
                         </a>
 
-                        {/* Botão Preço Assinante - sempre aparece se tiver preço configurado */}
+                        {/* Botão Preço Para assinantes - sempre aparece se tiver preço configurado */}
                         {course.subscriberPrice && (
                           <div>
                             {isSubscriber ? (
@@ -533,7 +533,7 @@ export default async function DashboardPage() {
                                     border: '2px solid #22c55e'
                                   }}
                                 >
-                                  Assinante - {formatPrice(course.subscriberPrice, course.currency)}
+                                  Para assinantes - {formatPrice(course.subscriberPrice, course.currency)}
                                 </button>
                               </a>
                             ) : (
@@ -547,7 +547,7 @@ export default async function DashboardPage() {
                                   border: '2px solid #22c55e'
                                 }}
                               >
-                                Assinante - {formatPrice(course.subscriberPrice, course.currency)}
+                                Para assinantes - {formatPrice(course.subscriberPrice, course.currency)}
                               </button>
                             )}
                           </div>
@@ -561,7 +561,7 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* Área do Assinante - Banners (aparece para todos como divulgação) */}
+        {/* Área do Para assinantes - Banners (aparece para todos como divulgação) */}
         {subscriberBanners.length > 0 && subscriberAreaCourse && (
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
