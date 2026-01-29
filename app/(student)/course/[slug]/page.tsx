@@ -80,11 +80,22 @@ export default async function CoursePage({
       </header>
 
       {/* Course Header */}
-      <div className="bg-gradient-to-br from-zinc-900 to-black text-white border-b border-zinc-800">
-        <div className="container mx-auto px-4 py-12">
+      <div className="relative bg-gradient-to-br from-zinc-900 to-black text-white border-b border-zinc-800">
+        {/* Banner Image Background */}
+        {course.bannerUrl && (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${course.bannerUrl})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80" />
+          </>
+        )}
+
+        <div className="relative container mx-auto px-4 py-12">
           <div className="max-w-4xl">
             {course.category && (
-              <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full">
+              <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full backdrop-blur-sm">
                 {course.category.name}
               </span>
             )}
