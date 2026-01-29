@@ -6,10 +6,13 @@ import { Button } from '@/components/ui/button'
 import prisma from '@/lib/prisma'
 import { redirect, notFound } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { BookOpen, Users, Clock, ArrowLeft, Eye, EyeOff, Trash2 } from 'lucide-react'
 import { CourseImageUpload } from '@/components/course-image-upload'
 import { DeleteCourseButton } from '@/components/delete-course-button'
+import { CourseSaveToast } from '@/components/course-save-toast'
+import { CourseFormSubmit } from '@/components/course-form-submit'
 
 async function updateCourse(courseId: string, formData: FormData) {
   'use server'
@@ -103,6 +106,10 @@ async function updateCourse(courseId: string, formData: FormData) {
       })
     }
   }
+
+  // Definir cookie de sucesso
+  const cookieStore = await cookies()
+  cookieStore.set('course-updated', 'true', { maxAge: 2 })
 
   revalidatePath(`/admin/courses/${courseId}`)
   revalidatePath('/admin/courses')
@@ -208,6 +215,7 @@ export default async function CourseDetailPage({
 
   return (
     <div className="max-w-5xl">
+      <CourseSaveToast />
       <div className="mb-8">
         <Link
           href="/admin/courses"
@@ -574,7 +582,7 @@ export default async function CourseDetailPage({
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button type="submit">Salvar Alterações</Button>
+              <CourseFormSubmit />
               <Link href="/admin/courses">
                 <Button type="button" variant="outline">
                   Cancelar
