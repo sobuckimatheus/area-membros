@@ -29,6 +29,9 @@ async function updateCourse(courseId: string, formData: FormData) {
   const bannerUrl = formData.get('bannerUrl') as string
   const introVideoUrl = formData.get('introVideoUrl') as string
   const checkoutUrl = formData.get('checkoutUrl') as string
+  const price = formData.get('price') as string
+  const subscriberPrice = formData.get('subscriberPrice') as string
+  const subscriberCheckoutUrl = formData.get('subscriberCheckoutUrl') as string
   const isFree = formData.get('isFree') === 'on'
 
   if (!title) {
@@ -68,6 +71,9 @@ async function updateCourse(courseId: string, formData: FormData) {
       bannerUrl: bannerUrl || null,
       introVideoUrl: introVideoUrl || null,
       checkoutUrl: checkoutUrl || null,
+      price: price ? parseFloat(price) : null,
+      subscriberPrice: subscriberPrice ? parseFloat(subscriberPrice) : null,
+      subscriberCheckoutUrl: subscriberCheckoutUrl || null,
       isFree,
     },
   })
@@ -450,6 +456,57 @@ export default async function CourseDetailPage({
               />
               <p className="text-sm text-slate-500 mt-1">
                 Cole aqui o link do checkout da Kirvano, Hotmart, etc. Este link será usado no botão &quot;Comprar agora&quot;.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price">Preço Normal (R$)</Label>
+                <Input
+                  id="price"
+                  name="price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  defaultValue={course.price?.toString() || ''}
+                  placeholder="97.00"
+                  className="mt-1"
+                />
+                <p className="text-sm text-slate-500 mt-1">
+                  Preço padrão do curso.
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="subscriberPrice">Preço para Assinantes (R$)</Label>
+                <Input
+                  id="subscriberPrice"
+                  name="subscriberPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  defaultValue={course.subscriberPrice?.toString() || ''}
+                  placeholder="47.00"
+                  className="mt-1"
+                />
+                <p className="text-sm text-slate-500 mt-1">
+                  Preço especial para assinantes.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="subscriberCheckoutUrl">Link de Checkout para Assinantes</Label>
+              <Input
+                id="subscriberCheckoutUrl"
+                name="subscriberCheckoutUrl"
+                type="url"
+                defaultValue={course.subscriberCheckoutUrl || ''}
+                placeholder="https://pay.kirvano.com/..."
+                className="mt-1"
+              />
+              <p className="text-sm text-slate-500 mt-1">
+                Link específico para compra com desconto de assinante.
               </p>
             </div>
 
