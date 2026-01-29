@@ -66,6 +66,7 @@ export async function signup(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const name = formData.get('name') as string
+  const whatsapp = formData.get('whatsapp') as string
 
   const { data: authData, error } = await supabase.auth.signUp({
     email,
@@ -106,6 +107,7 @@ export async function signup(formData: FormData) {
             tenantId: tenant.id,
             email,
             name: name || email.split('@')[0],
+            phone: whatsapp || null,
             supabaseUid: authData.user.id,
             role: 'STUDENT',
             status: 'ACTIVE',

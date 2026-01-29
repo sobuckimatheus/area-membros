@@ -168,8 +168,8 @@ export default async function CoursePage({
                   {/* Botão Preço Normal */}
                   {course.price && (
                     <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer" className="block">
-                      <Button size="lg" className="w-full bg-white text-gray-800 hover:bg-gray-100 font-semibold">
-                        Comprar Agora - R$ {course.price.toString()}
+                      <Button className="w-full bg-white text-gray-800 hover:bg-gray-100 font-semibold">
+                        Comprar Agora - R$ {Number(course.price).toFixed(2)}
                       </Button>
                     </a>
                   )}
@@ -184,17 +184,16 @@ export default async function CoursePage({
                           rel="noopener noreferrer"
                           className="block"
                         >
-                          <Button size="lg" className="w-full bg-green-600 text-white hover:bg-green-700 font-semibold">
-                            Para assinantes - R$ {course.subscriberPrice.toString()}
+                          <Button className="w-full bg-green-600 text-white hover:bg-green-700 font-semibold">
+                            Para assinantes - R$ {Number(course.subscriberPrice).toFixed(2)}
                           </Button>
                         </a>
                       ) : (
                         <Button
-                          size="lg"
                           disabled
                           className="w-full bg-transparent border-2 border-green-600 text-green-600 font-semibold opacity-60 cursor-not-allowed"
                         >
-                          Para assinantes - R$ {course.subscriberPrice.toString()}
+                          Para assinantes - R$ {Number(course.subscriberPrice).toFixed(2)}
                         </Button>
                       )}
                     </>
