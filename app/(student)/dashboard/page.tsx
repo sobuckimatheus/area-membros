@@ -517,7 +517,7 @@ export default async function DashboardPage() {
 
                         {/* Botão Preço Assinante - sempre aparece se tiver preço configurado */}
                         {course.subscriberPrice && (
-                          <>
+                          <div>
                             {isSubscriber ? (
                               // Assinante: botão clicável
                               <a
@@ -550,7 +550,7 @@ export default async function DashboardPage() {
                                 Assinante - {formatPrice(course.subscriberPrice, course.currency)}
                               </button>
                             )}
-                          </>
+                          </div>
                         )}
                       </div>
                     )}
