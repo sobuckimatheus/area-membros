@@ -503,7 +503,7 @@ export default async function DashboardPage() {
 
                     {/* Botões de Compra */}
                     {!course.isFree && course.price && (
-                      <div className="mt-3 space-y-[80px]">
+                      <div className="mt-3 space-y-5">
                         {/* Botão Preço Normal - sempre aparece */}
                         <a
                           href={course.checkoutUrl || `/course/${course.slug}`}
