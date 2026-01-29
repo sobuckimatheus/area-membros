@@ -1,4 +1,5 @@
 import { getCurrentUser } from '@/lib/actions/auth'
+import { hasActiveSubscription } from '@/lib/services/subscription'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import prisma from '@/lib/prisma'
@@ -17,6 +18,9 @@ export default async function CoursePage({
   if (!user) {
     redirect('/auth/login')
   }
+
+  // Verificar se usuário é assinante
+  const isSubscriber = await hasActiveSubscription(user.id)
 
   // Buscar curso
   const course = await prisma.course.findFirst({
@@ -152,18 +156,62 @@ export default async function CoursePage({
             )}
 
             {/* CTA */}
-            {!isEnrolled && course.checkoutUrl && (
+            {!isEnrolled && course.checkoutUrl && !course.isFullyBooked && (
               <div className="mb-6 p-6 bg-zinc-800/50 backdrop-blur rounded-lg border border-zinc-700">
                 <p className="text-white text-lg font-semibold mb-4">
                   {freeLessons > 0
                     ? `${freeLessons} aula${freeLessons > 1 ? 's' : ''} gratuita${freeLessons > 1 ? 's' : ''} disponível${freeLessons > 1 ? 'eis' : ''} para preview!`
                     : 'Adquira este curso para ter acesso a todo o conteúdo'}
                 </p>
-                <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" className="bg-red-600 text-white hover:bg-red-700">
-                    {course.price ? `Comprar Agora - R$ ${course.price}` : 'Comprar Agora'}
-                  </Button>
-                </a>
+
+                <div className="space-y-3">
+                  {/* Botão Preço Normal */}
+                  {course.price && (
+                    <a href={course.checkoutUrl} target="_blank" rel="noopener noreferrer" className="block">
+                      <Button size="lg" className="w-full bg-white text-gray-800 hover:bg-gray-100 font-semibold">
+                        Comprar Agora - R$ {course.price.toString()}
+                      </Button>
+                    </a>
+                  )}
+
+                  {/* Botão Preço Para Assinantes */}
+                  {course.subscriberPrice && (
+                    <>
+                      {isSubscriber ? (
+                        <a
+                          href={course.subscriberCheckoutUrl || course.checkoutUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          <Button size="lg" className="w-full bg-green-600 text-white hover:bg-green-700 font-semibold">
+                            Para assinantes - R$ {course.subscriberPrice.toString()}
+                          </Button>
+                        </a>
+                      ) : (
+                        <Button
+                          size="lg"
+                          disabled
+                          className="w-full bg-transparent border-2 border-green-600 text-green-600 font-semibold opacity-60 cursor-not-allowed"
+                        >
+                          Para assinantes - R$ {course.subscriberPrice.toString()}
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Vagas Esgotadas */}
+            {!isEnrolled && course.isFullyBooked && (
+              <div className="mb-6 p-6 bg-red-900/20 backdrop-blur rounded-lg border border-red-800">
+                <p className="text-red-400 text-lg font-semibold text-center">
+                  🔒 Vagas Esgotadas
+                </p>
+                <p className="text-red-300 text-sm text-center mt-2">
+                  Este curso não está mais disponível para compra no momento.
+                </p>
               </div>
             )}
 
