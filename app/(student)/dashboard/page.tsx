@@ -503,7 +503,7 @@ export default async function DashboardPage() {
 
                     {/* Botões de Compra */}
                     {!course.isFree && course.price && (
-                      <div className="mt-3 space-y-2">
+                      <div className="mt-3 space-y-3">
                         {/* Botão Preço Normal - sempre aparece */}
                         <a
                           href={course.checkoutUrl || `/course/${course.slug}`}
@@ -526,11 +526,11 @@ export default async function DashboardPage() {
                                 rel="noopener noreferrer"
                               >
                                 <button
-                                  className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                                  className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm hover:bg-green-600"
                                   style={{
-                                    backgroundColor: colors.accent,
+                                    backgroundColor: '#22c55e',
                                     color: 'white',
-                                    border: `2px solid ${colors.accent}`
+                                    border: '2px solid #22c55e'
                                   }}
                                 >
                                   Assinante - {formatPrice(course.subscriberPrice, course.currency)}
@@ -543,8 +543,8 @@ export default async function DashboardPage() {
                                 className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm opacity-60 cursor-not-allowed"
                                 style={{
                                   backgroundColor: 'transparent',
-                                  color: colors.accent,
-                                  border: `2px solid ${colors.accent}`
+                                  color: '#22c55e',
+                                  border: '2px solid #22c55e'
                                 }}
                               >
                                 Assinante - {formatPrice(course.subscriberPrice, course.currency)}
