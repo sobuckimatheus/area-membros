@@ -79,23 +79,23 @@ export default async function CoursePage({
         </div>
       </header>
 
-      {/* Course Header */}
-      <div className="relative bg-gradient-to-br from-zinc-900 to-black text-white border-b border-zinc-800">
-        {/* Banner Image Background */}
-        {course.bannerUrl && (
-          <>
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${course.bannerUrl})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80" />
-          </>
-        )}
+      {/* Hero Banner Image */}
+      {course.bannerUrl && (
+        <div className="w-full border-b border-zinc-800">
+          <img
+            src={course.bannerUrl}
+            alt={course.title}
+            className="w-full h-auto object-cover max-h-[600px]"
+          />
+        </div>
+      )}
 
-        <div className="relative container mx-auto px-4 py-12">
+      {/* Course Header */}
+      <div className="bg-gradient-to-br from-zinc-900 to-black text-white border-b border-zinc-800">
+        <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl">
             {course.category && (
-              <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full backdrop-blur-sm">
+              <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full">
                 {course.category.name}
               </span>
             )}
