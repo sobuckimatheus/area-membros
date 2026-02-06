@@ -560,8 +560,8 @@ export default async function DashboardPage() {
                                 disabled
                                 className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm opacity-60 cursor-not-allowed"
                                 style={{
-                                  backgroundColor: 'transparent',
-                                  color: '#22c55e',
+                                  backgroundColor: '#22c55e',
+                                  color: 'white',
                                   border: '2px solid #22c55e'
                                 }}
                               >

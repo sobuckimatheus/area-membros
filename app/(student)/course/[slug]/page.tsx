@@ -202,7 +202,7 @@ export default async function CoursePage({
                       ) : (
                         <Button
                           disabled
-                          className="w-full bg-transparent border-2 border-green-600 text-green-600 font-semibold opacity-60 cursor-not-allowed"
+                          className="w-full bg-green-600 border-2 border-green-600 text-white font-semibold opacity-60 cursor-not-allowed"
                         >
                           Para assinantes - R$ {Number(course.subscriberPrice).toFixed(2)}
                         </Button>
