@@ -82,7 +82,7 @@ async function createLesson(
       videoDuration: videoDuration ? parseInt(videoDuration) : null,
       fileUrl: fileUrl || null,
       fileName: fileName || null,
-      attachments: attachments.length > 0 ? attachments : null,
+      ...(attachments.length > 0 && { attachments }),
       order: nextOrder,
       isFree,
     },
