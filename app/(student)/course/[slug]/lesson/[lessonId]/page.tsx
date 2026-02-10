@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Lock, CheckCircle2, Download, FileText } from 'lucide-react'
+import { LessonContent } from '@/components/lesson-content'
 
 export default async function LessonPage({
   params,
@@ -190,7 +191,7 @@ export default async function LessonPage({
                 <CardContent className="p-6">
                   <h3 className="font-semibold mb-4 text-white">Conteúdo da Aula</h3>
                   <div className="prose prose-invert max-w-none">
-                    <p className="whitespace-pre-line text-zinc-300">{lesson.content}</p>
+                    <LessonContent content={lesson.content} />
                   </div>
                 </CardContent>
               </Card>
