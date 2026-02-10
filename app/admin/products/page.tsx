@@ -47,7 +47,7 @@ export default async function AdminProductsPage() {
             Mapeamento de Produtos
           </h1>
           <p className="text-slate-600 mt-2">
-            Conecte produtos da Kirvano aos cursos da plataforma
+            Conecte produtos da Kirvano e Yampi aos cursos da plataforma
           </p>
         </div>
         <Link href="/admin/products/new">
@@ -72,14 +72,14 @@ export default async function AdminProductsPage() {
                 Como funciona o mapeamento?
               </h3>
               <p className="text-sm text-blue-700">
-                Quando um cliente comprar um produto na Kirvano, o webhook irá
+                Quando um cliente comprar um produto na Kirvano ou Yampi, o webhook irá
                 procurar o mapeamento correspondente e criar automaticamente
                 uma matrícula no curso vinculado.
               </p>
               <p className="text-sm text-blue-700 mt-2">
-                <strong>Importante:</strong> Você precisa do ID do produto da
-                Kirvano para criar o mapeamento. Este ID aparece nos webhooks
-                recebidos.
+                <strong>Importante:</strong> Você precisa do ID/SKU do produto da
+                plataforma externa para criar o mapeamento. Este ID aparece nos webhooks
+                recebidos ou nas configurações do produto.
               </p>
             </div>
           </div>
