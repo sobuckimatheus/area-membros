@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import prisma from '@/lib/prisma'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Lock, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Lock, CheckCircle2, Download, FileText } from 'lucide-react'
 
 export default async function LessonPage({
   params,
@@ -191,6 +191,64 @@ export default async function LessonPage({
                   <h3 className="font-semibold mb-4 text-white">Conteúdo da Aula</h3>
                   <div className="prose prose-invert max-w-none">
                     <p className="whitespace-pre-line text-zinc-300">{lesson.content}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Downloadable Files */}
+            {(lesson.fileUrl || (lesson.attachments as any)?.length > 0) && (
+              <Card className="bg-zinc-900 border-zinc-800">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-4 text-white flex items-center gap-2">
+                    <Download className="h-5 w-5" />
+                    Materiais para Download
+                  </h3>
+                  <div className="space-y-3">
+                    {/* Arquivo Principal */}
+                    {lesson.fileUrl && (
+                      <a
+                        href={lesson.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="flex items-center gap-3 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors group"
+                      >
+                        <div className="p-2 bg-red-600 rounded-lg">
+                          <FileText className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-white group-hover:text-red-400 transition-colors">
+                            {lesson.fileName || 'Arquivo Principal'}
+                          </p>
+                          <p className="text-xs text-zinc-400">Clique para baixar</p>
+                        </div>
+                        <Download className="h-5 w-5 text-zinc-400 group-hover:text-white transition-colors" />
+                      </a>
+                    )}
+
+                    {/* Materiais Complementares */}
+                    {(lesson.attachments as any)?.map((attachment: { name: string; url: string }, index: number) => (
+                      <a
+                        key={index}
+                        href={attachment.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="flex items-center gap-3 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors group"
+                      >
+                        <div className="p-2 bg-zinc-700 rounded-lg">
+                          <FileText className="h-5 w-5 text-zinc-300" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-white group-hover:text-red-400 transition-colors">
+                            {attachment.name}
+                          </p>
+                          <p className="text-xs text-zinc-400">Material complementar</p>
+                        </div>
+                        <Download className="h-5 w-5 text-zinc-400 group-hover:text-white transition-colors" />
+                      </a>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

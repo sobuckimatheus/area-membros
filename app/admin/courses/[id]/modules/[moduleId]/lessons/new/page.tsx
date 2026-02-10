@@ -26,7 +26,22 @@ async function createLesson(
   const content = formData.get('content') as string
   const videoUrl = formData.get('videoUrl') as string
   const videoDuration = formData.get('videoDuration') as string
+  const fileUrl = formData.get('fileUrl') as string
+  const fileName = formData.get('fileName') as string
   const isFree = formData.get('isFree') === 'on'
+
+  // Processar arquivos anexos adicionais
+  const attachments: Array<{ name: string; url: string }> = []
+  let attachmentIndex = 0
+  while (formData.get(`attachment_${attachmentIndex}_url`)) {
+    const attachmentUrl = formData.get(`attachment_${attachmentIndex}_url`) as string
+    const attachmentName = formData.get(`attachment_${attachmentIndex}_name`) as string
+
+    if (attachmentUrl && attachmentName) {
+      attachments.push({ name: attachmentName, url: attachmentUrl })
+    }
+    attachmentIndex++
+  }
 
   if (!title) {
     throw new Error('Título é obrigatório')
@@ -65,6 +80,9 @@ async function createLesson(
       type: 'VIDEO',
       videoUrl: videoUrl || null,
       videoDuration: videoDuration ? parseInt(videoDuration) : null,
+      fileUrl: fileUrl || null,
+      fileName: fileName || null,
+      attachments: attachments.length > 0 ? attachments : null,
       order: nextOrder,
       isFree,
     },
@@ -197,7 +215,109 @@ export default async function NewLessonPage({
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="border-t border-slate-200 pt-6 mt-6">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                📎 Arquivo Principal da Aula
+              </h3>
+              <p className="text-sm text-slate-600 mb-4">
+                Adicione um arquivo principal (PDF, ZIP, etc.) que os alunos poderão baixar
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="fileName">Nome do Arquivo</Label>
+                  <Input
+                    id="fileName"
+                    name="fileName"
+                    placeholder="Ex: Apostila - Fundamentos.pdf"
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="fileUrl">URL do Arquivo</Label>
+                  <Input
+                    id="fileUrl"
+                    name="fileUrl"
+                    type="url"
+                    placeholder="https://..."
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 mt-2">
+                💡 <strong>Dica:</strong> Faça upload do arquivo no{' '}
+                <a
+                  href="https://app.supabase.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  Supabase Storage
+                </a>
+                {' '}(bucket: course-files) e cole a URL aqui
+              </p>
+            </div>
+
+            <div className="border-t border-slate-200 pt-6">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                📚 Materiais Complementares (opcional)
+              </h3>
+              <p className="text-sm text-slate-600 mb-4">
+                Adicione materiais extras como PDFs, documentos, planilhas, etc.
+              </p>
+
+              <div id="attachments-container" className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="attachment_0_name">Nome do Material</Label>
+                    <Input
+                      id="attachment_0_name"
+                      name="attachment_0_name"
+                      placeholder="Ex: Exercícios Práticos.pdf"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="attachment_0_url">URL do Material</Label>
+                    <Input
+                      id="attachment_0_url"
+                      name="attachment_0_url"
+                      type="url"
+                      placeholder="https://..."
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="attachment_1_name">Nome do Material 2</Label>
+                    <Input
+                      id="attachment_1_name"
+                      name="attachment_1_name"
+                      placeholder="Ex: Slides da Aula.pdf"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="attachment_1_url">URL do Material 2</Label>
+                    <Input
+                      id="attachment_1_url"
+                      name="attachment_1_url"
+                      type="url"
+                      placeholder="https://..."
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-500 mt-2">
+                Os materiais complementares aparecerão para download na página da aula
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 border-t border-slate-200 pt-6">
               <input
                 type="checkbox"
                 id="isFree"
