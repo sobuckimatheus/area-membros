@@ -13,6 +13,7 @@ import { CourseImageUpload } from '@/components/course-image-upload'
 import { DeleteCourseButton } from '@/components/delete-course-button'
 import { CourseSaveToast } from '@/components/course-save-toast'
 import { CourseFormSubmit } from '@/components/course-form-submit'
+import { SortableModulesList } from '@/components/admin/sortable-modules-list'
 
 async function updateCourse(courseId: string, formData: FormData) {
   'use server'
@@ -618,59 +619,7 @@ export default async function CourseDetailPage({
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
-              {course.modules.map((module, index) => (
-                <div
-                  key={module.id}
-                  className="border border-slate-200 rounded-lg p-4"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-slate-500">
-                          MÓDULO {index + 1}
-                        </span>
-                      </div>
-                      <h3 className="text-lg font-semibold text-slate-900 mt-1">
-                        {module.title}
-                      </h3>
-                      {module.description && (
-                        <p className="text-sm text-slate-600 mt-1">
-                          {module.description}
-                        </p>
-                      )}
-                    </div>
-                    <Link href={`/admin/courses/${id}/modules/${module.id}`}>
-                      <Button size="sm" variant="outline">
-                        Editar
-                      </Button>
-                    </Link>
-                  </div>
-
-                  {module.lessons.length > 0 ? (
-                    <div className="mt-4 space-y-2">
-                      {module.lessons.map((lesson, lessonIndex) => (
-                        <div
-                          key={lesson.id}
-                          className="flex items-center gap-3 p-2 bg-slate-50 rounded"
-                        >
-                          <span className="text-xs font-medium text-slate-500 w-8">
-                            {lessonIndex + 1}
-                          </span>
-                          <span className="text-sm text-slate-900 flex-1">
-                            {lesson.title}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-slate-500 mt-3">
-                      Nenhuma aula neste módulo
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
+            <SortableModulesList modules={course.modules} courseId={id} />
           )}
         </CardContent>
       </Card>
