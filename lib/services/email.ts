@@ -21,7 +21,7 @@ export async function sendWelcomeEmail({
       : 'seu novo curso'
 
     const { data, error } = await resend.emails.send({
-      from: 'Área de Membros <noreply@dianamascarello.com.br>',
+      from: 'Área de Membros <onboarding@resend.dev>',
       to: [to],
       subject: '🎉 Bem-vindo! Seu acesso está pronto',
       html: `
