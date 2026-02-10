@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     // Processar apenas eventos de pagamento aprovado
     const event = body.event || body.type
-    if (event !== 'order_paid' && event !== 'paid') {
+    if (event !== 'order_paid' && event !== 'paid' && event !== 'order.paid') {
       await prisma.webhookLog.update({
         where: { id: webhookLog.id },
         data: {
