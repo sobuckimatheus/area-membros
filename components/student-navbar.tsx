@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LogOut, User } from 'lucide-react'
+import { LogOut, User, KeyRound } from 'lucide-react'
 import { useState } from 'react'
 
 interface StudentNavbarProps {
@@ -104,6 +104,15 @@ export function StudentNavbar({ user, primaryColor, signoutAction }: StudentNavb
                   >
                     <User className="h-4 w-4" />
                     Meu Perfil
+                  </Link>
+
+                  <Link
+                    href="/change-password"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <KeyRound className="h-4 w-4" />
+                    Alterar Senha
                   </Link>
 
                   <form action={signoutAction}>
