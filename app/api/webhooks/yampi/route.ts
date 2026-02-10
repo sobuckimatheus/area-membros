@@ -82,12 +82,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Extrair dados do payload Yampi
-    const order = body.data?.order || body.order || body
-    const customer = order.customer || body.customer
-    const items = order.items || order.products || []
+    // A Yampi envia os dados dentro de "resource" com sub-objetos contendo ".data"
+    const order = body.resource || body.data?.order || body.order || body
+    const customerRaw = order.customer || body.customer
+    const customer = customerRaw?.data || customerRaw
+    const itemsRaw = order.items || order.products || []
+    const items = itemsRaw?.data || (Array.isArray(itemsRaw) ? itemsRaw : [])
 
     const email = customer?.email
-    const name = customer?.name || customer?.full_name
+    const name = customer?.name || customer?.full_name ||
+      ((customer?.first_name || '') + ' ' + (customer?.last_name || '')).trim() || null
 
     if (!email) {
       await prisma.webhookLog.update({
@@ -180,7 +184,7 @@ export async function POST(request: NextRequest) {
     const unmappedProducts = []
 
     for (const item of items) {
-      const productId = item.sku_code || item.product_id || item.id?.toString()
+      const productId = item.product_id?.toString() || item.sku?.data?.product_id?.toString() || item.sku_code || item.id?.toString()
 
       if (!productId) {
         console.log(`⚠️  Item sem ID identificável:`, item)
