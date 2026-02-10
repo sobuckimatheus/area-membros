@@ -16,9 +16,14 @@ async function createProductMapping(formData: FormData) {
     throw new Error('Unauthorized')
   }
 
+  const platform = formData.get('platform') as string
   const externalProductId = formData.get('externalProductId') as string
   const externalProductName = formData.get('externalProductName') as string
   const courseIds = formData.getAll('courseIds') as string[]
+
+  if (!platform) {
+    throw new Error('Selecione uma plataforma')
+  }
 
   if (!externalProductId) {
     throw new Error('ID do produto é obrigatório')
@@ -28,11 +33,11 @@ async function createProductMapping(formData: FormData) {
     throw new Error('Selecione pelo menos um curso')
   }
 
-  // Buscar ou criar integração Kirvano
+  // Buscar ou criar integração
   let integration = await prisma.integration.findFirst({
     where: {
       tenantId: user.tenantId,
-      platform: 'KIRVANO',
+      platform: platform as any,
     },
   })
 
@@ -40,7 +45,7 @@ async function createProductMapping(formData: FormData) {
     integration = await prisma.integration.create({
       data: {
         tenantId: user.tenantId,
-        platform: 'KIRVANO',
+        platform: platform as any,
         isActive: true,
       },
     })
@@ -86,28 +91,37 @@ export default async function NewProductMappingPage() {
           Novo Mapeamento de Produto
         </h1>
         <p className="text-slate-600 mt-2">
-          Conecte um produto da Kirvano aos cursos da plataforma
+          Conecte um produto da Kirvano ou Yampi aos cursos da plataforma
         </p>
       </div>
 
       <Card className="mb-6 bg-blue-50 border-blue-200">
         <CardContent className="p-6">
           <h3 className="font-medium text-blue-900 mb-2">
-            Como obter o ID do produto na Kirvano?
+            Como obter o ID/SKU do produto?
           </h3>
-          <ol className="text-sm text-blue-700 space-y-2 list-decimal list-inside">
-            <li>Acesse a Kirvano e vá em Produtos</li>
-            <li>Clique no produto desejado</li>
-            <li>
-              O ID aparece na URL ou nas configurações do produto (formato UUID)
-            </li>
-            <li>
-              Você também pode ver o ID nos webhooks recebidos em{' '}
-              <a href="/admin/webhooks" className="underline">
-                Logs de Webhooks
-              </a>
-            </li>
-          </ol>
+          <div className="space-y-3">
+            <div>
+              <p className="font-semibold text-blue-800 mb-1">Kirvano:</p>
+              <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside ml-2">
+                <li>Acesse a Kirvano e vá em Produtos</li>
+                <li>Clique no produto desejado</li>
+                <li>O ID aparece na URL ou nas configurações (formato UUID)</li>
+              </ol>
+            </div>
+            <div>
+              <p className="font-semibold text-blue-800 mb-1">Yampi:</p>
+              <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside ml-2">
+                <li>Acesse a Yampi e vá em Produtos</li>
+                <li>O SKU aparece na listagem de produtos</li>
+                <li>Ou veja nos webhooks em{' '}
+                  <a href="/admin/webhooks" className="underline">
+                    Logs de Webhooks
+                  </a>
+                </li>
+              </ol>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -118,18 +132,37 @@ export default async function NewProductMappingPage() {
         <CardContent>
           <form action={createProductMapping} className="space-y-6">
             <div>
+              <Label htmlFor="platform">
+                Plataforma <span className="text-red-500">*</span>
+              </Label>
+              <select
+                id="platform"
+                name="platform"
+                required
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 bg-white"
+              >
+                <option value="">Selecione uma plataforma</option>
+                <option value="KIRVANO">Kirvano (Assinaturas)</option>
+                <option value="YAMPI">Yampi (Venda de Cursos)</option>
+              </select>
+              <p className="text-sm text-slate-500 mt-1">
+                Escolha a plataforma de onde vem o produto
+              </p>
+            </div>
+
+            <div>
               <Label htmlFor="externalProductId">
-                ID do Produto na Kirvano <span className="text-red-500">*</span>
+                ID/SKU do Produto <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="externalProductId"
                 name="externalProductId"
                 required
-                placeholder="ex: caf14aec-2b24-43e5-b9e5-8a833776ae20"
+                placeholder="ex: caf14aec-2b24-43e5-b9e5-8a833776ae20 ou SKU123"
                 className="mt-1 font-mono text-sm"
               />
               <p className="text-sm text-slate-500 mt-1">
-                O UUID do produto na plataforma Kirvano
+                O ID (Kirvano) ou SKU (Yampi) do produto na plataforma externa
               </p>
             </div>
 
@@ -219,7 +252,7 @@ export default async function NewProductMappingPage() {
       <Card className="mt-6 bg-yellow-50 border-yellow-200">
         <CardContent className="p-4 text-sm text-yellow-800">
           <strong>Importante:</strong> Após criar o mapeamento, quando alguém
-          comprar este produto na Kirvano, o webhook irá automaticamente criar
+          comprar este produto na plataforma escolhida, o webhook irá automaticamente criar
           matrículas nos cursos vinculados.
         </CardContent>
       </Card>
