@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { createClient } from '@supabase/supabase-js'
+import { sendWelcomeEmail } from '@/lib/services/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -271,6 +272,43 @@ export async function POST(request: NextRequest) {
     console.log(`   Usuário: ${user.email}`)
     console.log(`   Matrículas criadas: ${enrollments.length}`)
     console.log(`   Produtos não mapeados: ${unmappedProducts.length}`)
+
+    // Enviar email de boas-vindas se houver matrículas
+    if (enrollments.length > 0 && user.supabaseUid) {
+      try {
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+
+        // Gerar link de redefinição de senha
+        const { data: resetData, error: resetError } = await supabase.auth.admin.generateLink({
+          type: 'recovery',
+          email: user.email,
+          options: {
+            redirectTo: 'https://areamembros.dianamascarello.com.br/auth/reset-password',
+          },
+        })
+
+        if (resetError) {
+          console.error('❌ Erro ao gerar link de redefinição:', resetError)
+        } else if (resetData.properties?.action_link) {
+          // Enviar email com link de redefinição
+          const courseTitles = enrollments.map(e => e.course)
+          await sendWelcomeEmail({
+            to: user.email,
+            name: user.name || user.email.split('@')[0],
+            courseTitles,
+            resetPasswordUrl: resetData.properties.action_link,
+          })
+
+          console.log(`✅ Email de boas-vindas enviado para ${user.email}`)
+        }
+      } catch (emailError) {
+        console.error('❌ Erro ao enviar email de boas-vindas:', emailError)
+        // Não falha o webhook se o email falhar
+      }
+    }
 
     return NextResponse.json({
       success: true,
