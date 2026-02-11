@@ -6,24 +6,24 @@ interface WelcomeEmailParams {
   to: string
   name: string
   courseTitles: string[]
-  resetPasswordUrl: string
+  password: string
 }
 
 export async function sendWelcomeEmail({
   to,
   name,
   courseTitles,
-  resetPasswordUrl,
+  password,
 }: WelcomeEmailParams) {
   try {
     const coursesList = courseTitles.length > 0
-      ? courseTitles.map(title => `• ${title}`).join('\n')
+      ? courseTitles.map(title => `• ${title}`).join('<br/>')
       : 'seu novo curso'
 
     const { data, error } = await resend.emails.send({
       from: 'Área de Membros <noreply@dianamascarello.com.br>',
       to: [to],
-      subject: '🎉 Bem-vindo! Seu acesso está pronto',
+      subject: '🎉 Seu acesso está pronto!',
       html: `
         <!DOCTYPE html>
         <html>
@@ -53,7 +53,7 @@ export async function sendWelcomeEmail({
               .button {
                 display: inline-block;
                 background: #ef4444;
-                color: white;
+                color: white !important;
                 padding: 14px 28px;
                 text-decoration: none;
                 border-radius: 6px;
@@ -67,6 +67,28 @@ export async function sendWelcomeEmail({
                 margin: 15px 0;
                 border-left: 4px solid #667eea;
               }
+              .credentials {
+                background: #1a1a2e;
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+              }
+              .credential-row {
+                display: flex;
+                margin: 8px 0;
+                font-size: 15px;
+              }
+              .credential-label {
+                color: #a0aec0;
+                min-width: 80px;
+              }
+              .credential-value {
+                color: #fff;
+                font-weight: 600;
+                font-family: monospace;
+                font-size: 16px;
+              }
               .footer {
                 text-align: center;
                 color: #666;
@@ -75,59 +97,55 @@ export async function sendWelcomeEmail({
                 padding-top: 20px;
                 border-top: 1px solid #ddd;
               }
-              .credentials {
-                background: white;
-                padding: 15px;
-                border-radius: 6px;
-                margin: 15px 0;
-              }
             </style>
           </head>
           <body>
             <div class="header">
-              <h1 style="margin: 0; font-size: 28px;">🎉 Bem-vindo!</h1>
+              <h1 style="margin: 0; font-size: 28px;">🎉 Acesso Liberado!</h1>
               <p style="margin: 10px 0 0 0; opacity: 0.95;">Sua compra foi confirmada com sucesso</p>
             </div>
 
             <div class="content">
-              <p>Olá, <strong>${name}</strong>!</p>
+              <p>Olá, <strong>${name}</strong>! 👋</p>
 
               <p>Parabéns! Sua matrícula foi confirmada e seu acesso já está liberado.</p>
 
               <div class="courses">
                 <strong>📚 Curso(s) liberado(s):</strong><br/>
-                <div style="margin-top: 10px; white-space: pre-line;">${coursesList}</div>
+                <div style="margin-top: 10px;">${coursesList}</div>
               </div>
 
+              <p><strong>Seus dados de acesso:</strong></p>
+
               <div class="credentials">
-                <strong>🔐 Seus dados de acesso:</strong><br/>
-                <strong>Email:</strong> ${to}<br/>
-                <strong>Senha:</strong> Você precisa criar sua senha clicando no botão abaixo
+                <div class="credential-row">
+                  <span class="credential-label">🌐 Site:</span>
+                  <span class="credential-value" style="margin-left: 10px;">areamembros.dianamascarello.com.br</span>
+                </div>
+                <div class="credential-row">
+                  <span class="credential-label">📧 Email:</span>
+                  <span class="credential-value" style="margin-left: 10px;">${to}</span>
+                </div>
+                <div class="credential-row">
+                  <span class="credential-label">🔑 Senha:</span>
+                  <span class="credential-value" style="margin-left: 10px;">${password}</span>
+                </div>
               </div>
 
               <p style="text-align: center;">
-                <a href="${resetPasswordUrl}" class="button">
-                  Criar Minha Senha e Acessar
+                <a href="https://areamembros.dianamascarello.com.br/auth/login" class="button">
+                  Acessar Agora →
                 </a>
               </p>
 
-              <p style="font-size: 14px; color: #666;">
-                Após criar sua senha, acesse a plataforma em:<br/>
-                <a href="https://areamembros.dianamascarello.com.br" style="color: #667eea;">
-                  https://areamembros.dianamascarello.com.br
-                </a>
-              </p>
-
-              <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
-
-              <p style="font-size: 14px; color: #666;">
-                <strong>💡 Dica:</strong> Salve este email! Ele contém informações importantes sobre seu acesso.
+              <p style="font-size: 14px; color: #666; background: #fff3cd; padding: 12px; border-radius: 6px;">
+                💡 <strong>Dica:</strong> Após entrar, recomendamos alterar sua senha em <strong>Menu → Alterar Senha</strong>.
               </p>
             </div>
 
             <div class="footer">
               <p>Este é um email automático, por favor não responda.</p>
-              <p>© ${new Date().getFullYear()} Área de Membros - Todos os direitos reservados</p>
+              <p>© ${new Date().getFullYear()} Diana Mascarello - Todos os direitos reservados</p>
             </div>
           </body>
         </html>

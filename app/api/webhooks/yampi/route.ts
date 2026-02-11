@@ -146,11 +146,11 @@ export async function POST(request: NextRequest) {
         process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
 
-      const randomPassword = Math.random().toString(36).slice(-12) + 'A1!'
+      const tempPassword = 'Acesso@2025'
 
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
-        password: randomPassword,
+        password: tempPassword,
         email_confirm: true,
         user_metadata: {
           name: name || email.split('@')[0],
@@ -278,36 +278,28 @@ export async function POST(request: NextRequest) {
     console.log(`   Produtos não mapeados: ${unmappedProducts.length}`)
 
     // Enviar email de boas-vindas se houver matrículas
-    if (enrollments.length > 0 && user.supabaseUid) {
+    if (enrollments.length > 0) {
       try {
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
+        const tempPassword = 'Acesso@2025'
 
-        // Gerar link de redefinição de senha
-        const { data: resetData, error: resetError } = await supabase.auth.admin.generateLink({
-          type: 'recovery',
-          email: user.email,
-          options: {
-            redirectTo: 'https://areamembros.dianamascarello.com.br/auth/reset-password',
-          },
+        // Definir senha temporária no Supabase (para usuários já existentes)
+        if (user.supabaseUid) {
+          const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+          )
+          await supabase.auth.admin.updateUserById(user.supabaseUid, { password: tempPassword })
+        }
+
+        const courseTitles = enrollments.map(e => e.course)
+        await sendWelcomeEmail({
+          to: user.email,
+          name: user.name || user.email.split('@')[0],
+          courseTitles,
+          password: tempPassword,
         })
 
-        if (resetError) {
-          console.error('❌ Erro ao gerar link de redefinição:', resetError)
-        } else if (resetData.properties?.action_link) {
-          // Enviar email com link de redefinição
-          const courseTitles = enrollments.map(e => e.course)
-          await sendWelcomeEmail({
-            to: user.email,
-            name: user.name || user.email.split('@')[0],
-            courseTitles,
-            resetPasswordUrl: resetData.properties.action_link,
-          })
-
-          console.log(`✅ Email de boas-vindas enviado para ${user.email}`)
-        }
+        console.log(`✅ Email de boas-vindas enviado para ${user.email}`)
       } catch (emailError) {
         console.error('❌ Erro ao enviar email de boas-vindas:', emailError)
         // Não falha o webhook se o email falhar
