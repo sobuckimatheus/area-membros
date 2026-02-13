@@ -800,6 +800,7 @@ enum IntegrationPlatform {
   GREENN
   APPMAX
   YAMPI
+  ONPROFIT
   TEACHABLE
   THINKIFIC
   KAJABI
