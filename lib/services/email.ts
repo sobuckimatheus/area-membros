@@ -37,16 +37,16 @@ export async function sendWelcomeEmail({
                 max-width: 600px;
                 margin: 0 auto;
                 padding: 20px;
-                background-color: #f4f4f4;
+                background-color: #fdf8f8;
               }
               .container {
                 background: #ffffff;
-                border-radius: 8px;
+                border-radius: 10px;
                 overflow: hidden;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                box-shadow: 0 2px 12px rgba(0,0,0,0.06);
               }
               .header {
-                background: #2d1b69;
+                background: #c9a96e;
                 color: white;
                 padding: 36px 30px;
                 text-align: center;
@@ -55,10 +55,11 @@ export async function sendWelcomeEmail({
                 margin: 0;
                 font-size: 24px;
                 font-weight: 700;
+                letter-spacing: 0.5px;
               }
               .header p {
                 margin: 8px 0 0 0;
-                opacity: 0.85;
+                opacity: 0.9;
                 font-size: 15px;
               }
               .content {
@@ -66,11 +67,11 @@ export async function sendWelcomeEmail({
               }
               .content p {
                 margin: 0 0 16px 0;
-                color: #444;
+                color: #555;
               }
               .button {
                 display: inline-block;
-                background: #2d1b69;
+                background: #c9a96e;
                 color: white !important;
                 padding: 14px 32px;
                 text-decoration: none;
@@ -80,18 +81,19 @@ export async function sendWelcomeEmail({
                 margin: 8px 0 20px 0;
               }
               .courses {
-                background: #f8f5ff;
+                background: #fdf6ec;
                 padding: 16px 20px;
                 border-radius: 6px;
                 margin: 16px 0;
-                border-left: 4px solid #2d1b69;
+                border-left: 4px solid #c9a96e;
               }
               .courses p {
                 margin: 4px 0;
               }
               .credentials {
-                background: #1a1a2e;
-                color: white;
+                background: #f9f4ee;
+                border: 1px solid #e8d9c4;
+                color: #333;
                 padding: 20px 24px;
                 border-radius: 8px;
                 margin: 20px 0;
@@ -101,31 +103,31 @@ export async function sendWelcomeEmail({
                 font-size: 15px;
               }
               .credential-label {
-                color: #a0aec0;
+                color: #999;
                 display: inline-block;
                 width: 60px;
               }
               .credential-value {
-                color: #fff;
-                font-weight: 600;
+                color: #333;
+                font-weight: 700;
                 font-family: monospace;
                 font-size: 15px;
               }
               .tip {
                 font-size: 13px;
-                color: #666;
-                background: #f9f9f9;
-                border: 1px solid #e5e5e5;
+                color: #888;
+                background: #fafafa;
+                border: 1px solid #efefef;
                 padding: 12px 16px;
                 border-radius: 6px;
                 margin-top: 20px;
               }
               .footer {
                 text-align: center;
-                color: #999;
+                color: #bbb;
                 font-size: 12px;
                 padding: 20px 30px;
-                border-top: 1px solid #eee;
+                border-top: 1px solid #f0ebe5;
               }
             </style>
           </head>
