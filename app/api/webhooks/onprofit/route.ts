@@ -69,12 +69,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, message: `Status ${status} ignorado` })
     }
 
-    // Extrair dados do payload Onprofit (V2)
-    const email = body.email
-    const firstName = body.name || ''
-    const lastName = body.lastname || ''
+    // Extrair dados do payload Onprofit
+    // Email e nome ficam dentro de "customer"
+    const customer = body.customer || body
+    const email = customer.email || body.email
+    const firstName = customer.name || body.name || ''
+    const lastName = customer.lastname || body.lastname || ''
     const name = `${firstName} ${lastName}`.trim() || null
-    const productId = body.product_id?.toString()
+    const productId = body.product_id?.toString() || body.product?.id?.toString()
 
     if (!email) {
       await prisma.webhookLog.update({
