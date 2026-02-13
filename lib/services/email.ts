@@ -21,9 +21,9 @@ export async function sendWelcomeEmail({
       : 'seu novo curso'
 
     const { data, error } = await resend.emails.send({
-      from: 'Área de Membros <noreply@dianamascarello.com.br>',
+      from: 'Diana Mascarello <contato@dianamascarello.com.br>',
       to: [to],
-      subject: '🎉 Seu acesso está pronto!',
+      subject: 'Seus dados de acesso - Area de Membros Diana Mascarello',
       html: `
         <!DOCTYPE html>
         <html>
@@ -37,115 +37,146 @@ export async function sendWelcomeEmail({
                 max-width: 600px;
                 margin: 0 auto;
                 padding: 20px;
+                background-color: #f4f4f4;
+              }
+              .container {
+                background: #ffffff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
               }
               .header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: #2d1b69;
                 color: white;
-                padding: 40px 20px;
+                padding: 36px 30px;
                 text-align: center;
-                border-radius: 10px 10px 0 0;
+              }
+              .header h1 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 700;
+              }
+              .header p {
+                margin: 8px 0 0 0;
+                opacity: 0.85;
+                font-size: 15px;
               }
               .content {
-                background: #f9fafb;
-                padding: 30px;
-                border-radius: 0 0 10px 10px;
+                padding: 32px 30px;
+              }
+              .content p {
+                margin: 0 0 16px 0;
+                color: #444;
               }
               .button {
                 display: inline-block;
-                background: #ef4444;
+                background: #2d1b69;
                 color: white !important;
-                padding: 14px 28px;
+                padding: 14px 32px;
                 text-decoration: none;
                 border-radius: 6px;
                 font-weight: 600;
-                margin: 20px 0;
+                font-size: 16px;
+                margin: 8px 0 20px 0;
               }
               .courses {
-                background: white;
-                padding: 15px;
+                background: #f8f5ff;
+                padding: 16px 20px;
                 border-radius: 6px;
-                margin: 15px 0;
-                border-left: 4px solid #667eea;
+                margin: 16px 0;
+                border-left: 4px solid #2d1b69;
+              }
+              .courses p {
+                margin: 4px 0;
               }
               .credentials {
                 background: #1a1a2e;
                 color: white;
-                padding: 20px;
+                padding: 20px 24px;
                 border-radius: 8px;
                 margin: 20px 0;
               }
               .credential-row {
-                display: flex;
-                margin: 8px 0;
+                margin: 10px 0;
                 font-size: 15px;
               }
               .credential-label {
                 color: #a0aec0;
-                min-width: 80px;
+                display: inline-block;
+                width: 60px;
               }
               .credential-value {
                 color: #fff;
                 font-weight: 600;
                 font-family: monospace;
-                font-size: 16px;
+                font-size: 15px;
+              }
+              .tip {
+                font-size: 13px;
+                color: #666;
+                background: #f9f9f9;
+                border: 1px solid #e5e5e5;
+                padding: 12px 16px;
+                border-radius: 6px;
+                margin-top: 20px;
               }
               .footer {
                 text-align: center;
-                color: #666;
+                color: #999;
                 font-size: 12px;
-                margin-top: 30px;
-                padding-top: 20px;
-                border-top: 1px solid #ddd;
+                padding: 20px 30px;
+                border-top: 1px solid #eee;
               }
             </style>
           </head>
           <body>
-            <div class="header">
-              <h1 style="margin: 0; font-size: 28px;">🎉 Acesso Liberado!</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.95;">Sua compra foi confirmada com sucesso</p>
-            </div>
-
-            <div class="content">
-              <p>Olá, <strong>${name}</strong>! 👋</p>
-
-              <p>Parabéns! Sua matrícula foi confirmada e seu acesso já está liberado.</p>
-
-              <div class="courses">
-                <strong>📚 Curso(s) liberado(s):</strong><br/>
-                <div style="margin-top: 10px;">${coursesList}</div>
+            <div class="container">
+              <div class="header">
+                <h1>Acesso Liberado</h1>
+                <p>Sua compra foi confirmada com sucesso</p>
               </div>
 
-              <p><strong>Seus dados de acesso:</strong></p>
+              <div class="content">
+                <p>Ola, <strong>${name}</strong>!</p>
 
-              <div class="credentials">
-                <div class="credential-row">
-                  <span class="credential-label">🌐 Site:</span>
-                  <span class="credential-value" style="margin-left: 10px;">areamembros.dianamascarello.com.br</span>
+                <p>Sua matricula foi confirmada e seu acesso ja esta disponivel:</p>
+
+                <div class="courses">
+                  <strong>Curso(s) liberado(s):</strong>
+                  <div style="margin-top: 8px;">${coursesList}</div>
                 </div>
-                <div class="credential-row">
-                  <span class="credential-label">📧 Email:</span>
-                  <span class="credential-value" style="margin-left: 10px;">${to}</span>
+
+                <p><strong>Seus dados de acesso:</strong></p>
+
+                <div class="credentials">
+                  <div class="credential-row">
+                    <span class="credential-label">Site</span>
+                    <span class="credential-value">areamembros.dianamascarello.com.br</span>
+                  </div>
+                  <div class="credential-row">
+                    <span class="credential-label">Email</span>
+                    <span class="credential-value">${to}</span>
+                  </div>
+                  <div class="credential-row">
+                    <span class="credential-label">Senha</span>
+                    <span class="credential-value">${password}</span>
+                  </div>
                 </div>
-                <div class="credential-row">
-                  <span class="credential-label">🔑 Senha:</span>
-                  <span class="credential-value" style="margin-left: 10px;">${password}</span>
+
+                <p style="text-align: center;">
+                  <a href="https://areamembros.dianamascarello.com.br/auth/login" class="button">
+                    Acessar Agora
+                  </a>
+                </p>
+
+                <div class="tip">
+                  Dica: apos o primeiro acesso, voce pode alterar sua senha em Menu &gt; Alterar Senha.
                 </div>
               </div>
 
-              <p style="text-align: center;">
-                <a href="https://areamembros.dianamascarello.com.br/auth/login" class="button">
-                  Acessar Agora →
-                </a>
-              </p>
-
-              <p style="font-size: 14px; color: #666; background: #fff3cd; padding: 12px; border-radius: 6px;">
-                💡 <strong>Dica:</strong> Após entrar, recomendamos alterar sua senha em <strong>Menu → Alterar Senha</strong>.
-              </p>
-            </div>
-
-            <div class="footer">
-              <p>Este é um email automático, por favor não responda.</p>
-              <p>© ${new Date().getFullYear()} Diana Mascarello - Todos os direitos reservados</p>
+              <div class="footer">
+                <p>Diana Mascarello - Todos os direitos reservados</p>
+              </div>
             </div>
           </body>
         </html>
