@@ -20,10 +20,35 @@ export async function sendWelcomeEmail({
       ? courseTitles.map(title => `• ${title}`).join('<br/>')
       : 'seu novo curso'
 
+    const coursesListText = courseTitles.length > 0
+      ? courseTitles.map(title => `  - ${title}`).join('\n')
+      : '  - seu novo curso'
+
     const { data, error } = await resend.emails.send({
       from: 'Diana Mascarello <contato@dianamascarello.com.br>',
       to: [to],
-      subject: 'Seus dados de acesso - Area de Membros Diana Mascarello',
+      subject: `Bem-vinda a Area de Membros, ${name.split(' ')[0]}!`,
+      text: `Ola, ${name}!
+
+Sua matricula foi confirmada. Abaixo estao suas informacoes de acesso a Area de Membros Diana Mascarello.
+
+Curso(s) liberado(s):
+${coursesListText}
+
+Para acessar, entre no site abaixo com seu email e senha:
+
+  Site:  areamembros.dianamascarello.com.br
+  Email: ${to}
+  Senha: ${password}
+
+Acesse agora: https://areamembros.dianamascarello.com.br/auth/login
+
+Dica: apos o primeiro acesso, voce pode alterar sua senha em Menu > Alterar Senha.
+
+Qualquer duvida, responda este email.
+
+Diana Mascarello
+`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -134,7 +159,7 @@ export async function sendWelcomeEmail({
           <body>
             <div class="container">
               <div class="header">
-                <h1>Acesso Liberado</h1>
+                <h1>Bem-vinda a Area de Membros</h1>
                 <p>Sua compra foi confirmada com sucesso</p>
               </div>
 
@@ -148,7 +173,7 @@ export async function sendWelcomeEmail({
                   <div style="margin-top: 8px;">${coursesList}</div>
                 </div>
 
-                <p><strong>Seus dados de acesso:</strong></p>
+                <p>Para entrar na area de membros, use as informacoes abaixo:</p>
 
                 <div class="credentials">
                   <div class="credential-row">
@@ -156,7 +181,7 @@ export async function sendWelcomeEmail({
                     <span class="credential-value">areamembros.dianamascarello.com.br</span>
                   </div>
                   <div class="credential-row">
-                    <span class="credential-label">Email</span>
+                    <span class="credential-label">Login</span>
                     <span class="credential-value">${to}</span>
                   </div>
                   <div class="credential-row">
@@ -178,6 +203,7 @@ export async function sendWelcomeEmail({
 
               <div class="footer">
                 <p>Diana Mascarello - Todos os direitos reservados</p>
+                <p>Qualquer duvida, responda este email.</p>
               </div>
             </div>
           </body>
