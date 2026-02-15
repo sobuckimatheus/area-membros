@@ -76,7 +76,11 @@ export async function POST(request: NextRequest) {
     const firstName = customer.name || body.name || ''
     const lastName = customer.lastname || body.lastname || ''
     const name = `${firstName} ${lastName}`.trim() || null
-    const productId = body.product_id?.toString() || body.product?.id?.toString()
+    // Para order bumps, product_id no root aponta para o produto principal,
+    // então usamos body.product.id que tem o ID correto do order bump
+    const productId = body.item_type === 'order_bump'
+      ? body.product?.id?.toString()
+      : body.product_id?.toString() || body.product?.id?.toString()
 
     if (!email) {
       await prisma.webhookLog.update({
