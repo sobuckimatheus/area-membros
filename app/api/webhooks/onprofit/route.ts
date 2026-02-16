@@ -7,6 +7,8 @@ import { sendWelcomeEmail } from '@/lib/services/email'
 const APPROVED_STATUSES = ['PAID', 'AUTHORIZED', 'MANUALLY_AUTHORIZED']
 
 export async function POST(request: NextRequest) {
+  let webhookLogId: string | null = null
+
   try {
     const body = await request.json()
 
@@ -49,6 +51,7 @@ export async function POST(request: NextRequest) {
         status: 'PENDING',
       },
     })
+    webhookLogId = webhookLog.id
 
     await prisma.integration.update({
       where: { id: integration.id },
@@ -119,6 +122,7 @@ export async function POST(request: NextRequest) {
     const tempPassword = 'Acesso@2025'
 
     if (!user) {
+      // Usar upsert para evitar race condition quando múltiplos webhooks chegam ao mesmo tempo
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
         password: tempPassword,
@@ -130,21 +134,36 @@ export async function POST(request: NextRequest) {
         console.error('Erro ao criar usuário no Supabase:', authError)
       }
 
-      user = await prisma.user.create({
-        data: {
-          tenantId: tenant.id,
-          email,
-          name: name || email.split('@')[0],
-          supabaseUid: authData?.user?.id,
-          role: 'STUDENT',
-          status: 'ACTIVE',
-          emailVerified: new Date(),
-        },
-      })
-
-      console.log(`✅ Usuário criado: ${user.email}`)
+      try {
+        user = await prisma.user.create({
+          data: {
+            tenantId: tenant.id,
+            email,
+            name: name || email.split('@')[0],
+            supabaseUid: authData?.user?.id,
+            role: 'STUDENT',
+            status: 'ACTIVE',
+            emailVerified: new Date(),
+          },
+        })
+        console.log(`✅ Usuário criado: ${user.email}`)
+      } catch (createError: any) {
+        // Race condition: outro webhook criou o usuário ao mesmo tempo
+        if (createError.code === 'P2002') {
+          user = await prisma.user.findUnique({
+            where: { tenantId_email: { tenantId: tenant.id, email } },
+          })
+          console.log(`✅ Usuário encontrado após race condition: ${user?.email}`)
+        } else {
+          throw createError
+        }
+      }
     } else {
       console.log(`✅ Usuário encontrado: ${user.email}`)
+    }
+
+    if (!user) {
+      throw new Error(`Não foi possível criar ou encontrar o usuário: ${email}`)
     }
 
     // Buscar mapeamento do produto
@@ -247,6 +266,17 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     console.error('❌ Erro ao processar webhook Onprofit:', error)
+
+    // Marcar o log como FAILED para não ficar preso em PENDING
+    if (webhookLogId) {
+      try {
+        await prisma.webhookLog.update({
+          where: { id: webhookLogId },
+          data: { status: 'FAILED', errorMessage: error.message, processedAt: new Date() },
+        })
+      } catch { /* ignora erro secundário */ }
+    }
+
     return NextResponse.json(
       { error: 'Erro ao processar webhook', message: error.message },
       { status: 500 }
