@@ -20,7 +20,18 @@ export async function login(formData: FormData) {
 
   if (error) {
     console.error('Erro ao fazer login no Supabase:', error)
-    throw new Error(error.message)
+
+    // Verificar se o email existe para dar mensagem mais específica
+    const emailExists = await prisma.user.findFirst({
+      where: { email: data.email },
+      select: { id: true },
+    })
+
+    if (!emailExists) {
+      throw new Error('Email nao encontrado. Verifique se digitou corretamente.')
+    } else {
+      throw new Error('Senha incorreta. Clique em "Esqueceu a senha?" para redefinir.')
+    }
   }
 
   // Buscar o usuário no Prisma para verificar o role
