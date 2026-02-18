@@ -1,8 +1,12 @@
-import Link from "next/link"
-import { signup } from "@/lib/actions/auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { signup } from '@/lib/actions/auth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Card,
   CardContent,
@@ -10,9 +14,28 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card'
 
-export default function RegisterPage() {
+export default function RegisterPage({ searchParams }: { searchParams: { error?: string } }) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(searchParams?.error || null)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+
+    const formData = new FormData(e.currentTarget)
+
+    try {
+      await signup(formData)
+    } catch (err: any) {
+      setError(err.message || 'Erro ao criar conta. Tente novamente.')
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-black p-4">
       <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
@@ -21,19 +44,25 @@ export default function RegisterPage() {
             Crie sua conta
           </CardTitle>
           <CardDescription className="text-center text-zinc-400">
-            Cadastro 100% gratuito. Tenha acesso aos cursos que você adquirir.
+            Cadastro 100% gratuito. Tenha acesso aos cursos que voce adquirir.
           </CardDescription>
         </CardHeader>
-        <form action={signup}>
+        <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="bg-red-900/20 text-red-400 border border-red-800 rounded-lg p-3 text-sm">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-white">Nome completo</Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
-                placeholder="João Silva"
+                placeholder="Joao Silva"
                 required
+                disabled={isLoading}
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
               />
             </div>
@@ -45,6 +74,7 @@ export default function RegisterPage() {
                 type="email"
                 placeholder="seu@email.com"
                 required
+                disabled={isLoading}
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
               />
             </div>
@@ -55,6 +85,7 @@ export default function RegisterPage() {
                 name="whatsapp"
                 type="tel"
                 placeholder="(00) 00000-0000"
+                disabled={isLoading}
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
               />
             </div>
@@ -67,31 +98,34 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 minLength={6}
                 required
+                disabled={isLoading}
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
               />
-              <p className="text-xs text-zinc-500">
-                Mínimo 6 caracteres
-              </p>
+              <p className="text-xs text-zinc-500">Minimo 6 caracteres</p>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold">
-              Criar conta gratuitamente
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+            >
+              {isLoading ? 'Criando conta...' : 'Criar conta gratuitamente'}
             </Button>
             <p className="text-sm text-center text-zinc-400">
-              Já tem uma conta?{" "}
+              Ja tem uma conta?{' '}
               <Link href="/auth/login" className="text-red-500 hover:text-red-400 hover:underline font-medium">
                 Fazer login
               </Link>
             </p>
             <p className="text-xs text-center text-zinc-500">
-              Ao criar uma conta, você concorda com nossos{" "}
+              Ao criar uma conta, voce concorda com nossos{' '}
               <Link href="/terms" className="text-red-500 hover:underline">
                 Termos de Uso
-              </Link>{" "}
-              e{" "}
+              </Link>{' '}
+              e{' '}
               <Link href="/privacy" className="text-red-500 hover:underline">
-                Política de Privacidade
+                Politica de Privacidade
               </Link>
               .
             </p>
