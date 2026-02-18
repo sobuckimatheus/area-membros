@@ -32,16 +32,18 @@ export default function LoginPage() {
       const result = await login(formData)
 
       if (result?.success && result?.redirectTo) {
-        // Redirecionar para o destino apropriado
         router.push(result.redirectTo)
         router.refresh()
+      } else if (result?.error) {
+        setError(result.error)
+        setIsLoading(false)
       } else {
-        setError('Erro ao fazer login')
+        setError('Erro ao fazer login. Tente novamente.')
         setIsLoading(false)
       }
     } catch (err: any) {
       console.error('Erro no login:', err)
-      setError(err.message || 'Erro ao fazer login')
+      setError('Erro ao fazer login. Tente novamente.')
       setIsLoading(false)
     }
   }

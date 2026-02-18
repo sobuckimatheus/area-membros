@@ -28,15 +28,15 @@ export async function login(formData: FormData) {
     })
 
     if (!emailExists) {
-      throw new Error('Email nao encontrado. Verifique se digitou corretamente.')
+      return { success: false, error: 'Email nao encontrado. Verifique se digitou corretamente.' }
     } else {
-      throw new Error('Senha incorreta. Clique em "Esqueceu a senha?" para redefinir.')
+      return { success: false, error: 'Senha incorreta. Clique em "Esqueceu a senha?" para redefinir.' }
     }
   }
 
   // Buscar o usuário no Prisma para verificar o role
   if (!authData.user) {
-    throw new Error('Erro ao obter dados do usuário')
+    return { success: false, error: 'Erro ao obter dados do usuario.' }
   }
 
   console.log('Login no Supabase bem-sucedido, buscando usuário no banco:', authData.user.id)
