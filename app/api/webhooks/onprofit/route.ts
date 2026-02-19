@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Criar matrículas
+    // Criar matrículas nos cursos comprados
     const enrollments = []
 
     for (const course of productMapping.courses) {
@@ -226,6 +226,38 @@ export async function POST(request: NextRequest) {
 
       enrollments.push({ id: enrollment.id, course: course.title })
       console.log(`✅ Matrícula criada: ${course.title} para ${user.email}`)
+    }
+
+    // Matricular automaticamente em cursos gratuitos
+    const freeCourses = await prisma.course.findMany({
+      where: {
+        tenantId: tenant.id,
+        status: 'PUBLISHED',
+        isFree: true,
+      },
+    })
+
+    for (const course of freeCourses) {
+      const existing = await prisma.enrollment.findFirst({
+        where: { userId: user.id, courseId: course.id, status: 'ACTIVE' },
+      })
+
+      if (existing) continue
+
+      await prisma.enrollment.create({
+        data: {
+          tenantId: tenant.id,
+          userId: user.id,
+          courseId: course.id,
+          status: 'ACTIVE',
+          progress: 0,
+          enrolledAt: new Date(),
+          source: 'auto_free',
+        },
+      })
+
+      enrollments.push({ id: 'free', course: course.title })
+      console.log(`✅ Curso gratuito adicionado: ${course.title} para ${user.email}`)
     }
 
     // Atualizar log
