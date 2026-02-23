@@ -122,16 +122,32 @@ export async function POST(request: NextRequest) {
     const tempPassword = 'Acesso@2025'
 
     if (!user) {
-      // Usar upsert para evitar race condition quando múltiplos webhooks chegam ao mesmo tempo
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Tentar criar usuário no Supabase Auth
+      let authData = null
+      const createResult = await supabase.auth.admin.createUser({
         email,
         password: tempPassword,
         email_confirm: true,
         user_metadata: { name: name || email.split('@')[0] },
       })
 
-      if (authError) {
-        console.error('Erro ao criar usuário no Supabase:', authError)
+      if (createResult.error) {
+        // Se o erro for "usuário já existe", buscar o usuário existente
+        if (createResult.error.message?.includes('already registered')) {
+          console.log('Usuário já existe no Supabase, buscando...')
+          const { data: listData } = await supabase.auth.admin.listUsers()
+          const existingUser = listData?.users?.find(u => u.email === email)
+          if (existingUser) {
+            authData = { user: existingUser }
+            // Resetar senha para garantir que seja a senha padrão
+            await supabase.auth.admin.updateUserById(existingUser.id, { password: tempPassword })
+          }
+        }
+        if (!authData) {
+          console.error('Erro ao criar usuário no Supabase:', createResult.error)
+        }
+      } else {
+        authData = createResult.data
       }
 
       try {
