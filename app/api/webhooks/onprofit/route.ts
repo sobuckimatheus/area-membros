@@ -143,20 +143,24 @@ export async function POST(request: NextRequest) {
             await supabase.auth.admin.updateUserById(existingUser.id, { password: tempPassword })
           }
         }
+
+        // Se não conseguiu obter authData, falhar o webhook
         if (!authData) {
-          console.error('Erro ao criar usuário no Supabase:', createResult.error)
+          console.error('❌ Falha crítica: não foi possível criar usuário no Supabase Auth')
+          throw new Error(`Falha ao criar autenticação para ${email}: ${createResult.error.message}`)
         }
       } else {
         authData = createResult.data
       }
 
+      // authData está garantido aqui
       try {
         user = await prisma.user.create({
           data: {
             tenantId: tenant.id,
             email,
             name: name || email.split('@')[0],
-            supabaseUid: authData?.user?.id,
+            supabaseUid: authData.user.id,
             role: 'STUDENT',
             status: 'ACTIVE',
             emailVerified: new Date(),
