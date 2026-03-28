@@ -186,15 +186,33 @@ export async function POST(request: NextRequest) {
       throw new Error(`Não foi possível criar ou encontrar o usuário: ${email}`)
     }
 
-    // Buscar mapeamento do produto
-    const productMapping = await prisma.productMapping.findFirst({
-      where: {
-        tenantId: tenant.id,
-        externalProductId: productId,
-        integration: { platform: 'ONPROFIT' },
-      },
-      include: { courses: true },
-    })
+    // Buscar mapeamento do produto — tenta oferta específica primeiro, depois produto genérico
+    const offerHash = body.offer_hash as string | undefined
+    const offerSpecificId = offerHash ? `${productId}:${offerHash}` : null
+
+    let productMapping = offerSpecificId
+      ? await prisma.productMapping.findFirst({
+          where: {
+            tenantId: tenant.id,
+            externalProductId: offerSpecificId,
+            integration: { platform: 'ONPROFIT' },
+          },
+          include: { courses: true },
+        })
+      : null
+
+    if (!productMapping) {
+      productMapping = await prisma.productMapping.findFirst({
+        where: {
+          tenantId: tenant.id,
+          externalProductId: productId,
+          integration: { platform: 'ONPROFIT' },
+        },
+        include: { courses: true },
+      })
+    }
+
+    console.log(`🔍 Mapeamento usado: ${productMapping?.externalProductName || 'Não encontrado'} (offer_hash: ${offerHash || 'N/A'})`)
 
     if (!productMapping || productMapping.courses.length === 0) {
       await prisma.webhookLog.update({
