@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import prisma from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/actions/auth'
 import { Card, CardContent } from '@/components/ui/card'
