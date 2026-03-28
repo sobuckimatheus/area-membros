@@ -437,6 +437,9 @@ model Lesson {
   // Conteúdo de texto
   content     String? @db.Text // HTML ou Markdown
 
+  // Imagem de conteúdo
+  imageUrl    String? // URL da imagem principal do conteúdo (ex: devocional)
+
   // Embed
   embedUrl    String? // URL de embed (Miro, Figma, etc)
   embedHtml   String? @db.Text // HTML embed customizado

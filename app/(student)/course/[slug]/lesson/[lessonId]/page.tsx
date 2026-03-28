@@ -118,7 +118,7 @@ export default async function LessonPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content - Video Player */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Video */}
+            {/* Video ou Imagem */}
             <Card className="bg-zinc-900 border-zinc-800">
               <CardContent className="p-0">
                 {lesson.videoUrl ? (
@@ -154,9 +154,17 @@ export default async function LessonPage({
                       <video src={lesson.videoUrl} controls className="w-full h-full" />
                     )}
                   </div>
+                ) : lesson.imageUrl ? (
+                  <div className="aspect-video bg-black">
+                    <img
+                      src={lesson.imageUrl}
+                      alt={lesson.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="aspect-video bg-zinc-800 flex items-center justify-center">
-                    <p className="text-zinc-400">Vídeo não disponível</p>
+                    <p className="text-zinc-400">Conteúdo visual não disponível</p>
                   </div>
                 )}
               </CardContent>

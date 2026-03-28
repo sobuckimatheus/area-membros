@@ -24,6 +24,7 @@ async function createLesson(
   const title = formData.get('title') as string
   const description = formData.get('description') as string
   const content = formData.get('content') as string
+  const imageUrl = formData.get('imageUrl') as string
   const videoUrl = formData.get('videoUrl') as string
   const videoDuration = formData.get('videoDuration') as string
   const fileUrl = formData.get('fileUrl') as string
@@ -78,6 +79,7 @@ async function createLesson(
       description,
       content,
       type: 'VIDEO',
+      imageUrl: imageUrl || null,
       videoUrl: videoUrl || null,
       videoDuration: videoDuration ? parseInt(videoDuration) : null,
       fileUrl: fileUrl || null,
@@ -173,6 +175,20 @@ export default async function NewLessonPage({
                 placeholder="Breve descrição da aula"
                 className="mt-1"
               />
+            </div>
+
+            <div>
+              <Label htmlFor="imageUrl">URL da Imagem Principal</Label>
+              <Input
+                id="imageUrl"
+                name="imageUrl"
+                type="url"
+                placeholder="https://..."
+                className="mt-1"
+              />
+              <p className="text-sm text-slate-500 mt-1">
+                Imagem principal do conteúdo (aparecerá no tamanho do vídeo do YouTube)
+              </p>
             </div>
 
             <div>

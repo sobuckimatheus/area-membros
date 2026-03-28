@@ -25,6 +25,7 @@ async function updateLesson(
   const title = formData.get('title') as string
   const description = formData.get('description') as string
   const content = formData.get('content') as string
+  const imageUrl = formData.get('imageUrl') as string
   const videoUrl = formData.get('videoUrl') as string
   const videoDuration = formData.get('videoDuration') as string
   const isFree = formData.get('isFree') === 'on'
@@ -39,6 +40,7 @@ async function updateLesson(
       title,
       description,
       content,
+      imageUrl: imageUrl || null,
       videoUrl: videoUrl || null,
       videoDuration: videoDuration ? parseInt(videoDuration) : null,
       isFree,
@@ -175,6 +177,21 @@ export default async function EditLessonPage({
             </div>
 
             <div>
+              <Label htmlFor="imageUrl">URL da Imagem Principal</Label>
+              <Input
+                id="imageUrl"
+                name="imageUrl"
+                type="url"
+                defaultValue={lesson.imageUrl || ''}
+                placeholder="https://..."
+                className="mt-1"
+              />
+              <p className="text-sm text-slate-500 mt-1">
+                Imagem principal do conteúdo (aparecerá no tamanho do vídeo do YouTube)
+              </p>
+            </div>
+
+            <div>
               <Label htmlFor="videoUrl">URL do Vídeo</Label>
               <Input
                 id="videoUrl"
@@ -244,6 +261,24 @@ export default async function EditLessonPage({
           </form>
         </CardContent>
       </Card>
+
+      {/* Preview da Imagem */}
+      {lesson.imageUrl && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Preview da Imagem</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-video">
+              <img
+                src={lesson.imageUrl}
+                alt={lesson.title}
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Preview do Vídeo */}
       {lesson.videoUrl && (
