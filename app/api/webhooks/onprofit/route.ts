@@ -135,11 +135,10 @@ export async function POST(request: NextRequest) {
         // Se o erro for "usuário já existe", buscar o usuário existente
         if (createResult.error.message?.includes('already registered')) {
           console.log('Usuário já existe no Supabase, buscando...')
-          const { data: listData } = await supabase.auth.admin.listUsers()
-          const existingUser = listData?.users?.find(u => u.email === email)
+          const { data: listData } = await supabase.auth.admin.listUsers({ perPage: 1000 })
+          const existingUser = listData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
           if (existingUser) {
             authData = { user: existingUser }
-            // Resetar senha para garantir que seja a senha padrão
             await supabase.auth.admin.updateUserById(existingUser.id, { password: tempPassword })
           }
         }
