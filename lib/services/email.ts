@@ -16,9 +16,10 @@ export async function sendWelcomeEmail({
   password,
 }: WelcomeEmailParams) {
   try {
+    const firstName = name.split(' ')[0]
     const coursesList = courseTitles.length > 0
-      ? courseTitles.map(title => `• ${title}`).join('<br/>')
-      : 'seu novo curso'
+      ? courseTitles.map(title => `<li style="margin: 6px 0; color: #555;">${title}</li>`).join('')
+      : '<li style="margin: 6px 0; color: #555;">seu novo curso</li>'
 
     const coursesListText = courseTitles.length > 0
       ? courseTitles.map(title => `  - ${title}`).join('\n')
@@ -27,188 +28,146 @@ export async function sendWelcomeEmail({
     const { data, error } = await resend.emails.send({
       from: 'Diana Mascarello <contato@dianamascarello.com.br>',
       to: [to],
-      subject: `Bem-vinda a Area de Membros, ${name.split(' ')[0]}!`,
-      text: `Ola, ${name}!
+      subject: `${firstName}, seu acesso esta pronto!`,
+      headers: {
+        'List-Unsubscribe': '<mailto:contato@dianamascarello.com.br?subject=Descadastrar>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+      text: `Ola, ${firstName}!
 
-Sua matricula foi confirmada. Abaixo estao suas informacoes de acesso a Area de Membros Diana Mascarello.
+Sua compra foi confirmada e seu acesso ja esta liberado.
 
-Curso(s) liberado(s):
+CURSOS LIBERADOS:
 ${coursesListText}
 
-Para acessar, entre no site abaixo com seu email e senha:
-
-  Site:  areamembros.dianamascarello.com.br
+SEUS DADOS DE ACESSO:
+  Site:  https://areamembros.dianamascarello.com.br
   Email: ${to}
   Senha: ${password}
 
-Acesse agora: https://areamembros.dianamascarello.com.br/auth/login
+Clique aqui para acessar agora:
+https://areamembros.dianamascarello.com.br/auth/login
 
-Dica: apos o primeiro acesso, voce pode alterar sua senha em Menu > Alterar Senha.
+Dica: apos entrar, recomendamos alterar sua senha em Configuracoes > Alterar Senha.
 
 Qualquer duvida, responda este email.
 
+Com carinho,
 Diana Mascarello
+
+---
+Voce esta recebendo este email porque realizou uma compra.
+Para nao receber mais, envie um email para contato@dianamascarello.com.br com o assunto "Descadastrar".
 `,
-      html: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <style>
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                line-height: 1.6;
-                color: #333;
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #fdf8f8;
-              }
-              .container {
-                background: #ffffff;
-                border-radius: 10px;
-                overflow: hidden;
-                box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-              }
-              .header {
-                background: #c9a96e;
-                color: white;
-                padding: 36px 30px;
-                text-align: center;
-              }
-              .header h1 {
-                margin: 0;
-                font-size: 24px;
-                font-weight: 700;
-                letter-spacing: 0.5px;
-              }
-              .header p {
-                margin: 8px 0 0 0;
-                opacity: 0.9;
-                font-size: 15px;
-              }
-              .content {
-                padding: 32px 30px;
-              }
-              .content p {
-                margin: 0 0 16px 0;
-                color: #555;
-              }
-              .button {
-                display: inline-block;
-                background: #c9a96e;
-                color: white !important;
-                padding: 14px 32px;
-                text-decoration: none;
-                border-radius: 6px;
-                font-weight: 600;
-                font-size: 16px;
-                margin: 8px 0 20px 0;
-              }
-              .courses {
-                background: #fdf6ec;
-                padding: 16px 20px;
-                border-radius: 6px;
-                margin: 16px 0;
-                border-left: 4px solid #c9a96e;
-              }
-              .courses p {
-                margin: 4px 0;
-              }
-              .credentials {
-                background: #f9f4ee;
-                border: 1px solid #e8d9c4;
-                color: #333;
-                padding: 20px 24px;
-                border-radius: 8px;
-                margin: 20px 0;
-              }
-              .credential-row {
-                margin: 10px 0;
-                font-size: 15px;
-              }
-              .credential-label {
-                color: #999;
-                display: inline-block;
-                width: 60px;
-              }
-              .credential-value {
-                color: #333;
-                font-weight: 700;
-                font-family: monospace;
-                font-size: 15px;
-              }
-              .tip {
-                font-size: 13px;
-                color: #888;
-                background: #fafafa;
-                border: 1px solid #efefef;
-                padding: 12px 16px;
-                border-radius: 6px;
-                margin-top: 20px;
-              }
-              .footer {
-                text-align: center;
-                color: #bbb;
-                font-size: 12px;
-                padding: 20px 30px;
-                border-top: 1px solid #f0ebe5;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>Bem-vinda a Area de Membros</h1>
-                <p>Sua compra foi confirmada com sucesso</p>
-              </div>
+      html: `<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seu acesso esta pronto</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#f5f0eb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5f0eb;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+          <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
 
-              <div class="content">
-                <p>Ola, <strong>${name}</strong>!</p>
+            <!-- Header -->
+            <tr>
+              <td style="background:#c9a96e;padding:36px 40px;text-align:center;">
+                <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);letter-spacing:2px;text-transform:uppercase;font-weight:600;">Area de Membros</p>
+                <h1 style="margin:10px 0 0 0;font-size:26px;font-weight:700;color:#ffffff;">Diana Mascarello</h1>
+              </td>
+            </tr>
 
-                <p>Sua matricula foi confirmada e seu acesso ja esta disponivel:</p>
+            <!-- Body -->
+            <tr>
+              <td style="padding:40px 40px 32px 40px;">
+                <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#2d2d2d;">Ola, ${firstName}! 🎉</p>
+                <p style="margin:0 0 24px 0;font-size:15px;color:#666;">Sua compra foi confirmada e seu acesso ja esta liberado.</p>
 
-                <div class="courses">
-                  <strong>Curso(s) liberado(s):</strong>
-                  <div style="margin-top: 8px;">${coursesList}</div>
-                </div>
+                <!-- Cursos -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf6ec;border-left:4px solid #c9a96e;border-radius:0 6px 6px 0;margin-bottom:28px;">
+                  <tr>
+                    <td style="padding:18px 20px;">
+                      <p style="margin:0 0 10px 0;font-size:13px;font-weight:700;color:#c9a96e;text-transform:uppercase;letter-spacing:1px;">Curso(s) liberado(s)</p>
+                      <ul style="margin:0;padding-left:18px;">
+                        ${coursesList}
+                      </ul>
+                    </td>
+                  </tr>
+                </table>
 
-                <p>Para entrar na area de membros, use as informacoes abaixo:</p>
+                <p style="margin:0 0 14px 0;font-size:15px;color:#444;font-weight:600;">Seus dados de acesso:</p>
 
-                <div class="credentials">
-                  <div class="credential-row">
-                    <span class="credential-label">Site</span>
-                    <span class="credential-value">areamembros.dianamascarello.com.br</span>
-                  </div>
-                  <div class="credential-row">
-                    <span class="credential-label">Login</span>
-                    <span class="credential-value">${to}</span>
-                  </div>
-                  <div class="credential-row">
-                    <span class="credential-label">Senha</span>
-                    <span class="credential-value">${password}</span>
-                  </div>
-                </div>
+                <!-- Credenciais -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f9f4ee;border:1px solid #e8d9c4;border-radius:8px;margin-bottom:28px;">
+                  <tr>
+                    <td style="padding:20px 24px;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td style="padding:6px 0;font-size:14px;">
+                            <span style="color:#999;display:inline-block;width:55px;">Site</span>
+                            <span style="color:#333;font-weight:600;">areamembros.dianamascarello.com.br</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 0;font-size:14px;border-top:1px solid #f0e8da;">
+                            <span style="color:#999;display:inline-block;width:55px;">Email</span>
+                            <span style="color:#333;font-weight:600;">${to}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding:6px 0;font-size:14px;border-top:1px solid #f0e8da;">
+                            <span style="color:#999;display:inline-block;width:55px;">Senha</span>
+                            <span style="color:#333;font-weight:700;font-family:monospace;font-size:15px;">${password}</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
 
-                <p style="text-align: center;">
-                  <a href="https://areamembros.dianamascarello.com.br/auth/login" class="button">
-                    Acessar Agora
-                  </a>
+                <!-- Botão -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="center" style="padding-bottom:28px;">
+                      <a href="https://areamembros.dianamascarello.com.br/auth/login"
+                         style="display:inline-block;background:#c9a96e;color:#ffffff;text-decoration:none;padding:14px 40px;border-radius:6px;font-size:16px;font-weight:700;">
+                        Acessar Agora
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Dica -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="background:#fafafa;border:1px solid #efefef;border-radius:6px;padding:14px 16px;">
+                      <p style="margin:0;font-size:13px;color:#888;">💡 <strong>Dica:</strong> apos o primeiro acesso, recomendamos alterar sua senha em <strong>Configuracoes &gt; Alterar Senha</strong>.</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background:#f9f6f2;border-top:1px solid #f0ebe5;padding:20px 40px;text-align:center;">
+                <p style="margin:0 0 6px 0;font-size:13px;color:#aaa;">Diana Mascarello — Todos os direitos reservados</p>
+                <p style="margin:0;font-size:12px;color:#bbb;">
+                  Voce recebeu este email porque realizou uma compra.<br>
+                  <a href="mailto:contato@dianamascarello.com.br?subject=Descadastrar" style="color:#bbb;">Cancelar recebimento</a>
                 </p>
+              </td>
+            </tr>
 
-                <div class="tip">
-                  Dica: apos o primeiro acesso, voce pode alterar sua senha em Menu &gt; Alterar Senha.
-                </div>
-              </div>
-
-              <div class="footer">
-                <p>Diana Mascarello - Todos os direitos reservados</p>
-                <p>Qualquer duvida, responda este email.</p>
-              </div>
-            </div>
-          </body>
-        </html>
-      `,
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`,
     })
 
     if (error) {
