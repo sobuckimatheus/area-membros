@@ -307,24 +307,28 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Enviar email de boas-vindas
-    if (enrollments.length > 0) {
-      try {
-        if (user.supabaseUid) {
-          await supabase.auth.admin.updateUserById(user.supabaseUid, { password: tempPassword })
-        }
-
-        await sendWelcomeEmail({
-          to: user.email,
-          name: user.name || user.email.split('@')[0],
-          courseTitles: enrollments.map(e => e.course),
-          password: tempPassword,
-        })
-
-        console.log(`✅ Email de boas-vindas enviado para ${user.email}`)
-      } catch (emailError) {
-        console.error('❌ Erro ao enviar email:', emailError)
+    // Enviar email de boas-vindas — sempre que pagamento for aprovado
+    try {
+      if (user.supabaseUid) {
+        await supabase.auth.admin.updateUserById(user.supabaseUid, { password: tempPassword })
       }
+
+      // Usar cursos do mapeamento (não só os novos) para garantir que o email
+      // seja enviado mesmo em re-compras ou order bumps
+      const courseTitlesForEmail = enrollments.length > 0
+        ? enrollments.map(e => e.course)
+        : productMapping.courses.map(c => c.title)
+
+      await sendWelcomeEmail({
+        to: user.email,
+        name: user.name || user.email.split('@')[0],
+        courseTitles: courseTitlesForEmail,
+        password: tempPassword,
+      })
+
+      console.log(`✅ Email de boas-vindas enviado para ${user.email}`)
+    } catch (emailError) {
+      console.error('❌ Erro ao enviar email:', emailError)
     }
 
     return NextResponse.json({
