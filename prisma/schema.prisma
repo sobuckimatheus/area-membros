@@ -881,8 +881,9 @@ model WebhookLog {
   courseId    String?
   enrollmentId String?
 
-  processedAt DateTime?
-  createdAt   DateTime @default(now())
+  processedAt    DateTime?
+  followUpSentAt DateTime?
+  createdAt      DateTime @default(now())
 
   @@index([tenantId])
   @@index([integrationId])

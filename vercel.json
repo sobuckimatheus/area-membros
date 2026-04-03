@@ -3,5 +3,11 @@
   "installCommand": "npm install",
   "env": {
     "SKIP_ENV_VALIDATION": "1"
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/follow-up-email",
+      "schedule": "* * * * *"
+    }
+  ]
 }
