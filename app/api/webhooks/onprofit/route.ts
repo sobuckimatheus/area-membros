@@ -202,6 +202,34 @@ export async function POST(request: NextRequest) {
       : null
 
     if (!productMapping) {
+      // Antes de usar o mapeamento genérico, verificar se esse offer_hash
+      // já pertence a um bundle de outro produto. Se sim, ignorar este webhook
+      // para evitar liberar cursos indevidamente (OnProfit envia um webhook
+      // por produto dentro do bundle, todos com o mesmo offer_hash).
+      if (offerHash) {
+        const bundleForOtherProduct = await prisma.productMapping.findFirst({
+          where: {
+            tenantId: tenant.id,
+            externalProductId: { contains: `:${offerHash}` },
+            integration: { platform: 'ONPROFIT' },
+          },
+        })
+
+        if (bundleForOtherProduct) {
+          console.log(`⚠️  offer_hash ${offerHash} pertence ao bundle "${bundleForOtherProduct.externalProductName}" — webhook avulso ignorado`)
+          await prisma.webhookLog.update({
+            where: { id: webhookLog.id },
+            data: {
+              status: 'SUCCESS',
+              processedAt: new Date(),
+              userId: user.id,
+              errorMessage: `Webhook avulso ignorado — produto pertence ao bundle ${bundleForOtherProduct.externalProductName}`,
+            },
+          })
+          return NextResponse.json({ success: true, message: 'Webhook avulso de bundle ignorado' })
+        }
+      }
+
       productMapping = await prisma.productMapping.findFirst({
         where: {
           tenantId: tenant.id,
