@@ -123,7 +123,6 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       // Tentar criar usuário no Supabase Auth
-      let authData = null
       const createResult = await supabase.auth.admin.createUser({
         email,
         password: tempPassword,
@@ -131,35 +130,37 @@ export async function POST(request: NextRequest) {
         user_metadata: { name: name || email.split('@')[0] },
       })
 
+      let supabaseUid: string | null = null
+
       if (createResult.error) {
-        // Se o erro for "usuário já existe", buscar o usuário existente
         if (createResult.error.message?.includes('already registered')) {
+          // Usuário já existe no Supabase — buscar pelo email
           console.log('Usuário já existe no Supabase, buscando...')
           const { data: listData } = await supabase.auth.admin.listUsers({ perPage: 1000 })
-          const existingUser = listData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
-          if (existingUser) {
-            authData = { user: existingUser }
-            await supabase.auth.admin.updateUserById(existingUser.id, { password: tempPassword })
+          const existingSupabaseUser = listData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
+          if (existingSupabaseUser) {
+            supabaseUid = existingSupabaseUser.id
+            await supabase.auth.admin.updateUserById(existingSupabaseUser.id, { password: tempPassword })
+            console.log(`✅ Usuário encontrado no Supabase: ${existingSupabaseUser.id}`)
+          } else {
+            // Não achou via listUsers — pode ser race condition, continua sem supabaseUid
+            console.warn('⚠️  Usuário não encontrado via listUsers, prosseguindo sem supabaseUid')
           }
-        }
-
-        // Se não conseguiu obter authData, falhar o webhook
-        if (!authData) {
-          console.error('❌ Falha crítica: não foi possível criar usuário no Supabase Auth')
+        } else {
           throw new Error(`Falha ao criar autenticação para ${email}: ${createResult.error.message}`)
         }
       } else {
-        authData = createResult.data
+        supabaseUid = createResult.data.user.id
       }
 
-      // authData está garantido aqui
+      // Criar usuário no Prisma (com tratamento de race condition)
       try {
         user = await prisma.user.create({
           data: {
             tenantId: tenant.id,
             email,
             name: name || email.split('@')[0],
-            supabaseUid: authData.user.id,
+            supabaseUid: supabaseUid,
             role: 'STUDENT',
             status: 'ACTIVE',
             emailVerified: new Date(),
@@ -167,7 +168,7 @@ export async function POST(request: NextRequest) {
         })
         console.log(`✅ Usuário criado: ${user.email}`)
       } catch (createError: any) {
-        // Race condition: outro webhook criou o usuário ao mesmo tempo
+        // Race condition: outro webhook simultâneo já criou o usuário
         if (createError.code === 'P2002') {
           user = await prisma.user.findUnique({
             where: { tenantId_email: { tenantId: tenant.id, email } },
@@ -248,21 +249,29 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      const enrollment = await prisma.enrollment.create({
-        data: {
-          tenantId: tenant.id,
-          userId: user.id,
-          courseId: course.id,
-          status: 'ACTIVE',
-          progress: 0,
-          enrolledAt: new Date(),
-          source: 'webhook',
-          sourceId: webhookLog.id,
-        },
-      })
-
-      enrollments.push({ id: enrollment.id, course: course.title })
-      console.log(`✅ Matrícula criada: ${course.title} para ${user.email}`)
+      try {
+        const enrollment = await prisma.enrollment.create({
+          data: {
+            tenantId: tenant.id,
+            userId: user.id,
+            courseId: course.id,
+            status: 'ACTIVE',
+            progress: 0,
+            enrolledAt: new Date(),
+            source: 'webhook',
+            sourceId: webhookLog.id,
+          },
+        })
+        enrollments.push({ id: enrollment.id, course: course.title })
+        console.log(`✅ Matrícula criada: ${course.title} para ${user.email}`)
+      } catch (enrollError: any) {
+        if (enrollError.code === 'P2002') {
+          // Matrícula já existe (race condition ou re-compra) — ignorar
+          console.log(`⚠️  Matrícula já existe: ${user.email} → ${course.title}`)
+        } else {
+          throw enrollError
+        }
+      }
     }
 
     // Matricular automaticamente em cursos gratuitos
