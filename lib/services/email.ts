@@ -1,12 +1,38 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const BREVO_API_KEY = process.env.BREVO_API_KEY
 
 interface WelcomeEmailParams {
   to: string
   name: string
   courseTitles: string[]
   password: string
+}
+
+async function sendViaBrevo(to: string, name: string, subject: string, html: string, text: string) {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'api-key': BREVO_API_KEY!,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'Diana Mascarello', email: 'contato@dianamascarello.com.br' },
+      to: [{ email: to, name }],
+      subject,
+      htmlContent: html,
+      textContent: text,
+    }),
+  })
+
+  if (!response.ok) {
+    const err = await response.json()
+    throw new Error(err.message || 'Erro ao enviar via Brevo')
+  }
+
+  return await response.json()
 }
 
 export async function sendWelcomeEmail({
@@ -17,6 +43,7 @@ export async function sendWelcomeEmail({
 }: WelcomeEmailParams) {
   try {
     const firstName = name.split(' ')[0]
+
     const coursesList = courseTitles.length > 0
       ? courseTitles.map(title => `<li style="margin: 6px 0; color: #555;">${title}</li>`).join('')
       : '<li style="margin: 6px 0; color: #555;">seu novo curso</li>'
@@ -25,15 +52,9 @@ export async function sendWelcomeEmail({
       ? courseTitles.map(title => `  - ${title}`).join('\n')
       : '  - seu novo curso'
 
-    const { data, error } = await resend.emails.send({
-      from: 'Diana Mascarello <contato@dianamascarello.com.br>',
-      to: [to],
-      subject: `${firstName}, seu acesso esta pronto!`,
-      headers: {
-        'List-Unsubscribe': '<mailto:contato@dianamascarello.com.br?subject=Descadastrar>',
-        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-      },
-      text: `Ola, ${firstName}!
+    const subject = `${firstName}, seu acesso esta pronto!`
+
+    const textContent = `Ola, ${firstName}!
 
 Sua compra foi confirmada e seu acesso ja esta liberado.
 
@@ -58,8 +79,9 @@ Diana Mascarello
 ---
 Voce esta recebendo este email porque realizou uma compra.
 Para nao receber mais, envie um email para contato@dianamascarello.com.br com o assunto "Descadastrar".
-`,
-      html: `<!DOCTYPE html>
+`
+
+    const htmlContent = `<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8">
@@ -167,10 +189,28 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
       </tr>
     </table>
   </body>
-</html>`,
+</html>`
+
+    const { data, error } = await resend.emails.send({
+      from: 'Diana Mascarello <contato@dianamascarello.com.br>',
+      to: [to],
+      subject,
+      headers: {
+        'List-Unsubscribe': '<mailto:contato@dianamascarello.com.br?subject=Descadastrar>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+      text: textContent,
+      html: htmlContent,
     })
 
     if (error) {
+      // Resend falhou (ex: quota excedida) — tentar via Brevo
+      if (BREVO_API_KEY) {
+        console.log('⚠️  Resend falhou, tentando Brevo...')
+        await sendViaBrevo(to, name, subject, htmlContent, textContent)
+        console.log('✅ Email enviado via Brevo para:', to)
+        return { success: true }
+      }
       console.error('❌ Erro ao enviar email:', error)
       throw error
     }
