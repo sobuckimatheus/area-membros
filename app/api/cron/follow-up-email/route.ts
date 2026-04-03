@@ -4,7 +4,6 @@ import { sendWelcomeEmail } from '@/lib/services/email'
 
 export const dynamic = 'force-dynamic'
 
-// Protege a rota com uma chave secreta
 const CRON_SECRET = process.env.CRON_SECRET
 
 export async function GET(request: NextRequest) {
@@ -18,7 +17,7 @@ export async function GET(request: NextRequest) {
     const oneMinuteAgo = new Date(now.getTime() - 1 * 60 * 1000)
     const twoMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000)
 
-    // Buscar webhooks aprovados entre 1 e 2 minutos atrás que ainda não receberam follow-up
+    // Buscar webhooks aprovados entre 1 e 2 minutos atrás sem follow-up
     const logs = await prisma.webhookLog.findMany({
       where: {
         platform: 'ONPROFIT',
@@ -29,56 +28,52 @@ export async function GET(request: NextRequest) {
           lte: oneMinuteAgo,
         },
       },
-      include: {
-        user: {
-          include: {
-            enrollments: {
-              include: {
-                course: { select: { title: true } }
-              }
-            }
-          }
-        }
-      }
+      select: { id: true, userId: true },
     })
 
     if (logs.length === 0) {
       return NextResponse.json({ success: true, sent: 0 })
     }
 
-    // Agrupar por userId para não enviar duplicado se houver múltiplos logs
     const usersSent = new Set<string>()
     let sent = 0
 
     for (const log of logs) {
-      if (!log.user || usersSent.has(log.user.id)) continue
+      if (!log.userId || usersSent.has(log.userId)) continue
 
-      const courseTitles = log.user.enrollments
+      const user = await prisma.user.findUnique({
+        where: { id: log.userId },
+        include: {
+          enrollments: {
+            include: { course: { select: { title: true } } },
+          },
+        },
+      })
+
+      if (!user) continue
+
+      const courseTitles = user.enrollments
         .map(e => e.course.title)
         .filter(t => t !== 'Aulas Gratuitas')
 
       try {
         await sendWelcomeEmail({
-          to: log.user.email,
-          name: log.user.name || log.user.email.split('@')[0],
+          to: user.email,
+          name: user.name || user.email.split('@')[0],
           courseTitles,
           password: 'Acesso@2025',
         })
 
-        // Marcar todos os logs desse usuário como follow-up enviado
         await prisma.webhookLog.updateMany({
-          where: {
-            userId: log.user.id,
-            followUpSentAt: null,
-          },
+          where: { userId: user.id, followUpSentAt: null },
           data: { followUpSentAt: now },
         })
 
-        usersSent.add(log.user.id)
+        usersSent.add(user.id)
         sent++
-        console.log(`✅ Follow-up enviado para: ${log.user.email}`)
+        console.log(`✅ Follow-up enviado para: ${user.email}`)
       } catch (err) {
-        console.error(`❌ Erro ao enviar follow-up para ${log.user.email}:`, err)
+        console.error(`❌ Erro ao enviar follow-up para ${user.email}:`, err)
       }
     }
 
