@@ -202,11 +202,21 @@ export async function POST(request: NextRequest) {
       : null
 
     if (!productMapping) {
-      // Antes de usar o mapeamento genérico, verificar se esse offer_hash
-      // já pertence a um bundle de outro produto. Se sim, ignorar este webhook
-      // para evitar liberar cursos indevidamente (OnProfit envia um webhook
-      // por produto dentro do bundle, todos com o mesmo offer_hash).
-      if (offerHash) {
+      // Verificar se o produto atual tem mapeamento genérico próprio
+      const genericMapping = await prisma.productMapping.findFirst({
+        where: {
+          tenantId: tenant.id,
+          externalProductId: productId,
+          integration: { platform: 'ONPROFIT' },
+        },
+        include: { courses: true },
+      })
+
+      // Se não tem mapeamento próprio E o offer_hash pertence a um bundle de
+      // outro produto, ignorar (OnProfit envia um webhook por produto do bundle,
+      // todos com o mesmo offer_hash — o bundle principal já processa tudo).
+      // Se tiver mapeamento próprio (ex: order bump independente), processar normalmente.
+      if (!genericMapping && offerHash) {
         const bundleForOtherProduct = await prisma.productMapping.findFirst({
           where: {
             tenantId: tenant.id,
@@ -230,14 +240,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      productMapping = await prisma.productMapping.findFirst({
-        where: {
-          tenantId: tenant.id,
-          externalProductId: productId,
-          integration: { platform: 'ONPROFIT' },
-        },
-        include: { courses: true },
-      })
+      productMapping = genericMapping
     }
 
     console.log(`🔍 Mapeamento usado: ${productMapping?.externalProductName || 'Não encontrado'} (offer_hash: ${offerHash || 'N/A'})`)
