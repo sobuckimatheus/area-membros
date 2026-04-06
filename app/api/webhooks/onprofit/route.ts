@@ -267,10 +267,39 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Se é um order bump, buscar também o mapeamento do produto principal
+    // para garantir que o usuário receba ambos mesmo que um dos webhooks não chegue
+    const allMappings = [productMapping]
+    if (body.item_type === 'order_bump') {
+      const mainProductId = body.product_id?.toString()
+      if (mainProductId && mainProductId !== productId) {
+        const mainOfferSpecificId = offerHash ? `${mainProductId}:${offerHash}` : null
+        const mainMapping = mainOfferSpecificId
+          ? await prisma.productMapping.findFirst({
+              where: { tenantId: tenant.id, externalProductId: mainOfferSpecificId, integration: { platform: 'ONPROFIT' } },
+              include: { courses: true },
+            })
+          : null
+        const mainGenericMapping = !mainMapping
+          ? await prisma.productMapping.findFirst({
+              where: { tenantId: tenant.id, externalProductId: mainProductId, integration: { platform: 'ONPROFIT' } },
+              include: { courses: true },
+            })
+          : null
+        const resolvedMain = mainMapping || mainGenericMapping
+        if (resolvedMain) {
+          allMappings.push(resolvedMain)
+          console.log(`✅ Produto principal do order bump também mapeado: ${resolvedMain.externalProductName}`)
+        }
+      }
+    }
+
     // Criar matrículas nos cursos comprados
     const enrollments = []
 
-    for (const course of productMapping.courses) {
+    const allCourses = allMappings.flatMap(m => m.courses).filter((c, i, arr) => arr.findIndex(x => x.id === c.id) === i)
+
+    for (const course of allCourses) {
       const existing = await prisma.enrollment.findFirst({
         where: { userId: user.id, courseId: course.id, status: 'ACTIVE' },
       })
