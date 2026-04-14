@@ -52,7 +52,7 @@ export async function sendWelcomeEmail({
       ? courseTitles.map(title => `  - ${title}`).join('\n')
       : '  - seu novo curso'
 
-    const subject = `${firstName}, seu acesso esta pronto!`
+    const subject = `${firstName}, sua conta na Area de Membros foi ativada`
 
     const textContent = `Ola, ${firstName}!
 
@@ -105,7 +105,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
             <!-- Body -->
             <tr>
               <td style="padding:40px 40px 32px 40px;">
-                <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#2d2d2d;">Ola, ${firstName}! 🎉</p>
+                <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#2d2d2d;">Ola, ${firstName}!</p>
                 <p style="margin:0 0 24px 0;font-size:15px;color:#666;">Sua compra foi confirmada e seu acesso ja esta liberado.</p>
 
                 <!-- Cursos -->
@@ -166,7 +166,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td style="background:#fafafa;border:1px solid #efefef;border-radius:6px;padding:14px 16px;">
-                      <p style="margin:0;font-size:13px;color:#888;">💡 <strong>Dica:</strong> apos o primeiro acesso, recomendamos alterar sua senha em <strong>Configuracoes &gt; Alterar Senha</strong>.</p>
+                      <p style="margin:0;font-size:13px;color:#888;"><strong>Dica:</strong> apos o primeiro acesso, recomendamos alterar sua senha em <strong>Configuracoes &gt; Alterar Senha</strong>.</p>
                     </td>
                   </tr>
                 </table>
