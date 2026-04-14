@@ -11,6 +11,7 @@ interface WelcomeEmailParams {
   name: string
   courseTitles: string[]
   password: string
+  bcc?: string
 }
 
 function createGmailTransporter() {
@@ -23,11 +24,12 @@ function createGmailTransporter() {
   })
 }
 
-async function sendViaGmail(to: string, name: string, subject: string, html: string, text: string) {
+async function sendViaGmail(to: string, name: string, subject: string, html: string, text: string, bcc?: string) {
   const transporter = createGmailTransporter()
   await transporter.sendMail({
     from: `"Diana Mascarello" <${GMAIL_USER}>`,
     to,
+    bcc,
     subject,
     html,
     text,
@@ -64,6 +66,7 @@ export async function sendWelcomeEmail({
   name,
   courseTitles,
   password,
+  bcc,
 }: WelcomeEmailParams) {
   try {
     const firstName = name.split(' ')[0]
@@ -218,7 +221,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
     // Tentar Gmail primeiro (melhor reputação de entrega)
     if (GMAIL_USER && GMAIL_APP_PASSWORD) {
       try {
-        await sendViaGmail(to, name, subject, htmlContent, textContent)
+        await sendViaGmail(to, name, subject, htmlContent, textContent, bcc)
         console.log('✅ Email enviado via Gmail para:', to)
         return { success: true }
       } catch (gmailError) {

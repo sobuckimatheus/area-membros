@@ -388,11 +388,32 @@ export async function POST(request: NextRequest) {
         ? enrollments.map(e => e.course)
         : productMapping.courses.map(c => c.title)
 
+      // BCC de teste: envia cópia para TEST_BCC_EMAIL nas primeiras TEST_BCC_LIMIT compras após TEST_BCC_START
+      let bcc: string | undefined
+      const testBccEmail = process.env.TEST_BCC_EMAIL
+      const testBccStart = process.env.TEST_BCC_START
+      const testBccLimit = parseInt(process.env.TEST_BCC_LIMIT || '0')
+      if (testBccEmail && testBccStart && testBccLimit > 0) {
+        const countSinceStart = await prisma.webhookLog.count({
+          where: {
+            platform: 'ONPROFIT',
+            status: 'SUCCESS',
+            processedAt: { gte: new Date(testBccStart) },
+            errorMessage: null,
+          },
+        })
+        if (countSinceStart <= testBccLimit) {
+          bcc = testBccEmail
+          console.log(`📋 BCC de teste ativado (${countSinceStart}/${testBccLimit}): ${testBccEmail}`)
+        }
+      }
+
       await sendWelcomeEmail({
         to: user.email,
         name: user.name || user.email.split('@')[0],
         courseTitles: courseTitlesForEmail,
         password: tempPassword,
+        bcc,
       })
 
       console.log(`✅ Email de boas-vindas enviado para ${user.email}`)
