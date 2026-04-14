@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 const BREVO_API_KEY = process.env.BREVO_API_KEY
 const GMAIL_USER = process.env.GMAIL_USER
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD
@@ -227,6 +227,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
     }
 
     // Fallback: Resend
+    if (!resend) throw new Error('Nenhum provedor de email configurado')
     const { data, error } = await resend.emails.send({
       from: 'Diana Mascarello <contato@dianamascarello.com.br>',
       to: [to],
