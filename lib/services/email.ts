@@ -1,13 +1,37 @@
 import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const BREVO_API_KEY = process.env.BREVO_API_KEY
+const GMAIL_USER = process.env.GMAIL_USER
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD
 
 interface WelcomeEmailParams {
   to: string
   name: string
   courseTitles: string[]
   password: string
+}
+
+function createGmailTransporter() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: GMAIL_USER,
+      pass: GMAIL_APP_PASSWORD,
+    },
+  })
+}
+
+async function sendViaGmail(to: string, name: string, subject: string, html: string, text: string) {
+  const transporter = createGmailTransporter()
+  await transporter.sendMail({
+    from: `"Diana Mascarello" <${GMAIL_USER}>`,
+    to,
+    subject,
+    html,
+    text,
+  })
 }
 
 async function sendViaBrevo(to: string, name: string, subject: string, html: string, text: string) {
@@ -150,7 +174,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
                   </tr>
                 </table>
 
-                <!-- Botão -->
+                <!-- Botao -->
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td align="center" style="padding-bottom:28px;">
@@ -191,6 +215,18 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
   </body>
 </html>`
 
+    // Tentar Gmail primeiro (melhor reputação de entrega)
+    if (GMAIL_USER && GMAIL_APP_PASSWORD) {
+      try {
+        await sendViaGmail(to, name, subject, htmlContent, textContent)
+        console.log('✅ Email enviado via Gmail para:', to)
+        return { success: true }
+      } catch (gmailError) {
+        console.warn('⚠️  Gmail falhou, tentando Resend...', gmailError)
+      }
+    }
+
+    // Fallback: Resend
     const { data, error } = await resend.emails.send({
       from: 'Diana Mascarello <contato@dianamascarello.com.br>',
       to: [to],
@@ -204,7 +240,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
     })
 
     if (error) {
-      // Resend falhou (ex: quota excedida) — tentar via Brevo
+      // Resend falhou — tentar Brevo
       if (BREVO_API_KEY) {
         console.log('⚠️  Resend falhou, tentando Brevo...')
         await sendViaBrevo(to, name, subject, htmlContent, textContent)
@@ -215,7 +251,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
       throw error
     }
 
-    console.log('✅ Email de boas-vindas enviado para:', to)
+    console.log('✅ Email enviado via Resend para:', to)
     return { success: true, data }
   } catch (error) {
     console.error('❌ Falha ao enviar email de boas-vindas:', error)
