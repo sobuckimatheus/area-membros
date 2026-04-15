@@ -1,10 +1,7 @@
 import { Resend } from 'resend'
-import nodemailer from 'nodemailer'
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 const BREVO_API_KEY = process.env.BREVO_API_KEY
-const GMAIL_USER = process.env.GMAIL_USER
-const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD
 
 interface WelcomeEmailParams {
   to: string
@@ -14,29 +11,10 @@ interface WelcomeEmailParams {
   bcc?: string
 }
 
-function createGmailTransporter() {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: GMAIL_USER,
-      pass: GMAIL_APP_PASSWORD,
-    },
-  })
-}
+async function sendViaBrevo(to: string, name: string, subject: string, html: string, text: string, bcc?: string) {
+  const toList: { email: string; name: string }[] = [{ email: to, name }]
+  const bccList = bcc ? [{ email: bcc }] : undefined
 
-async function sendViaGmail(to: string, name: string, subject: string, html: string, text: string, bcc?: string) {
-  const transporter = createGmailTransporter()
-  await transporter.sendMail({
-    from: `"Diana Mascarello" <${GMAIL_USER}>`,
-    to,
-    bcc,
-    subject,
-    html,
-    text,
-  })
-}
-
-async function sendViaBrevo(to: string, name: string, subject: string, html: string, text: string) {
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
@@ -46,7 +24,8 @@ async function sendViaBrevo(to: string, name: string, subject: string, html: str
     },
     body: JSON.stringify({
       sender: { name: 'Diana Mascarello', email: 'contato@dianamascarello.com.br' },
-      to: [{ email: to, name }],
+      to: toList,
+      ...(bccList ? { bcc: bccList } : {}),
       subject,
       htmlContent: html,
       textContent: text,
@@ -218,14 +197,14 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
   </body>
 </html>`
 
-    // Tentar Gmail primeiro (melhor reputação de entrega)
-    if (GMAIL_USER && GMAIL_APP_PASSWORD) {
+    // Provedor principal: Brevo
+    if (BREVO_API_KEY) {
       try {
-        await sendViaGmail(to, name, subject, htmlContent, textContent, bcc)
-        console.log('✅ Email enviado via Gmail para:', to)
+        await sendViaBrevo(to, name, subject, htmlContent, textContent, bcc)
+        console.log('✅ Email enviado via Brevo para:', to)
         return { success: true }
-      } catch (gmailError) {
-        console.warn('⚠️  Gmail falhou, tentando Resend...', gmailError)
+      } catch (brevoError) {
+        console.warn('⚠️  Brevo falhou, tentando Resend...', brevoError)
       }
     }
 
@@ -244,13 +223,6 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
     })
 
     if (error) {
-      // Resend falhou — tentar Brevo
-      if (BREVO_API_KEY) {
-        console.log('⚠️  Resend falhou, tentando Brevo...')
-        await sendViaBrevo(to, name, subject, htmlContent, textContent)
-        console.log('✅ Email enviado via Brevo para:', to)
-        return { success: true }
-      }
       console.error('❌ Erro ao enviar email:', error)
       throw error
     }
