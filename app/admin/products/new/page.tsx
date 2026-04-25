@@ -144,6 +144,7 @@ export default async function NewProductMappingPage() {
                 className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 bg-white"
               >
                 <option value="">Selecione uma plataforma</option>
+                <option value="ONPROFIT">OnProfit</option>
                 <option value="KIRVANO">Kirvano (Assinaturas)</option>
                 <option value="YAMPI">Yampi (Venda de Cursos)</option>
               </select>
