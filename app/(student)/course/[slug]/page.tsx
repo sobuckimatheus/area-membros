@@ -239,50 +239,6 @@ export default async function CoursePage({
 
             {/* Modules */}
             <div>
-              <h2 className="text-2xl font-bold mb-6 text-white">Conteúdo do Curso</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                {course.modules.map((module, moduleIndex) => (
-                  <Card key={module.id} className="group overflow-hidden hover:shadow-xl hover:shadow-red-900/20 transition-shadow duration-300 bg-zinc-900 border-zinc-800">
-                    {/* Module Thumbnail */}
-                    {module.thumbnailUrl ? (
-                      <div className="relative aspect-video overflow-hidden">
-                        <img
-                          src={module.thumbnailUrl}
-                          alt={module.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-3">
-                          <div className="text-xs text-white/80 mb-1">
-                            Módulo {moduleIndex + 1}
-                          </div>
-                          <h3 className="text-white font-bold text-sm line-clamp-2 mb-1">
-                            {module.title}
-                          </h3>
-                          <p className="text-xs text-white/70">
-                            {module.lessons.length} aula{module.lessons.length !== 1 ? 's' : ''}
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="relative aspect-video bg-gradient-to-br from-zinc-700 to-zinc-900">
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-                          <div className="text-xs text-white/80 mb-2">
-                            Módulo {moduleIndex + 1}
-                          </div>
-                          <h3 className="text-white font-bold text-sm line-clamp-3 mb-2">
-                            {module.title}
-                          </h3>
-                          <p className="text-xs text-white/70">
-                            {module.lessons.length} aula{module.lessons.length !== 1 ? 's' : ''}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                ))}
-              </div>
-
               {/* Lessons List */}
               <div className="space-y-4">
                 <h3 className="text-xl font-bold text-white">Todas as Aulas</h3>
