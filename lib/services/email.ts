@@ -62,7 +62,17 @@ export async function sendWelcomeEmail({
 
     const textContent = `Ola, ${firstName}!
 
-Sua compra foi confirmada e seu acesso ja esta liberado.
+Sua compra foi confirmada — que alegria ter voce aqui!
+
+RECEBA A SUA ORACAO:
+Preencha o formulario abaixo para receber a sua oracao diretamente no seu email.
+Nao esqueca de acessar a Area de Membros — la voce encontra conteudos exclusivos que
+vao te ajudar na sua jornada espiritual e te levar para o proximo nivel!
+
+Link do formulario:
+https://form.respondi.app/csO1877y
+
+---
 
 CURSOS LIBERADOS:
 ${coursesListText}
@@ -112,12 +122,37 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
             <tr>
               <td style="padding:40px 40px 32px 40px;">
                 <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#2d2d2d;">Ola, ${firstName}!</p>
-                <p style="margin:0 0 24px 0;font-size:15px;color:#666;">Sua compra foi confirmada e seu acesso ja esta liberado.</p>
+                <p style="margin:0 0 28px 0;font-size:15px;color:#666;">Sua compra foi confirmada — que alegria ter voce aqui!</p>
+
+                <!-- Formulario de Oracao -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf6ec;border-left:4px solid #c9a96e;border-radius:0 6px 6px 0;margin-bottom:20px;">
+                  <tr>
+                    <td style="padding:20px 24px;">
+                      <p style="margin:0 0 6px 0;font-size:13px;font-weight:700;color:#c9a96e;text-transform:uppercase;letter-spacing:1px;">Receba a sua oracao</p>
+                      <p style="margin:0 0 16px 0;font-size:15px;color:#555;line-height:1.6;">
+                        Preencha o formulario para receber a sua oracao diretamente no seu email.
+                        Nao esqueca de acessar a Area de Membros — la voce encontra conteudos exclusivos
+                        que vao te ajudar na sua jornada espiritual e te levar para o proximo nivel!
+                      </p>
+                      <a href="https://form.respondi.app/csO1877y"
+                         style="display:inline-block;background:#c9a96e;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:15px;font-weight:700;">
+                        Preencher o Formulario
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Divisor -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+                  <tr>
+                    <td style="border-top:1px solid #f0e8da;"></td>
+                  </tr>
+                </table>
 
                 <!-- Cursos -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf6ec;border-left:4px solid #c9a96e;border-radius:0 6px 6px 0;margin-bottom:28px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f9f4ee;border:1px solid #e8d9c4;border-radius:8px;margin-bottom:20px;">
                   <tr>
-                    <td style="padding:18px 20px;">
+                    <td style="padding:16px 20px;">
                       <p style="margin:0 0 10px 0;font-size:13px;font-weight:700;color:#c9a96e;text-transform:uppercase;letter-spacing:1px;">Curso(s) liberado(s)</p>
                       <ul style="margin:0;padding-left:18px;">
                         ${coursesList}
