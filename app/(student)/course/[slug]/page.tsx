@@ -267,7 +267,7 @@ export default async function CoursePage({
                         {module.lessons.map((lesson, lessonIndex) => {
                           const canAccess = isEnrolled || lesson.isFree
 
-                          return (
+                          const lessonContent = (
                             <div
                               key={lesson.id}
                               className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
@@ -299,12 +299,10 @@ export default async function CoursePage({
                                 )}
 
                                 {canAccess ? (
-                                  <Link href={`/course/${course.slug}/lesson/${lesson.id}`} prefetch={false}>
-                                    <Button size="sm" variant="ghost" className="text-white hover:bg-zinc-700">
-                                      <Play className="h-4 w-4 mr-1" />
-                                      {lesson.isFree && !isEnrolled ? 'Preview' : 'Assistir'}
-                                    </Button>
-                                  </Link>
+                                  <Button size="sm" variant="ghost" className="text-white hover:bg-zinc-700">
+                                    <Play className="h-4 w-4 mr-1" />
+                                    {lesson.isFree && !isEnrolled ? 'Preview' : 'Assistir'}
+                                  </Button>
                                 ) : (
                                   <div className="flex items-center gap-2 text-zinc-500">
                                     <Lock className="h-4 w-4" />
@@ -319,6 +317,14 @@ export default async function CoursePage({
                                 )}
                               </div>
                             </div>
+                          )
+
+                          return canAccess ? (
+                            <Link key={lesson.id} href={`/course/${course.slug}/lesson/${lesson.id}`} prefetch={false}>
+                              {lessonContent}
+                            </Link>
+                          ) : (
+                            <div key={lesson.id}>{lessonContent}</div>
                           )
                         })}
                       </div>
