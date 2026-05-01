@@ -58,18 +58,18 @@ export async function sendWelcomeEmail({
       ? courseTitles.map(title => `  - ${title}`).join('\n')
       : '  - seu novo curso'
 
-    const subject = `${firstName}, sua conta na Area de Membros foi ativada`
+    const subject = `${firstName}, sua conta na Área de Membros foi ativada`
 
-    const textContent = `Ola, ${firstName}!
+    const textContent = `Olá, ${firstName}!
 
-Sua compra foi confirmada — que alegria ter voce aqui!
+Sua compra foi confirmada — que alegria ter você aqui!
 
-RECEBA A SUA ORACAO:
-Preencha o formulario abaixo para receber a sua oracao diretamente no seu email.
-Nao esqueca de acessar a Area de Membros — la voce encontra conteudos exclusivos que
-vao te ajudar na sua jornada espiritual e te levar para o proximo nivel!
+RECEBA A SUA ORAÇÃO:
+Preencha o formulário abaixo para receber a sua oração diretamente no seu e-mail.
+Não esqueça de acessar a Área de Membros — lá você encontra conteúdos exclusivos que
+vão te ajudar na sua jornada espiritual e te levar para o próximo nível!
 
-Link do formulario:
+Link do formulário:
 https://form.respondi.app/csO1877y
 
 ---
@@ -85,16 +85,16 @@ SEUS DADOS DE ACESSO:
 Clique aqui para acessar agora:
 https://areamembros.dianamascarello.com.br/auth/login
 
-Dica: apos entrar, recomendamos alterar sua senha em Configuracoes > Alterar Senha.
+Dica: após entrar, recomendamos alterar sua senha em Configurações > Alterar Senha.
 
-Qualquer duvida, responda este email.
+Qualquer dúvida, responda este e-mail.
 
 Com carinho,
 Diana Mascarello
 
 ---
-Voce esta recebendo este email porque realizou uma compra.
-Para nao receber mais, envie um email para contato@dianamascarello.com.br com o assunto "Descadastrar".
+Você está recebendo este e-mail porque realizou uma compra.
+Para não receber mais, envie um e-mail para contato@dianamascarello.com.br com o assunto "Descadastrar".
 `
 
     const htmlContent = `<!DOCTYPE html>
@@ -113,7 +113,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
             <!-- Header -->
             <tr>
               <td style="background:#c9a96e;padding:36px 40px;text-align:center;">
-                <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);letter-spacing:2px;text-transform:uppercase;font-weight:600;">Area de Membros</p>
+                <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.85);letter-spacing:2px;text-transform:uppercase;font-weight:600;">Área de Membros</p>
                 <h1 style="margin:10px 0 0 0;font-size:26px;font-weight:700;color:#ffffff;">Diana Mascarello</h1>
               </td>
             </tr>
@@ -121,22 +121,22 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
             <!-- Body -->
             <tr>
               <td style="padding:40px 40px 32px 40px;">
-                <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#2d2d2d;">Ola, ${firstName}!</p>
-                <p style="margin:0 0 28px 0;font-size:15px;color:#666;">Sua compra foi confirmada — que alegria ter voce aqui!</p>
+                <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#2d2d2d;">Olá, ${firstName}!</p>
+                <p style="margin:0 0 28px 0;font-size:15px;color:#666;">Sua compra foi confirmada — que alegria ter você aqui!</p>
 
-                <!-- Formulario de Oracao -->
+                <!-- Formulário de Oração -->
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf6ec;border-left:4px solid #c9a96e;border-radius:0 6px 6px 0;margin-bottom:20px;">
                   <tr>
                     <td style="padding:20px 24px;">
-                      <p style="margin:0 0 6px 0;font-size:13px;font-weight:700;color:#c9a96e;text-transform:uppercase;letter-spacing:1px;">Receba a sua oracao</p>
+                      <p style="margin:0 0 6px 0;font-size:13px;font-weight:700;color:#c9a96e;text-transform:uppercase;letter-spacing:1px;">Receba a sua oração</p>
                       <p style="margin:0 0 16px 0;font-size:15px;color:#555;line-height:1.6;">
-                        Preencha o formulario para receber a sua oracao diretamente no seu email.
-                        Nao esqueca de acessar a Area de Membros — la voce encontra conteudos exclusivos
-                        que vao te ajudar na sua jornada espiritual e te levar para o proximo nivel!
+                        Preencha o formulário para receber a sua oração diretamente no seu e-mail.
+                        Não esqueça de acessar a Área de Membros — lá você encontra conteúdos exclusivos
+                        que vão te ajudar na sua jornada espiritual e te levar para o próximo nível!
                       </p>
                       <a href="https://form.respondi.app/csO1877y"
                          style="display:inline-block;background:#c9a96e;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:15px;font-weight:700;">
-                        Preencher o Formulario
+                        Preencher o Formulário
                       </a>
                     </td>
                   </tr>
@@ -207,7 +207,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td style="background:#fafafa;border:1px solid #efefef;border-radius:6px;padding:14px 16px;">
-                      <p style="margin:0;font-size:13px;color:#888;"><strong>Dica:</strong> apos o primeiro acesso, recomendamos alterar sua senha em <strong>Configuracoes &gt; Alterar Senha</strong>.</p>
+                      <p style="margin:0;font-size:13px;color:#888;"><strong>Dica:</strong> após o primeiro acesso, recomendamos alterar sua senha em <strong>Configurações &gt; Alterar Senha</strong>.</p>
                     </td>
                   </tr>
                 </table>
@@ -219,7 +219,7 @@ Para nao receber mais, envie um email para contato@dianamascarello.com.br com o 
               <td style="background:#f9f6f2;border-top:1px solid #f0ebe5;padding:20px 40px;text-align:center;">
                 <p style="margin:0 0 6px 0;font-size:13px;color:#aaa;">Diana Mascarello — Todos os direitos reservados</p>
                 <p style="margin:0;font-size:12px;color:#bbb;">
-                  Voce recebeu este email porque realizou uma compra.<br>
+                  Você recebeu este e-mail porque realizou uma compra.<br>
                   <a href="mailto:contato@dianamascarello.com.br?subject=Descadastrar" style="color:#bbb;">Cancelar recebimento</a>
                 </p>
               </td>
