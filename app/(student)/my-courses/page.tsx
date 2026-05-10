@@ -130,13 +130,6 @@ export default async function MyCoursesPage() {
                         </div>
                       </div>
 
-                      {/* Preço */}
-                      {!enrollment.course.isFree && enrollment.course.price && (
-                        <div className="text-xs text-zinc-400">
-                          Valor: <span className="text-white font-semibold">{formatPrice(enrollment.course.price, enrollment.course.currency)}</span>
-                        </div>
-                      )}
-
                       <Link href={`/course/${enrollment.course.slug}`} prefetch={false}>
                         <Button className="w-full bg-red-600 hover:bg-red-700 text-white text-xs h-8">
                           {Number(enrollment.progress) === 0 ? 'Começar' : 'Continuar'}
