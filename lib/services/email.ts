@@ -58,23 +58,42 @@ export async function sendWelcomeEmail({
       ? courseTitles.map(title => `  - ${title}`).join('\n')
       : '  - seu novo curso'
 
+    // O formulário de oração é enviado apenas para os produtos de Oração Profética.
+    // Cada produto tem o seu próprio link e copy:
+    //  - Futuro Marido (mulheres): oração pelo futuro marido
+    //  - Futura Esposa (homens): oração pela futura esposa
+    // Os demais produtos recebem somente os dados de acesso e o site.
+    const titlesLower = courseTitles.map(t => t.toLowerCase())
+    const prayerForm = titlesLower.some(t => t.includes('futuro marido'))
+      ? {
+          link: 'https://form.respondi.app/csO1877y',
+          intro: 'Preencha o formulário para receber a sua oração pelo seu futuro marido diretamente no seu e-mail. Não esqueça de acessar a Área de Membros — lá você encontra conteúdos exclusivos que vão te ajudar na sua jornada espiritual e te levar para o próximo nível!',
+        }
+      : titlesLower.some(t => t.includes('futura esposa'))
+      ? {
+          link: 'https://form.respondi.app/UYwTbcTf',
+          intro: 'Preencha o formulário para receber a sua oração pela sua futura esposa diretamente no seu e-mail. Não esqueça de acessar a Área de Membros — lá você encontra conteúdos exclusivos que vão te ajudar na sua jornada espiritual e te levar para o próximo nível!',
+        }
+      : null
+    const includePrayerForm = prayerForm !== null
+
     const subject = `${firstName}, sua conta na Área de Membros foi ativada`
+
+    const prayerFormText = `RECEBA A SUA ORAÇÃO:
+${prayerForm?.intro ?? ''}
+
+Link do formulário:
+${prayerForm?.link ?? ''}
+
+---
+
+`
 
     const textContent = `Olá, ${firstName}!
 
 Sua compra foi confirmada — que alegria ter você aqui!
 
-RECEBA A SUA ORAÇÃO:
-Preencha o formulário abaixo para receber a sua oração diretamente no seu e-mail.
-Não esqueça de acessar a Área de Membros — lá você encontra conteúdos exclusivos que
-vão te ajudar na sua jornada espiritual e te levar para o próximo nível!
-
-Link do formulário:
-https://form.respondi.app/csO1877y
-
----
-
-CURSOS LIBERADOS:
+${includePrayerForm ? prayerFormText : ''}CURSOS LIBERADOS:
 ${coursesListText}
 
 SEUS DADOS DE ACESSO:
@@ -123,18 +142,16 @@ Para não receber mais, envie um e-mail para contato@dianamascarello.com.br com 
               <td style="padding:40px 40px 32px 40px;">
                 <p style="margin:0 0 8px 0;font-size:22px;font-weight:700;color:#2d2d2d;">Olá, ${firstName}!</p>
                 <p style="margin:0 0 28px 0;font-size:15px;color:#666;">Sua compra foi confirmada — que alegria ter você aqui!</p>
-
+${includePrayerForm ? `
                 <!-- Formulário de Oração -->
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf6ec;border-left:4px solid #c9a96e;border-radius:0 6px 6px 0;margin-bottom:20px;">
                   <tr>
                     <td style="padding:20px 24px;">
                       <p style="margin:0 0 6px 0;font-size:13px;font-weight:700;color:#c9a96e;text-transform:uppercase;letter-spacing:1px;">Receba a sua oração</p>
                       <p style="margin:0 0 16px 0;font-size:15px;color:#555;line-height:1.6;">
-                        Preencha o formulário para receber a sua oração diretamente no seu e-mail.
-                        Não esqueça de acessar a Área de Membros — lá você encontra conteúdos exclusivos
-                        que vão te ajudar na sua jornada espiritual e te levar para o próximo nível!
+                        ${prayerForm?.intro ?? ''}
                       </p>
-                      <a href="https://form.respondi.app/csO1877y"
+                      <a href="${prayerForm?.link ?? '#'}"
                          style="display:inline-block;background:#c9a96e;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:15px;font-weight:700;">
                         Preencher o Formulário
                       </a>
@@ -148,7 +165,7 @@ Para não receber mais, envie um e-mail para contato@dianamascarello.com.br com 
                     <td style="border-top:1px solid #f0e8da;"></td>
                   </tr>
                 </table>
-
+` : ''}
                 <!-- Cursos -->
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f9f4ee;border:1px solid #e8d9c4;border-radius:8px;margin-bottom:20px;">
                   <tr>
