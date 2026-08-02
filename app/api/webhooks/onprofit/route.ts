@@ -134,7 +134,9 @@ export async function POST(request: NextRequest) {
       let supabaseUid: string | null = null
 
       if (createResult.error) {
-        if (createResult.error.message?.includes('already registered')) {
+        // O Supabase retorna "already been registered" (e variações) quando o
+        // email já existe. Casamos por "registered" para não depender da frase exata.
+        if (createResult.error.message?.toLowerCase().includes('registered')) {
           // Usuário já existe no Supabase — buscar pelo email
           console.log('Usuário já existe no Supabase, buscando...')
           const { data: listData } = await supabase.auth.admin.listUsers({ perPage: 1000 })
