@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { createClient } from '@supabase/supabase-js'
 import { sendWelcomeEmail } from '@/lib/services/email'
-import { addContactToAutomationList } from '@/lib/services/brevo'
 
 // Status da Onprofit que indicam pagamento aprovado
 const APPROVED_STATUSES = ['PAID', 'AUTHORIZED', 'MANUALLY_AUTHORIZED']
@@ -423,16 +422,6 @@ export async function POST(request: NextRequest) {
     } catch (emailError) {
       console.error('❌ Erro ao enviar email:', emailError)
     }
-
-    // Adiciona o contato na lista de automação do Brevo.
-    // A entrada na lista é o gatilho do fluxo de emails configurado no Brevo.
-    await addContactToAutomationList({
-      email: user.email,
-      name: user.name,
-      attributes: {
-        CURSOS: allCourses.map(c => c.title).join(', '),
-      },
-    })
 
     return NextResponse.json({
       success: true,
