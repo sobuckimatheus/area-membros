@@ -59,13 +59,14 @@ export default async function DashboardPage() {
     where: { tenantId: user.tenantId },
   })
 
-  // Cores padrão (tema Terapia & Cura)
+  // Paleta "O Jardim de Rute" — governa as cores do dashboard.
+  // (As imagens de banner continuam vindo da customização do tenant.)
   const colors = {
-    primary: customization?.primaryColor || '#A78BFA',       // Roxo suave
-    secondary: customization?.secondaryColor || '#FBBF24',   // Amarelo dourado
-    accent: customization?.accentColor || '#34D399',         // Verde menta
-    background: customization?.backgroundColor || '#FEF3C7', // Bege claro
-    text: customization?.textColor || '#1F2937',
+    primary: '#2e3b28',    // verde escuro (botões, destaques)
+    secondary: '#c6a04e',  // dourado
+    accent: '#c6a04e',     // dourado (barras de progresso, badges)
+    background: '#f4efe6', // creme
+    text: '#2d2d2d',       // texto legível sobre o creme
   }
 
   // Buscar TODOS os cursos publicados
@@ -192,22 +193,24 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      {/* Hero Section - Banner Principal da Plataforma */}
+      {/* Hero Section - Banner Principal da Plataforma (colado no topo, largura total) */}
       {(heroBannerDesktop || heroBannerMobile) && (
-        <div className="relative h-screen md:h-[600px] overflow-hidden">
+        <div className="w-full">
           {/* Banner Desktop */}
           {heroBannerDesktop && (
-            <div
-              className="hidden md:block absolute inset-0 bg-contain bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${heroBannerDesktop})` }}
+            <img
+              src={heroBannerDesktop}
+              alt="Banner"
+              className="hidden md:block w-full h-auto"
             />
           )}
 
-          {/* Banner Mobile */}
-          {heroBannerMobile && (
-            <div
-              className="md:hidden absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${heroBannerMobile})` }}
+          {/* Banner Mobile (usa o desktop como fallback se não houver versão mobile) */}
+          {(heroBannerMobile || heroBannerDesktop) && (
+            <img
+              src={heroBannerMobile || heroBannerDesktop!}
+              alt="Banner"
+              className="md:hidden w-full h-auto"
             />
           )}
         </div>
@@ -579,48 +582,7 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* Área do Para assinantes - Banners (aparece para todos como divulgação) */}
-        {subscriberBanners.length > 0 && subscriberAreaCourse && (
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
-              <span className="flex items-center gap-2">
-                Área do Assinante
-                <span className="px-3 py-1 text-sm font-medium rounded-full" style={{ backgroundColor: colors.accent, color: 'white' }}>
-                  Exclusivo
-                </span>
-              </span>
-            </h2>
-            <div className="relative -mx-8 px-8">
-              <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
-                {subscriberBanners.map((banner) => (
-                  <div key={banner.id} className="group relative flex-shrink-0 w-[180px] md:w-[200px] snap-start">
-                    <Link href={`/course/${subscriberAreaCourse.slug}`} prefetch={false}>
-                      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                        <img
-                          src={banner.imageUrl}
-                          alt={banner.title || 'Banner exclusivo'}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
-                    </Link>
-                    {banner.title && (
-                      <Link href={`/course/${subscriberAreaCourse.slug}`} prefetch={false}>
-                        <h3 className="text-base font-semibold mt-4 line-clamp-2 cursor-pointer hover:opacity-80 transition-opacity" style={{ color: colors.text }}>
-                          {banner.title}
-                        </h3>
-                      </Link>
-                    )}
-                    {banner.description && (
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                        {banner.description}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+        {/* Seção "Área do Assinante" removida a pedido. */}
 
         {/* Cursos Exclusivos para Assinantes */}
         {isSubscriber && exclusiveCourses.length > 0 && (

@@ -63,6 +63,43 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /*
+   * Tema "O Jardim de Rute" — escopado na classe .jardim (aplicada na
+   * área de membros). Redefine os tokens do design system para a paleta
+   * verde/creme/dourado, então todos os componentes (botões, cards,
+   * progress, etc.) recolorem sozinhos, sem alterar funcionalidade.
+   */
+  .jardim {
+    --background: 39 39% 93%;          /* creme  #f4efe6 */
+    --foreground: 0 0% 18%;            /* texto  #2d2d2d */
+    --card: 40 44% 96%;               /* card   #faf6ef */
+    --card-foreground: 97 19% 19%;    /* verde  #2e3b28 */
+    --popover: 40 44% 96%;
+    --popover-foreground: 97 19% 19%;
+    --primary: 97 19% 19%;            /* verde escuro #2e3b28 */
+    --primary-foreground: 39 39% 93%;
+    --secondary: 80 30% 87%;          /* verde suave #e7ecd9 */
+    --secondary-foreground: 97 19% 19%;
+    --muted: 40 40% 89%;              /* #efe7d7 */
+    --muted-foreground: 45 11% 47%;   /* #7c7663 */
+    --accent: 40 52% 54%;             /* dourado #c6a04e */
+    --accent-foreground: 97 19% 19%;
+    --destructive: 0 51% 46%;         /* vermelho vivo #b23b3b */
+    --destructive-foreground: 39 39% 93%;
+    --border: 43 33% 85%;             /* #e5ddcd */
+    --input: 43 33% 85%;
+    --ring: 40 52% 54%;               /* dourado */
+    --radius: 0.75rem;
+    --sidebar-background: 97 19% 19%; /* verde escuro */
+    --sidebar-foreground: 45 25% 88%;
+    --sidebar-primary: 40 52% 54%;    /* dourado */
+    --sidebar-primary-foreground: 97 19% 19%;
+    --sidebar-accent: 97 17% 24%;     /* #3a4833 */
+    --sidebar-accent-foreground: 45 25% 88%;
+    --sidebar-border: 97 17% 24%;
+    --sidebar-ring: 40 52% 54%;
+  }
 }
 
 @layer base {
