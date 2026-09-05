@@ -11,7 +11,8 @@ import {
   Palette,
   LogOut,
   Plug,
-  Crown
+  Crown,
+  Radio
 } from 'lucide-react'
 import {
   Sidebar,
@@ -49,6 +50,7 @@ export function AppSidebarAdmin({ user, sidebarColor, signoutAction }: AppSideba
     { name: 'Integrações', href: '/admin/integrations', icon: Plug },
     { name: 'Webhooks', href: '/admin/webhooks', icon: Webhook },
     { name: 'Personalização', href: '/admin/customization', icon: Palette },
+    { name: 'Aula ao Vivo', href: '/admin/live-class', icon: Radio },
   ]
 
   return (

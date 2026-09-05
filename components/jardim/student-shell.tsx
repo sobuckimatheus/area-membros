@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  Home, GraduationCap, User, Bell, Menu, X, KeyRound, LogOut,
+  Home, GraduationCap, Users, User, Bell, Menu, X, KeyRound, LogOut,
 } from 'lucide-react'
 import { JardimLogo } from './logo'
 
@@ -22,12 +22,14 @@ type NavItem = { icon: any; label: string; href?: string; sub?: string }
 const NAV: NavItem[] = [
   { icon: Home, label: 'Início', href: '/dashboard' },
   { icon: GraduationCap, label: 'Meus Cursos', href: '/my-courses' },
+  { icon: Users, label: 'Comunidade', href: '/community' },
   { icon: User, label: 'Meu Perfil', href: '/profile' },
 ]
 
 const MOBILE_NAV: NavItem[] = [
   { icon: Home, label: 'Início', href: '/dashboard' },
-  { icon: GraduationCap, label: 'Meus Cursos', href: '/my-courses' },
+  { icon: GraduationCap, label: 'Cursos', href: '/my-courses' },
+  { icon: Users, label: 'Comunidade', href: '/community' },
   { icon: User, label: 'Perfil', href: '/profile' },
 ]
 
@@ -194,7 +196,7 @@ export function JardimStudentShell({
       </div>
 
       {/* Bottom-nav mobile */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 grid grid-cols-3 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 grid grid-cols-4 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
         {MOBILE_NAV.map((item) => {
           const active = isActive(item.href)
           const cls = `flex flex-col items-center gap-1 py-2.5 text-[10px] ${active ? 'text-primary' : 'text-muted-foreground'}`

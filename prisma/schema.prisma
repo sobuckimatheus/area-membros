@@ -54,6 +54,7 @@ model Tenant {
   announcements    Announcement[]
   supportTickets   SupportTicket[]
   subscriberBanners SubscriberBanner[]
+  messages         Message[]
 
   @@index([slug])
   @@index([domain])
@@ -128,6 +129,12 @@ model TenantCustomization {
   faviconUrl      String?
   heroImageUrl    String? // imagem do banner principal (desktop)
   heroImageUrlMobile String? // imagem do banner principal (mobile)
+
+  // Aula ao vivo (editável pelo admin) — alimenta os cards da home
+  liveClassSchedule String? // ex: "Toda terça às 14:40"
+  liveClassUrl      String? // link da sala ao vivo
+  nextClassTitle    String? // ex: "Aula 04 — Curando feridas que te impedem de florescer"
+  nextClassUrl      String? // link/rota da próxima aula
 
   // Cores (Hex codes)
   primaryColor     String @default("#3B82F6") // Azul
@@ -213,6 +220,7 @@ model User {
   supportTickets    SupportTicket[]
   ticketMessages    TicketMessage[]
   reviews           Review[]
+  messages          Message[]
 
   @@unique([tenantId, email])
   @@index([tenantId])
@@ -1206,4 +1214,36 @@ model TicketMessage {
   @@index([ticketId])
   @@index([userId])
   @@map("ticket_messages")
+}
+
+// ============================================
+// COMUNIDADE — Chat de grupo do Jardim de Rute
+// Grupo estilo WhatsApp: mensagens persistentes, com resposta
+// (citação) a uma mensagem específica. Exclusivo para membros do Jardim.
+// ============================================
+
+model Message {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  content  String  @db.Text
+  imageUrl String?
+
+  // Resposta/menção a outra mensagem (citação). Se a mensagem citada for
+  // apagada, a citação vira nula, mas a resposta permanece (nada se perde).
+  replyToId String?
+  replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   Message[] @relation("MessageReplies")
+
+  isDeleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([authorId])
+  @@index([replyToId])
+  @@map("messages")
 }

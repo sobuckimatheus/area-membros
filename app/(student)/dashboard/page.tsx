@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { Play, Info, Clock, Award } from "lucide-react"
 import { hasActiveSubscription } from "@/lib/services/subscription"
+import { getJardimCourse } from "@/lib/services/community"
 
 // Função para extrair thumbnail do YouTube
 function getYouTubeThumbnail(videoUrl: string | null): string | null {
@@ -191,6 +192,31 @@ export default async function DashboardPage() {
   const heroBannerDesktop = customization?.heroImageUrl
   const heroBannerMobile = customization?.heroImageUrlMobile
 
+  // Sua Jornada — dados reais de progresso
+  const completedLessonsCount = await prisma.lessonProgress.count({
+    where: { userId: user.id, status: 'COMPLETED' },
+  })
+  const journeyPercent = enrolledCourses.length > 0
+    ? Math.round(
+        enrolledCourses.reduce((acc, c) => acc + Number(c.enrollments[0]?.progress || 0), 0) /
+          enrolledCourses.length
+      )
+    : 0
+
+  // "Continue assistindo" — última aula assistida (curso em andamento).
+  const lastProgress = await prisma.lessonProgress.findFirst({
+    where: { userId: user.id, lastWatchedAt: { not: null } },
+    orderBy: { lastWatchedAt: 'desc' },
+    include: { lesson: { include: { module: { include: { course: { select: { title: true, slug: true, thumbnailUrl: true } } } } } } },
+  })
+  const continueCourse = lastProgress?.lesson.module.course || null
+
+  // Curso da "sala" ao vivo (O Jardim). "Entrar na sala" leva a esse curso;
+  // o acesso às aulas é controlado pela própria página do curso: quem tem
+  // matrícula ativa assiste, quem não tem vê o CTA e não assiste.
+  const jardimCourse = await getJardimCourse(user.tenantId)
+  const salaHref = jardimCourse ? `/course/${jardimCourse.slug}` : '/community'
+
   return (
     <div>
       {/* Hero Section - Banner Principal da Plataforma (colado no topo, largura total) */}
@@ -307,73 +333,75 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Seções de Cursos */}
-      <div className="container mx-auto px-8 pt-16 pb-20">
-        {/* Aulas Gratuitas */}
-        {freeLessons.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
-              Aulas Gratuitas
-            </h2>
-            <div className="relative -mx-8 px-8">
-              <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
-                {freeLessons.map((lesson) => {
-                  const youtubeThumbnail = getYouTubeThumbnail(lesson.videoUrl)
-                  const thumbnailUrl = youtubeThumbnail || lesson.module.thumbnailUrl || lesson.module.course.thumbnailUrl
-
-                  return (
-                  <Link key={lesson.id} href={`/course/${lesson.module.course.slug}/lesson/${lesson.id}`}>
-                    <div className="group relative cursor-pointer flex-shrink-0 w-[280px] md:w-[340px] snap-start">
-                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300">
-                        {thumbnailUrl ? (
-                          <img
-                            src={thumbnailUrl}
-                            alt={lesson.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div
-                            className="w-full h-full flex items-center justify-center"
-                            style={{ backgroundColor: colors.primary, opacity: 0.15 }}
-                          >
-                            <span className="text-lg" style={{ color: colors.text }}>Sem imagem</span>
-                          </div>
-                        )}
-
-                        {/* Badge Grátis */}
-                        <div className="absolute top-3 left-3">
-                          <span
-                            className="px-3 py-1.5 text-white text-xs font-bold rounded-full shadow-lg"
-                            style={{ backgroundColor: colors.accent }}
-                          >
-                            GRÁTIS
-                          </span>
-                        </div>
-
-                        {/* Hover Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <div className="text-center">
-                            <Play className="h-16 w-16 text-white mx-auto mb-3" fill="white" />
-                            <p className="text-white text-sm font-medium">Assistir Agora</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h3 className="text-base font-semibold mt-4 line-clamp-2" style={{ color: colors.text }}>
-                        {lesson.title}
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                        {lesson.module.course.title}
-                      </p>
-                    </div>
-                  </Link>
-                  )
-                })}
+      {/* Ao vivo — destaque principal (full-width, indicador pulsante) */}
+      {customization?.liveClassSchedule && (
+        <div className="container mx-auto px-8 pt-8">
+          <div className="overflow-hidden rounded-2xl border-2 border-[#e0cdbf] bg-gradient-to-br from-[#f7f0e6] to-[#f2e6da] p-7 shadow-sm md:p-8">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#f0dcd4] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#b5563f]">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c0392b] opacity-75" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#c0392b]" />
+                  </span>
+                  Ao vivo
+                </span>
+                <h2 className="mt-3 font-serif text-2xl text-[#3a352e] md:text-3xl">Aula ao vivo da semana</h2>
+                <p className="mt-1 text-sm text-[#8a8172] md:text-base">
+                  {customization.liveClassSchedule} · aprofundamento, oração e direcionamento juntas.
+                </p>
               </div>
+              <Link
+                href={salaHref}
+                className="inline-flex w-fit shrink-0 items-center justify-center gap-2 rounded-xl bg-[#3a352e] px-7 py-3.5 text-sm font-semibold text-[#f7f2ea] shadow-sm hover:opacity-90 md:text-base"
+              >
+                Entrar na sala
+              </Link>
             </div>
-          </section>
-        )}
+          </div>
+        </div>
+      )}
 
+      {/* Continue de onde parou / Comece a assistir — referente ao que a aluna está vendo */}
+      <div className="container mx-auto px-8 pt-4">
+        {continueCourse ? (
+          <Link href={`/course/${continueCourse.slug}`} className="block">
+            <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                {continueCourse.thumbnailUrl && (
+                  <img src={continueCourse.thumbnailUrl} alt="" className="h-16 w-12 shrink-0 rounded-lg object-cover" />
+                )}
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-accent">Continue de onde parou</p>
+                  <h3 className="font-serif text-xl text-primary">{continueCourse.title}</h3>
+                </div>
+              </div>
+              <span className="inline-flex w-fit items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground">
+                Continuar assistindo
+              </span>
+            </div>
+          </Link>
+        ) : (
+          <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-accent">Sua jornada começa aqui</p>
+              <h3 className="font-serif text-xl text-primary">Comece a assistir suas aulas</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Escolha um curso e dê o primeiro passo na sua jornada de transformação.
+              </p>
+            </div>
+            <Link
+              href={enrolledCourses.length > 0 ? '/my-courses' : '/courses'}
+              className="inline-flex w-fit shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              {enrolledCourses.length > 0 ? 'Ver meus cursos' : 'Explorar cursos'}
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Seções de Cursos */}
+      <div className="container mx-auto px-8 pt-12 pb-20">
         {/* Continuar Assistindo */}
         {enrolledCourses.length > 0 && (
           <section className="mb-12">
@@ -440,11 +468,32 @@ export default async function DashboardPage() {
           </section>
         )}
 
+        {/* Sua Jornada — progresso real, discreto */}
+        {enrolledCourses.length > 0 && (
+          <section className="mb-12">
+            <h2 className="font-serif text-3xl font-bold mb-4" style={{ color: colors.text }}>
+              Sua jornada
+            </h2>
+            <div className="max-w-xl rounded-2xl border border-border bg-card p-6">
+              <div className="flex items-baseline justify-between">
+                <p className="text-sm" style={{ color: colors.text }}>
+                  <span className="font-semibold">{completedLessonsCount}</span>{' '}
+                  {completedLessonsCount === 1 ? 'aula concluída' : 'aulas concluídas'}
+                </p>
+                <span className="text-sm font-semibold text-accent">{journeyPercent}%</span>
+              </div>
+              <div className="mt-3 h-2 w-full rounded-full bg-muted">
+                <div className="h-full rounded-full bg-accent" style={{ width: `${journeyPercent}%` }} />
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Cursos Disponíveis */}
         {availableCourses.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
-              {enrolledCourses.length > 0 ? 'Descubra Novos Cursos' : 'Cursos Disponíveis'}
+            <h2 className="font-serif text-3xl font-bold mb-8" style={{ color: colors.text }}>
+              Para o seu próximo passo
             </h2>
             <div className="relative -mx-8 px-8">
               <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
@@ -530,48 +579,10 @@ export default async function DashboardPage() {
                             target={course.checkoutUrl ? "_blank" : "_self"}
                             rel="noopener noreferrer"
                           >
-                            <button className="w-full px-3 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors shadow-sm">
-                              {formatPrice(course.price, course.currency)}
+                            <button className="w-full px-3 py-2.5 rounded-lg text-sm font-semibold transition-opacity shadow-sm hover:opacity-90" style={{ backgroundColor: colors.primary, color: 'white' }}>
+                              {formatPrice(course.price, course.currency)} · Quero acessar
                             </button>
                           </a>
-                        )}
-
-                        {/* Botão Preço Para assinantes - sempre aparece se tiver preço configurado */}
-                        {course.subscriberPrice && !course.isFullyBooked && (
-                          <div>
-                            {isSubscriber ? (
-                              // Assinante: botão clicável
-                              <a
-                                href={course.subscriberCheckoutUrl || course.checkoutUrl || `/course/${course.slug}`}
-                                target={course.subscriberCheckoutUrl || course.checkoutUrl ? "_blank" : "_self"}
-                                rel="noopener noreferrer"
-                              >
-                                <button
-                                  className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm hover:bg-green-600"
-                                  style={{
-                                    backgroundColor: '#22c55e',
-                                    color: 'white',
-                                    border: '2px solid #22c55e'
-                                  }}
-                                >
-                                  Para assinantes - {formatPrice(course.subscriberPrice, course.currency)}
-                                </button>
-                              </a>
-                            ) : (
-                              // Não assinante: botão desabilitado para instigar
-                              <button
-                                disabled
-                                className="w-full px-3 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm opacity-60 cursor-not-allowed"
-                                style={{
-                                  backgroundColor: '#22c55e',
-                                  color: 'white',
-                                  border: '2px solid #22c55e'
-                                }}
-                              >
-                                Para assinantes - {formatPrice(course.subscriberPrice, course.currency)}
-                              </button>
-                            )}
-                          </div>
                         )}
                       </div>
                     )}
@@ -584,8 +595,8 @@ export default async function DashboardPage() {
 
         {/* Seção "Área do Assinante" removida a pedido. */}
 
-        {/* Cursos Exclusivos para Assinantes */}
-        {isSubscriber && exclusiveCourses.length > 0 && (
+        {/* Cursos Exclusivos para Assinantes — desativado (não há mais assinatura) */}
+        {false && isSubscriber && exclusiveCourses.length > 0 && (
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
               <span className="flex items-center gap-2">
@@ -709,6 +720,86 @@ export default async function DashboardPage() {
             </div>
           </section>
         )}
+
+        {/* Aulas Gratuitas — secundária, após os recomendados */}
+        {freeLessons.length > 0 && (
+          <section className="mb-12">
+            <h2 className="font-serif text-3xl font-bold mb-8" style={{ color: colors.text }}>
+              Aulas Gratuitas
+            </h2>
+            <div className="relative -mx-8 px-8">
+              <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
+                {freeLessons.map((lesson) => {
+                  const youtubeThumbnail = getYouTubeThumbnail(lesson.videoUrl)
+                  const thumbnailUrl = youtubeThumbnail || lesson.module.thumbnailUrl || lesson.module.course.thumbnailUrl
+
+                  return (
+                  <Link key={lesson.id} href={`/course/${lesson.module.course.slug}/lesson/${lesson.id}`}>
+                    <div className="group relative cursor-pointer flex-shrink-0 w-[280px] md:w-[340px] snap-start">
+                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300">
+                        {thumbnailUrl ? (
+                          <img
+                            src={thumbnailUrl}
+                            alt={lesson.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div
+                            className="w-full h-full flex items-center justify-center"
+                            style={{ backgroundColor: colors.primary, opacity: 0.15 }}
+                          >
+                            <span className="text-lg" style={{ color: colors.text }}>Sem imagem</span>
+                          </div>
+                        )}
+
+                        {/* Badge Grátis */}
+                        <div className="absolute top-3 left-3">
+                          <span
+                            className="px-3 py-1.5 text-white text-xs font-bold rounded-full shadow-lg"
+                            style={{ backgroundColor: colors.accent }}
+                          >
+                            GRÁTIS
+                          </span>
+                        </div>
+
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <div className="text-center">
+                            <Play className="h-16 w-16 text-white mx-auto mb-3" fill="white" />
+                            <p className="text-white text-sm font-medium">Assistir Agora</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h3 className="text-base font-semibold mt-4 line-clamp-2" style={{ color: colors.text }}>
+                        {lesson.title}
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                        {lesson.module.course.title}
+                      </p>
+                    </div>
+                  </Link>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Loja Online — Em breve */}
+        <section className="mb-4">
+          <h2 className="font-serif text-3xl font-bold mb-6" style={{ color: colors.text }}>
+            Loja online
+          </h2>
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/60 px-6 py-14 text-center">
+            <span className="rounded-full bg-secondary px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary">
+              Em breve
+            </span>
+            <p className="mt-4 max-w-md text-muted-foreground">
+              Produtos e itens especiais do Jardim de Rute estão chegando. Fique de olho.
+            </p>
+          </div>
+        </section>
       </div>
     </div>
   )
