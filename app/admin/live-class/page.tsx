@@ -47,7 +47,7 @@ export default async function LiveClassPage() {
         </Link>
         <h1 className="text-3xl font-bold text-slate-900">Aula ao Vivo</h1>
         <p className="mt-2 text-slate-600">
-          Configure os cards "Ao vivo" e "Próxima Aula" que aparecem na home da área de membros.
+          Configure o card “Ao vivo” que aparece na home da área de membros.
         </p>
       </div>
 
@@ -60,14 +60,14 @@ export default async function LiveClassPage() {
               <Input id="liveClassSchedule" name="liveClassSchedule" defaultValue={c?.liveClassSchedule || ''} placeholder="Ex: Toda terça às 14:40" className="mt-1" />
             </div>
             <p className="text-xs text-slate-500">
-              O botão "Entrar na sala" leva ao curso <strong>O Jardim de Rute</strong>. Quem tem
+              O botão “Entrar na sala” leva ao curso <strong>O Jardim de Rute</strong>. Quem tem
               acesso ativo a esse curso assiste às aulas ao vivo; quem não tem vê o convite de compra.
             </p>
           </CardContent>
         </Card>
 
         <p className="mb-6 text-sm text-slate-500">
-          A seção "Continue de onde parou" na home é preenchida automaticamente com a última aula
+          A seção “Continue de onde parou” na home é preenchida automaticamente com a última aula
           que cada aluna assistiu — não precisa configurar.
         </p>
 
