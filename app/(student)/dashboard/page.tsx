@@ -667,61 +667,7 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* Recomendados para Você */}
-        {courses.length > 3 && (
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-8" style={{ color: colors.text }}>
-              Recomendados para Você
-            </h2>
-            <div className="relative -mx-8 px-8">
-              <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory scroll-smooth">
-                {courses
-                  .sort(() => Math.random() - 0.5)
-                  .map((course) => (
-                    <Link key={course.id} href={`/course/${course.slug}`}>
-                      <div className="group relative cursor-pointer flex-shrink-0 w-[180px] md:w-[200px] snap-start">
-                        <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white shadow-lg group-hover:shadow-2xl transition-all duration-300">
-                          {course.thumbnailUrl ? (
-                            <img
-                              src={course.thumbnailUrl}
-                              alt={course.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div
-                              className="w-full h-full flex items-center justify-center"
-                              style={{ backgroundColor: colors.primary, opacity: 0.15 }}
-                            >
-                              <span className="text-lg" style={{ color: colors.text }}>Sem imagem</span>
-                            </div>
-                          )}
-
-                          {/* Hover Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <div className="text-center">
-                              <Play className="h-16 w-16 text-white mx-auto mb-3" fill="white" />
-                              <p className="text-white text-sm font-medium">Assistir Agora</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <h3 className="text-base font-semibold mt-4 line-clamp-2" style={{ color: colors.text }}>
-                          {course.title}
-                        </h3>
-                        {course.shortDesc && (
-                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                            {course.shortDesc}
-                          </p>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Aulas Gratuitas — secundária, após os recomendados */}
+        {/* Aulas Gratuitas — secundária */}
         {freeLessons.length > 0 && (
           <section className="mb-12">
             <h2 className="font-serif text-3xl font-bold mb-8" style={{ color: colors.text }}>

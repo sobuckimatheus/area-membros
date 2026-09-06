@@ -195,11 +195,11 @@ export function JardimStudentShell({
         <main className="flex-1 pb-24 lg:pb-0">{children}</main>
       </div>
 
-      {/* Bottom-nav mobile */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 grid grid-cols-4 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]">
+      {/* Bottom-nav mobile — mesma cor do menu lateral */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 grid grid-cols-4 border-t border-sidebar-accent bg-sidebar pb-[env(safe-area-inset-bottom)]">
         {MOBILE_NAV.map((item) => {
           const active = isActive(item.href)
-          const cls = `flex flex-col items-center gap-1 py-2.5 text-[10px] ${active ? 'text-primary' : 'text-muted-foreground'}`
+          const cls = `flex flex-col items-center gap-1 py-2.5 text-[10px] ${active ? 'text-sidebar-primary' : 'text-sidebar-foreground/70'}`
           return item.href ? (
             <Link key={item.label} href={item.href} className={cls}><item.icon className="h-5 w-5" />{item.label}</Link>
           ) : (
