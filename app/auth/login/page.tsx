@@ -59,7 +59,7 @@ export default function LoginPage() {
       {/* Leve overlay para legibilidade */}
       <div className="absolute inset-0 bg-black/25" />
 
-      <Card className="relative w-full max-w-md border-[#e5ddcd] bg-[#faf6ef]/95 shadow-2xl backdrop-blur-sm">
+      <Card className="relative w-full max-w-md border-white/40 bg-[#faf6ef]/40 shadow-2xl backdrop-blur-md">
         <CardHeader className="space-y-2">
           <div className="flex justify-center">
             <JardimLogo className="h-14 w-14" />
