@@ -69,7 +69,7 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthShell>
-      <Card className="w-full max-w-md border-white/40 bg-[#faf6ef]/8 shadow-2xl backdrop-blur-md">
+      <Card className="w-full max-w-md border-[#e5ddcd] bg-[#faf6ef] shadow-2xl">
         <CardHeader className="text-center">
           <div className="mb-1 flex justify-center"><JardimLogo className="h-12 w-12" /></div>
           <CardTitle className="font-serif text-2xl text-[#2e3b28]">Criar sua Senha</CardTitle>
