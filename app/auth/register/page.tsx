@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { AuthShell, JardimLogo } from '@/components/jardim/auth-shell'
 
 function RegisterForm() {
   const router = useRouter()
@@ -38,25 +39,26 @@ function RegisterForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black p-4">
-      <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center text-white">
+    <AuthShell>
+      <Card className="w-full max-w-md border-[#e5ddcd] bg-[#faf6ef]/95 shadow-2xl backdrop-blur-sm">
+        <CardHeader className="space-y-2">
+          <div className="flex justify-center"><JardimLogo className="h-12 w-12" /></div>
+          <CardTitle className="text-center font-serif text-3xl font-bold text-[#2e3b28]">
             Crie sua conta
           </CardTitle>
-          <CardDescription className="text-center text-zinc-400">
+          <CardDescription className="text-center text-[#7c7663]">
             Cadastro 100% gratuito. Tenha acesso aos cursos que voce adquirir.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="bg-red-900/20 text-red-400 border border-red-800 rounded-lg p-3 text-sm">
+              <div className="bg-[#f7e6df] text-[#b5563f] border border-[#e0c3b8] rounded-lg p-3 text-sm">
                 {error}
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-white">Nome completo</Label>
+              <Label htmlFor="name" className="text-[#2e3b28]">Nome completo</Label>
               <Input
                 id="name"
                 name="name"
@@ -64,11 +66,11 @@ function RegisterForm() {
                 placeholder="Joao Silva"
                 required
                 disabled={isLoading}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
+                className="border-[#e5ddcd] bg-white text-[#2e3b28] placeholder:text-[#a8a291] focus:border-[#c6a04e] focus:ring-[#c6a04e]"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">Email</Label>
+              <Label htmlFor="email" className="text-[#2e3b28]">Email</Label>
               <Input
                 id="email"
                 name="email"
@@ -76,22 +78,22 @@ function RegisterForm() {
                 placeholder="seu@email.com"
                 required
                 disabled={isLoading}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
+                className="border-[#e5ddcd] bg-white text-[#2e3b28] placeholder:text-[#a8a291] focus:border-[#c6a04e] focus:ring-[#c6a04e]"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="whatsapp" className="text-white">WhatsApp</Label>
+              <Label htmlFor="whatsapp" className="text-[#2e3b28]">WhatsApp</Label>
               <Input
                 id="whatsapp"
                 name="whatsapp"
                 type="tel"
                 placeholder="(00) 00000-0000"
                 disabled={isLoading}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
+                className="border-[#e5ddcd] bg-white text-[#2e3b28] placeholder:text-[#a8a291] focus:border-[#c6a04e] focus:ring-[#c6a04e]"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-white">Senha</Label>
+              <Label htmlFor="password" className="text-[#2e3b28]">Senha</Label>
               <Input
                 id="password"
                 name="password"
@@ -100,32 +102,32 @@ function RegisterForm() {
                 minLength={6}
                 required
                 disabled={isLoading}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
+                className="border-[#e5ddcd] bg-white text-[#2e3b28] placeholder:text-[#a8a291] focus:border-[#c6a04e] focus:ring-[#c6a04e]"
               />
-              <p className="text-xs text-zinc-500">Minimo 6 caracteres</p>
+              <p className="text-xs text-[#a8a291]">Minimo 6 caracteres</p>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+              className="w-full bg-[#2e3b28] hover:opacity-90 text-[#f4efe6] font-semibold"
             >
               {isLoading ? 'Criando conta...' : 'Criar conta gratuitamente'}
             </Button>
-            <p className="text-sm text-center text-zinc-400">
+            <p className="text-sm text-center text-[#7c7663]">
               Ja tem uma conta?{' '}
-              <Link href="/auth/login" className="text-red-500 hover:text-red-400 hover:underline font-medium">
+              <Link href="/auth/login" className="text-[#b58a3c] hover:underline font-medium">
                 Fazer login
               </Link>
             </p>
-            <p className="text-xs text-center text-zinc-500">
+            <p className="text-xs text-center text-[#a8a291]">
               Ao criar uma conta, voce concorda com nossos{' '}
-              <Link href="/terms" className="text-red-500 hover:underline">
+              <Link href="/terms" className="text-[#b58a3c] hover:underline">
                 Termos de Uso
               </Link>{' '}
               e{' '}
-              <Link href="/privacy" className="text-red-500 hover:underline">
+              <Link href="/privacy" className="text-[#b58a3c] hover:underline">
                 Politica de Privacidade
               </Link>
               .
@@ -133,7 +135,7 @@ function RegisterForm() {
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </AuthShell>
   )
 }
 

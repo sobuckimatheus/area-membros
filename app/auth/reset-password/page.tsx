@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { AuthShell, JardimLogo } from '@/components/jardim/auth-shell'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -67,27 +68,27 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black p-4">
-      <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
+    <AuthShell>
+      <Card className="w-full max-w-md border-[#e5ddcd] bg-[#faf6ef]/95 shadow-2xl backdrop-blur-sm">
         <CardHeader className="text-center">
-          <div className="text-4xl mb-2">🔐</div>
-          <CardTitle className="text-2xl text-white">Criar sua Senha</CardTitle>
-          <CardDescription className="text-zinc-400">
+          <div className="mb-1 flex justify-center"><JardimLogo className="h-12 w-12" /></div>
+          <CardTitle className="font-serif text-2xl text-[#2e3b28]">Criar sua Senha</CardTitle>
+          <CardDescription className="text-[#7c7663]">
             Defina uma senha para acessar sua conta
           </CardDescription>
         </CardHeader>
         <CardContent>
           {error && !isReady ? (
             <div className="text-center py-6">
-              <p className="text-red-400 mb-4">{error}</p>
-              <p className="text-zinc-400 text-sm">
+              <p className="text-[#b5563f] mb-4">{error}</p>
+              <p className="text-[#7c7663] text-sm">
                 Entre em contato para receber um novo link de acesso.
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="password" className="text-zinc-300">
+                <Label htmlFor="password" className="text-[#2e3b28]">
                   Nova Senha
                 </Label>
                 <Input
@@ -97,12 +98,12 @@ export default function ResetPasswordPage() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
                   required
-                  className="mt-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600"
+                  className="mt-1 border-[#e5ddcd] bg-white text-[#2e3b28] placeholder:text-[#a8a291] focus:border-[#c6a04e]"
                 />
               </div>
 
               <div>
-                <Label htmlFor="confirmPassword" className="text-zinc-300">
+                <Label htmlFor="confirmPassword" className="text-[#2e3b28]">
                   Confirmar Senha
                 </Label>
                 <Input
@@ -112,18 +113,18 @@ export default function ResetPasswordPage() {
                   onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="Repita a senha"
                   required
-                  className="mt-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600"
+                  className="mt-1 border-[#e5ddcd] bg-white text-[#2e3b28] placeholder:text-[#a8a291] focus:border-[#c6a04e]"
                 />
               </div>
 
               {error && (
-                <p className="text-red-400 text-sm">{error}</p>
+                <p className="text-[#b5563f] text-sm">{error}</p>
               )}
 
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 mt-2"
+                className="w-full bg-[#2e3b28] hover:opacity-90 text-[#f4efe6] font-semibold py-3 mt-2"
               >
                 {isLoading ? 'Salvando...' : 'Criar Senha e Acessar'}
               </Button>
@@ -131,6 +132,6 @@ export default function ResetPasswordPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AuthShell>
   )
 }
