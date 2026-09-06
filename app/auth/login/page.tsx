@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { JardimLogo } from "@/components/jardim/logo"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -49,25 +50,36 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black p-4">
-      <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center text-white">
-            Bem-vindo de volta
+    <div className="relative flex min-h-screen items-center justify-center bg-[#2e3b28] p-4">
+      {/* Imagem de fundo do Jardim */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/jardim-login.jpg')" }}
+      />
+      {/* Leve overlay para legibilidade */}
+      <div className="absolute inset-0 bg-black/25" />
+
+      <Card className="relative w-full max-w-md border-[#e5ddcd] bg-[#faf6ef]/95 shadow-2xl backdrop-blur-sm">
+        <CardHeader className="space-y-2">
+          <div className="flex justify-center">
+            <JardimLogo className="h-14 w-14" />
+          </div>
+          <CardTitle className="text-center font-serif text-3xl text-[#2e3b28]">
+            Bem-vinda ao Jardim
           </CardTitle>
-          <CardDescription className="text-center text-zinc-400">
-            Entre com seu email e senha para acessar sua conta
+          <CardDescription className="text-center text-[#7c7663]">
+            Entre para continuar a sua jornada
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="bg-red-900/20 text-red-400 border border-red-800 rounded-lg p-3 text-sm">
+              <div className="rounded-lg border border-[#e0c3b8] bg-[#f7e6df] p-3 text-sm text-[#b5563f]">
                 {error}
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">Email</Label>
+              <Label htmlFor="email" className="text-[#2e3b28]">Email</Label>
               <Input
                 id="email"
                 name="email"
@@ -75,15 +87,15 @@ export default function LoginPage() {
                 placeholder="seu@email.com"
                 required
                 disabled={isLoading}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
+                className="border-[#e5ddcd] bg-white text-[#2d2d2d] placeholder:text-[#a8a291] focus:border-[#c6a04e] focus:ring-[#c6a04e]"
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-white">Senha</Label>
+                <Label htmlFor="password" className="text-[#2e3b28]">Senha</Label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-sm text-red-500 hover:text-red-400 hover:underline"
+                  className="text-sm text-[#b58a3c] hover:underline"
                 >
                   Esqueceu a senha?
                 </Link>
@@ -95,21 +107,21 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 required
                 disabled={isLoading}
-                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-red-600 focus:ring-red-600"
+                className="border-[#e5ddcd] bg-white text-[#2d2d2d] placeholder:text-[#a8a291] focus:border-[#c6a04e] focus:ring-[#c6a04e]"
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+              className="w-full bg-[#2e3b28] font-semibold text-[#f4efe6] hover:opacity-90"
               disabled={isLoading}
             >
               {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
-            <p className="text-sm text-center text-zinc-400">
+            <p className="text-center text-sm text-[#7c7663]">
               Não tem uma conta?{" "}
-              <Link href="/auth/register" className="text-red-500 hover:text-red-400 hover:underline font-medium">
+              <Link href="/auth/register" className="font-medium text-[#b58a3c] hover:underline">
                 Cadastre-se gratuitamente
               </Link>
             </p>
